@@ -1,23 +1,19 @@
-import { EmptyState } from "@/components/ui/EmptyState";
+import { getMatches } from "@/lib/data/source";
+import { DiscoveryStack } from "@/components/discovery/DiscoveryStack";
 
-/**
- * Discovery — peer discovery ("find your flock"). Phase 6 fills in the
- * match card + "Message now" → live DM flagship beat.
- */
-export default function DiscoveryPage() {
+export default async function DiscoveryPage() {
+  const { matches } = await getMatches();
+
   return (
-    <div className="px-4 pt-4 md:pt-8">
-      <header>
+    <div className="px-4 pt-4 md:pt-8 pb-8">
+      <header className="mb-4">
         <h1 className="text-h1 text-ink-strong">Discovery</h1>
         <p className="text-caption text-ink-soft">
-          Find your flock — other interns at your company / in your city.
+          Find your flock — other interns at your company, in your city, moving your week.
+          Tap <strong className="text-ink-strong">Message now</strong> and a live DM opens.
         </p>
       </header>
-      <EmptyState
-        title="Landing your flock"
-        body="The connection hero lands in Phase 6."
-        variant="hop"
-      />
+      <DiscoveryStack matches={matches} />
     </div>
   );
 }

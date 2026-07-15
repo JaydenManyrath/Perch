@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Person B ships only the negotiation hero screen as UI (single-owner, B10).
+ * The global app shell, real design-system layer, and mascot are Person A (A1/A2/A3).
+ * Base page tokens here mirror the frozen §3 values so B's screen is legible before
+ * A's config merges.
+ */
+:root {
+  --sky-50: #f2f9fe;
+  --ink-strong: #2c4a63;
+}
+
+body {
+  background: var(--sky-50);
+  color: var(--ink-strong);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}

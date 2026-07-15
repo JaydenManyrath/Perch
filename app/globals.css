@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Perch base layer — body text is always ink.strong on sky.50. */
+:root {
+  --ap-bg: #F2F9FE; /* sky.50 */
+  --ap-fg: #2C4A63; /* ink.strong */
+}
+
+html, body {
+  background-color: var(--ap-bg);
+  color: var(--ap-fg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100dvh;
+  overflow-x: hidden; /* WCAG rule: no horizontal body scroll (§9) */
+}
+
+/* Skeleton shimmer utility class (used by <Skeleton>). */
+.ap-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(191, 227, 247, 0.55) 0%,
+    rgba(220, 239, 251, 0.9) 50%,
+    rgba(191, 227, 247, 0.55) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Focus ring — visible on baby-blue surfaces. */
+:focus-visible {
+  outline: 2px solid #5E9BCB;
+  outline-offset: 2px;
+  border-radius: 6px;
+}

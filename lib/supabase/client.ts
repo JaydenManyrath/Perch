@@ -1,0 +1,24 @@
+"use client";
+
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { env, hasSupabase } from "@/lib/env";
+
+/**
+ * Browser Supabase client. Only ever uses NEXT_PUBLIC_ (anon) keys.
+ * Returns null when Supabase is not configured — callers must handle this
+ * (the DM UI falls back to fixture behavior when null).
+ */
+let cached: SupabaseClient | null | undefined;
+
+export function getSupabaseBrowser(): SupabaseClient | null {
+  if (cached !== undefined) return cached;
+  if (!hasSupabase()) {
+    cached = null;
+    return null;
+  }
+  cached = createClient(env.supabase.url, env.supabase.anonKey, {
+    realtime: { params: { eventsPerSecond: 10 } },
+    auth: { persistSession: true, autoRefreshToken: true },
+  });
+  return cached;
+}

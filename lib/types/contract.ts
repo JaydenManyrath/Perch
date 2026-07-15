@@ -55,19 +55,26 @@ export type MatchesResponse = {
 // ─────────────────────────────────────────────────────────────
 // §4.3 — POST /api/negotiate  (streamed) — Person B owns; A only holds types
 // ─────────────────────────────────────────────────────────────
+export type NegotiateConstraints = {
+  monthlyBudget: number; // USD
+  moveIn: string;        // ISO
+  moveOut: string;       // ISO
+  routineAnchors?: {
+    label: string;
+    lat: number;
+    lng: number;
+  }[];
+};
+
 export type NegotiateRequest = {
   listingIds: string[];
-  constraints: {
-    monthlyBudget: number; // USD
-    moveIn: string;        // ISO
-    moveOut: string;       // ISO
-    routineAnchors?: {
-      label: string;
-      lat: number;
-      lng: number;
-    }[];
-  };
+  constraints: NegotiateConstraints;
 };
+
+/** Scout check enum used by the streamed verdicts. */
+export type ScoutCheck = "budget" | "safety" | "lease_fit" | "routine_fit";
+/** Verdict enum — maps to func.pass / func.flag / func.scam. */
+export type Verdict = "pass" | "flag" | "fail";
 
 export type NegotiateStreamEvent =
   | { type: "listing_start"; listingId: string; title: string }
@@ -217,6 +224,9 @@ export const POSITIVE_STICKER_CATEGORIES = [
   "great_food",
   "green_space",
 ] as const;
+
+/** Alias used by Person B's code; identical to POSITIVE_STICKER_CATEGORIES. */
+export const STICKER_CATEGORIES = POSITIVE_STICKER_CATEGORIES;
 
 export type StickerCategory = (typeof POSITIVE_STICKER_CATEGORIES)[number];
 

@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { PerchTray } from "@/components/stories/PerchTray";
 import { getListings } from "@/lib/data/source";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
@@ -11,11 +13,19 @@ export default async function StoriesPage() {
 
   return (
     <div className="px-4 pt-4 md:pt-8 pb-8">
-      <header>
-        <h1 className="text-h1 text-ink-strong">Perches</h1>
-        <p className="text-caption text-ink-soft">
-          Sublets that fit a ~10-week internship. Tap a bubble to open.
-        </p>
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-h1 text-ink-strong">Perches</h1>
+          <p className="text-caption text-ink-soft">
+            Sublets that fit a ~10-week internship. Tap a bubble to open.
+          </p>
+        </div>
+        <Link
+          href="/negotiate"
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-2xl bg-accent-beak text-white text-caption font-semibold px-3 py-2 shadow-card hover:bg-accent-beakDeep transition-colors"
+        >
+          Negotiate <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+        </Link>
       </header>
 
       <div className="mt-4">

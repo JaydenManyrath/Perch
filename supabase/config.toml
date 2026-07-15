@@ -1,0 +1,32 @@
+# Supabase local config (Person B — B1). `supabase db reset` applies /migrations in
+# order against a local Postgres. Project ref is set at `supabase link` time.
+project_id = "perch"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+# Dev mode: no production verification flows (CLAUDE.md §2). Email auth for the demo.
+site_url = "http://localhost:3000"
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+[storage]
+enabled = true

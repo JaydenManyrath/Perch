@@ -8,6 +8,10 @@ const nextConfig = {
       { protocol: "https", hostname: "api.dicebear.com" },
     ],
   },
+  // pdf-parse is a server-only CommonJS module — keep it external to the server bundle (from Person B).
+  experimental: {
+    serverComponentsExternalPackages: ["pdf-parse"],
+  },
 };
 
 export default nextConfig;

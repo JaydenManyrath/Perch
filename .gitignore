@@ -26,13 +26,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# SECRETS — never commit (see CLAUDE.md §8.4 / §10b)
+# SECRETS — never commit (see CLAUDE.md §8.4 / §10b). Ignore ALL .env* except the
+# committed template .env.example (FOUNDATION-CONTRACT §6 item 3 / plan §3).
 .env
-.env*.local
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env*
+!.env.example
 
 # vercel
 .vercel

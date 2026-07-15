@@ -30,6 +30,12 @@ export default function RootPage() {
             Skip to the app shell
           </Link>
           <Link
+            href="/negotiate"
+            className="rounded-2xl bg-accent-beak hover:bg-accent-beakDeep text-white font-semibold py-3 text-center shadow-card transition-colors"
+          >
+            Try the negotiation hero
+          </Link>
+          <Link
             href="/tokens"
             className="text-caption text-ink-soft hover:text-ink-strong underline underline-offset-2"
           >

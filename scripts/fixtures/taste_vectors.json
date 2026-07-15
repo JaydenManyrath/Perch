@@ -1,0 +1,7 @@
+{
+  "_note": "Fallback Spotify taste vector (B5). Used when COMPOSIO_DISABLED=1 or the Composio spike is a no-go, so taste_profile is always populated (plan §2.3).",
+  "topArtists": ["Phoenix", "Bonobo", "Caribou", "Khruangbin", "Jamie xx"],
+  "topGenres": ["indie", "electronic", "techno", "house", "live"],
+  "topTracks": ["Lisztomania", "Kerala", "Odessa", "Time (You and I)", "Gosh"],
+  "energy": 0.62
+}

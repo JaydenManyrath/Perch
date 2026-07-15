@@ -1,0 +1,22 @@
+{
+  "_note": "Trimmed Google-Maps-Takeout-style fixture (simple {visits} shape). Pre-loaded so the life-map + negotiation demo never depend on a live upload (plan §7).",
+  "visits": [
+    { "lat": 47.6150, "lng": -122.3400, "name": "Victrola Coffee Roasters", "category": "coffee shop" },
+    { "lat": 47.6151, "lng": -122.3401, "name": "Victrola Coffee Roasters", "category": "coffee shop" },
+    { "lat": 47.6149, "lng": -122.3399, "name": "Victrola Coffee Roasters", "category": "coffee shop" },
+    { "lat": 47.6150, "lng": -122.3402, "name": "Victrola Coffee Roasters", "category": "coffee shop" },
+    { "lat": 47.6152, "lng": -122.3400, "name": "Victrola Coffee Roasters", "category": "coffee shop" },
+    { "lat": 47.6148, "lng": -122.3401, "name": "Victrola Coffee Roasters", "category": "coffee shop" },
+
+    { "lat": 47.6180, "lng": -122.3450, "name": "Seattle Bouldering Project", "category": "climbing gym" },
+    { "lat": 47.6181, "lng": -122.3451, "name": "Seattle Bouldering Project", "category": "climbing gym" },
+    { "lat": 47.6179, "lng": -122.3449, "name": "Seattle Bouldering Project", "category": "climbing gym" },
+    { "lat": 47.6180, "lng": -122.3452, "name": "Seattle Bouldering Project", "category": "climbing gym" },
+
+    { "lat": 47.6205, "lng": -122.3493, "name": "QFC Broadway", "category": "grocery store" },
+    { "lat": 47.6206, "lng": -122.3494, "name": "QFC Broadway", "category": "grocery store" },
+    { "lat": 47.6204, "lng": -122.3492, "name": "QFC Broadway", "category": "grocery store" },
+
+    { "lat": 47.6062, "lng": -122.3321, "name": "The Crocodile", "category": "live music venue" }
+  ]
+}

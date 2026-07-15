@@ -1,1 +1,61 @@
-/* Mascot keyframes — filled in Phase 1. Kept as an import target so the app boots. */
+/* Perch mascot animations.
+ *
+ * All motion loops are GATED behind @media (prefers-reduced-motion: no-preference).
+ * With reduced motion on, the classes have transform-box + transform-origin set
+ * but no `animation`, so the SVG falls back to its static pose (contract §3).
+ */
+
+@keyframes apBreathe {
+  0%,
+  100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.015); }
+}
+@keyframes apWingSwaySlow {
+  0%,
+  100% { transform: rotate(0deg); }
+  50% { transform: rotate(-6deg); }
+}
+@keyframes apBlink {
+  0%,
+  92%,
+  100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+@keyframes apHop {
+  0%,
+  100% { transform: translateY(0); }
+  30% { transform: translateY(-26px); }
+  55% { transform: translateY(0); }
+  65% { transform: translateY(-6px); }
+  75% { transform: translateY(0); }
+}
+@keyframes apFlap {
+  0%,
+  100% { transform: rotate(0deg); }
+  50% { transform: rotate(-20deg); }
+}
+@keyframes apShadow {
+  0%,
+  100% { transform: scale(1); opacity: 0.16; }
+  30% { transform: scale(0.7); opacity: 0.08; }
+}
+
+/* Anchor classes — transform-box + transform-origin baked in.
+ * The animation is applied only inside the prefers-reduced-motion gate below.
+ */
+.ap-breathe   { transform-box: fill-box; transform-origin: 50% 92%; }
+.ap-wing-sway { transform-box: fill-box; transform-origin: 96% 68%; }
+.ap-blink     { transform-box: fill-box; transform-origin: center; }
+.ap-hop       { transform-box: fill-box; transform-origin: 50% 92%; }
+.ap-flap      { transform-box: fill-box; transform-origin: 96% 68%; }
+.ap-shadow    { transform-box: fill-box; transform-origin: center; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ap-breathe   { animation: apBreathe 3.4s ease-in-out infinite; }
+  .ap-wing-sway { animation: apWingSwaySlow 3.4s ease-in-out infinite; }
+  .ap-blink-slow { animation: apBlink 3.8s ease-in-out infinite; }
+  .ap-blink-mid  { animation: apBlink 4.6s ease-in-out infinite; }
+  .ap-hop       { animation: apHop 0.9s ease-in-out infinite; }
+  .ap-flap      { animation: apFlap 0.45s ease-in-out infinite; }
+  .ap-shadow    { animation: apShadow 0.9s ease-in-out infinite; }
+}

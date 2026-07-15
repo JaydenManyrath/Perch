@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="336" viewBox="0 -30 260 336">
+  <defs>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"></feGaussianBlur></filter>
+    <filter id="soft2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"></feGaussianBlur></filter>
+
+    <g id="apWing">
+      <path d="M88,184 C60,196 30,190 17,166 C11,153 21,145 33,152 C43,158 58,168 74,172 C82,174 88,178 90,182 Z" fill="#8FC7E8"></path>
+      <path d="M30,162 C41,159 53,163 63,167" stroke="#5E7E97" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8"></path>
+      <path d="M26,169 C37,167 49,170 59,173" stroke="#5E7E97" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.7"></path>
+      <path d="M18,161 C24,159 30,160 35,163" stroke="#F7FBFC" stroke-width="4" fill="none" stroke-linecap="round"></path>
+    </g>
+    <g id="apCore">
+      <ellipse cx="130" cy="176" rx="98" ry="98" fill="#CDEBE6" opacity="0.6" filter="url(#soft2)"></ellipse>
+      <circle cx="130" cy="176" r="95" fill="#AEE4DE"></circle>
+      <ellipse cx="130" cy="240" rx="72" ry="34" fill="#5FA79B" opacity="0.16" filter="url(#soft2)"></ellipse>
+      <path d="M126,61 C121,48 119,38 122,31 C126,34 128,46 129,60 Z" fill="#8FC7E8"></path>
+      <path d="M135,61 C139,49 143,40 142,32 C137,35 133,47 132,60 Z" fill="#8FC7E8"></path>
+      <path d="M130,62 C127,46 128,33 131,26 C135,33 134,49 133,61 Z" fill="#9AD0EF"></path>
+      <path d="M37,150 C37,96 80,60 130,60 C180,60 223,96 223,150 C223,182 206,193 182,196 C170,197 162,205 148,205 C140,205 137,200 130,200 C123,200 120,205 112,205 C98,205 92,197 78,196 C54,193 37,182 37,150 Z" fill="#F7FBFC"></path>
+      <path d="M62,197 C92,207 168,207 198,197" stroke="#7FB9C9" stroke-width="9" opacity="0.15" fill="none" stroke-linecap="round" filter="url(#soft)"></path>
+      <ellipse cx="92" cy="106" rx="30" ry="19" fill="#ffffff" opacity="0.45" filter="url(#soft2)" transform="rotate(-24 92 106)"></ellipse>
+      <path d="M121,150 C125,148 135,148 139,150 C141,151 141,154 139,156 L132,164 C130.5,166 129.5,166 128,164 L121,156 C119,154 119,151 121,150 Z" fill="#F6A22C"></path>
+      <path d="M125,158 C129,160 133,160 137,158 L132,164 C130.5,166 129.5,166 128,164 Z" fill="#E5851C"></path>
+    </g>
+    <g id="apFeet" fill="#E9A24C">
+      <g transform="translate(116,256)"><ellipse cx="-5" cy="7" rx="2.8" ry="7" transform="rotate(-22 -5 7)"></ellipse><ellipse cx="0" cy="8" rx="3" ry="7.6"></ellipse><ellipse cx="5" cy="7" rx="2.8" ry="7" transform="rotate(22 5 7)"></ellipse></g>
+      <g transform="translate(146,256)"><ellipse cx="-5" cy="7" rx="2.8" ry="7" transform="rotate(-22 -5 7)"></ellipse><ellipse cx="0" cy="8" rx="3" ry="7.6"></ellipse><ellipse cx="5" cy="7" rx="2.8" ry="7" transform="rotate(22 5 7)"></ellipse></g>
+    </g>
+    <g id="eyes">
+      <circle cx="108" cy="147" r="6.8" fill="#2B333B"></circle>
+      <circle cx="152" cy="147" r="6.8" fill="#2B333B"></circle>
+      <circle cx="105.6" cy="144.4" r="1.9" fill="#fff" opacity="0.9"></circle>
+      <circle cx="149.6" cy="144.4" r="1.9" fill="#fff" opacity="0.9"></circle>
+    </g>
+    <g id="blush">
+      <ellipse cx="93" cy="161" rx="12" ry="7.5" fill="#F2A69E" opacity="0.5"></ellipse>
+      <ellipse cx="167" cy="161" rx="12" ry="7.5" fill="#F2A69E" opacity="0.5"></ellipse>
+    </g>
+  </defs>
+
+  <ellipse cx="130" cy="290" rx="70" ry="10" fill="#2C4A63" style="animation:apShadow 0.9s ease-in-out infinite;transform-box:fill-box;transform-origin:center"></ellipse>
+  <g style="animation:apHop 0.9s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 92%">
+    <g style="animation:apFlap 0.45s ease-in-out infinite;transform-box:fill-box;transform-origin:96% 68%"><use href="#apWing"></use></g>
+    <g transform="matrix(-1 0 0 1 260 0)"><g style="animation:apFlap 0.45s ease-in-out infinite;transform-box:fill-box;transform-origin:96% 68%"><use href="#apWing"></use></g></g>
+    <use href="#apCore"></use>
+    <use href="#apFeet"></use>
+    <g style="animation:apBlink 4.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center"><use href="#eyes"></use></g>
+    <use href="#blush"></use>
+  </g>
+</svg>

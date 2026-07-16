@@ -3,6 +3,8 @@
 > **The single anti-drift artifact.** Both people on the Perch build implement against THIS document. If code and this doc disagree, either fix the code or amend this doc in a PR that both people review - never let them silently diverge. Data model (§2), design token names+hex (§3), and API shapes (§4-§5) are the frozen seams. Change them only by editing this file first.
 >
 > **Round 2 (2026-07-16):** the v1 app is built and merged to `main`. New feature seams (auto-sourced sublets + freshness, swipe perches, subletter posting, Airbnb-style reviews, Ticketmaster events + intern attendance, offer-parser hardening, map icons, tappable profiles) are specified in **§11**. Round 2 is split THREE ways (branches `person-a`, `person-b`, `person-c`) - ownership map in §11.11, working agreements in §11.12. Per-person plans: `docs/IMPLEMENTATION-PERSON-A-ROUND2.md` (all UI), `docs/IMPLEMENTATION-PERSON-B-ROUND2.md` (schema + core APIs), `docs/IMPLEMENTATION-PERSON-C-ROUND2.md` (integrations + AI).
+>
+> **Round 2, batch 2 (2026-07-16):** still Round 2 - more features (comments move from the feed to the map, event comments + going Y/N poll + feed pictures, friends, an Instagram-Notes strip in DMs, removal of the front-page dev shortcuts, and an apartment-to-office route with along-route POI selection and a generated schedule) - specified in **§12**, same three-way split, added to the existing round-2 plans (`docs/IMPLEMENTATION-PERSON-{A,B,C}-ROUND2.md`).
 
 Perch is an Instagram-shaped social app that helps interns land in a new city - find other interns (flock) and short-term sublets (perches), warm up to the place before arrival. Full product context lives in `CLAUDE.md`. This is a **demo build in dev/test mode** (no production auth/verification/review flows). Stack is **LOCKED**: Next.js + TypeScript, Tailwind, shadcn/ui, Framer Motion, Supabase (DB/Auth/Realtime/Storage), OpenAI via Vercel AI SDK, Composio (Spotify + IG Business OAuth), Mapbox, Vercel.
 
@@ -708,3 +710,108 @@ Boundary rule between B and C: B owns the database (migrations, RLS, seed) and t
 - Three branches: `person-a` (all UI), `person-b` (schema + core CRUD APIs), `person-c` (background pipelines, external integrations, AI parsing). B and C both touch the backend, so coordinate: schema/migrations/RLS are always B (in the contract first); C builds pipelines and integrations ON TOP of B's schema and keeps B's data fresh. When C needs a new column, B adds it.
 - Freshness and trust: never surface a `taken`/`stale`/expired listing in the perches deck; expiry + confirm pings keep the deck honest.
 - Reviews and sourcing carry real trust weight: seed reviews are clearly demo content, sourced listings are marked `sourced=true`, and no "avoid/unsafe" framing leaks into any surface (stickers stay positive-only).
+
+---
+
+## 12. Round 2 - Additional Features / batch 2 (2026-07-16)
+
+Still ROUND 2 - a second batch on top of §11, same THREE-way split (A = all UI, B = schema + core CRUD APIs, C = integrations + AI) and the same working agreements (§11.12). These are added to the existing per-person round-2 plans: `docs/IMPLEMENTATION-PERSON-A-ROUND2.md`, `docs/IMPLEMENTATION-PERSON-B-ROUND2.md`, `docs/IMPLEMENTATION-PERSON-C-ROUND2.md` (no separate round-3 docs).
+
+### 12.1 Comments move from the Feed to the Map
+The Flyway feed no longer interleaves past-intern notes/comments; the feed is EVENTS ONLY (with pictures, §12.2). Notes/comments become MAP-ANCHORED, each rendered as a placeholder marker at its location.
+- Schema: `notes` gains `lat double precision` and `lng double precision` (nullable; when set, the note is a map comment). B.
+- API: `GET /api/map/comments?bbox=minLng,minLat,maxLng,maxLat` (notes with lat/lng in view) and `POST /api/map/comments { lat, lng, topic, body }` to drop a comment. B.
+- A: remove the `NoteThread` interleave from `app/(shell)/feed/page.tsx`; render map comments as placeholders on the map with a read/add sheet.
+
+### 12.2 Event comments + going Y/N poll + pictures (Flyway)
+- Event comments: new `comments` table (event-scoped): `id`, `event_id` fk events, `author_id` fk users, `body`, `created_at`. RLS: authed read, author-only write. `GET`/`POST /api/events/{id}/comments`. B builds; A renders a composer + list on the event card.
+- Going Y/N poll: reuse `event_attendance` (round 2) as a going yes/no - a row present means going. `POST /api/events/{id}/attend { going: boolean }` -> `{ going: number, viewerGoing: boolean }`. B; A renders a Yes/No poll + the count of interns going on the event card.
+- Pictures: event cards render an image (`events.image_url`, from Ticketmaster/seed). A renders; B/C ensure `image_url` is populated.
+
+### 12.3 Friends
+- New `friendships` table: `id`, `requester_id` fk users, `addressee_id` fk users, `status text check (status in ('pending','accepted'))`, `created_at`; `unique (requester_id, addressee_id)`. RLS: only the two participants can read/act on a row. B.
+- API: `GET /api/friends` (accepted), `GET /api/friends/requests` (incoming pending), `POST /api/friends/request { userId }`, `POST /api/friends/{id}/accept`, `POST /api/friends/{id}/decline`. B.
+- A: add-friend button on profiles / discovery / match cards; a friends list; a requests inbox.
+
+### 12.4 DMs Instagram-Notes strip (friends going to events)
+- A "Notes"-style strip at the top of the DMs list showing friends who are going to an event (e.g. "Alex is going to Fred again..").
+- API: `GET /api/friends/notes` -> `FriendNote[]` (each: friend + the event they are going to), by joining accepted `friendships` with `event_attendance` (going). B.
+- A: render the strip (Instagram-Notes-style bubbles) above the conversation list in the DMs screen.
+
+### 12.5 Remove dev shortcuts from the front page
+- `app/page.tsx`: remove the "Skip to the app shell" (-> `/feed`) and "Try the negotiation hero" (-> `/negotiate`) links. Keep "Start onboarding" as the entry; the housing/negotiation flow is reached through onboarding and the perches flow, not a front-page shortcut. A only. (The `/negotiate` and `/feed` routes stay; only the front-page shortcuts go.)
+
+### 12.6 Apartment -> office route + POIs along route + schedule
+After selecting an apartment (a perch), the map draws the commute route from the user's office to the apartment in a color; the user picks favorite POIs (coffee shop, gym) ALONG the route; a schedule is generated from those selections.
+- Route (integration): `POST /api/route { officeLat, officeLng, apartmentLat, apartmentLng }` -> `RouteResponse { geometry (GeoJSON LineString), distanceMeters, durationSeconds }`. Mapbox Directions API; seeded/straight-line fallback with no key. C. Office coords come from the user's employer (C geocodes the employer, or seeded company coords).
+- POIs along route (deterministic): `POST /api/route/pois { geometry, kinds: ["coffee","gym"] }` -> `RoutePoi[]` (the user's places plus optional candidates near the route corridor, each with `distanceFromRouteMeters`). Deterministic point-to-polyline distance. B (candidates from C's POI search when beyond the user's existing places).
+- Schedule (from selections): `POST /api/route/schedule { apartmentId, selectedPlaceIds }` -> a day schedule anchored on the commute (extends the itinerary engine, `ItineraryDay`). B.
+- Persistence (optional): a `commute_plans` table (`user_id`, `listing_id`, `office_lat/lng`, `selected_place_ids[]`, `created_at`) if the selection/schedule should persist; mark optional for the demo. B.
+- A: after apartment selection, render the colored route polyline on the map, show selectable POIs along it, and display the generated schedule.
+
+### 12.7 Frozen types for this batch (add to `lib/types/contract.ts`)
+```ts
+// Map comments (notes gain a location)
+// NoteRow additions: lat: number | null; lng: number | null;
+export type MapComment = {
+  id: string;
+  author: { id: string; name: string; avatarUrl: string | null };
+  lat: number;
+  lng: number;
+  topic: string;
+  body: string;
+  createdAt: string;
+};
+
+// Event comments
+export type EventComment = {
+  id: string;
+  eventId: string;
+  author: { id: string; name: string; avatarUrl: string | null };
+  body: string;
+  createdAt: string;
+};
+export type EventCommentsResponse = { comments: EventComment[] };
+
+// Going Y/N poll (this REVISES the AttendResponse from §11.10; use this final form)
+export type AttendInput = { going: boolean };
+export type AttendResponse = { going: number; viewerGoing: boolean };
+
+// Friends
+export type FriendStatus = "pending" | "accepted";
+export type Friend = {
+  user: { id: string; name: string; avatarUrl: string | null; company: string };
+  status: FriendStatus;
+  direction?: "incoming" | "outgoing";
+};
+export type FriendsResponse = { friends: Friend[] };
+export type FriendNote = {
+  friend: { id: string; name: string; avatarUrl: string | null };
+  event: { id: string; title: string; datetime: string };
+};
+export type FriendNotesResponse = { notes: FriendNote[] };
+
+// Commute route + POIs along route + schedule
+export type GeoJSONLineString = { type: "LineString"; coordinates: [number, number][] };
+export type RouteResponse = { geometry: GeoJSONLineString; distanceMeters: number; durationSeconds: number };
+export type RoutePoi = {
+  place: { id: string; label: string; kind: string; lat: number; lng: number };
+  distanceFromRouteMeters: number;
+};
+export type RoutePoisResponse = { pois: RoutePoi[] };
+export type CommuteScheduleResponse = { day: ItineraryDay }; // reuse ItineraryDay from §4.4
+```
+
+### 12.8 Ownership map (round 2, batch 2)
+| Feature | Person A (consumer UI) | Person B (schema + core API) | Person C (integrations + AI) |
+|---|---|---|---|
+| Comments move to map | remove notes from feed; map comment placeholders + read/add sheet | `notes.lat/lng`; `GET`/`POST /api/map/comments` | - |
+| Event comments | composer + list on event card | `comments` table + `GET`/`POST /api/events/{id}/comments` | - |
+| Event going Y/N poll + pictures | Yes/No poll + count; render event images | `event_attendance` as Y/N; `POST /api/events/{id}/attend { going }`; feed image passthrough | `image_url` from Ticketmaster (round-2 RC3) |
+| Friends | add-friend button, friends list, requests inbox | `friendships` table + RLS + friends API | - |
+| DMs Notes strip | Instagram-Notes strip in DMs | `GET /api/friends/notes` (join friends + attendance) | - |
+| Remove front-page shortcuts | delete skip + negotiation links in `app/page.tsx` | - | - |
+| Apartment route + POIs + schedule | colored route on map + POI-along-route selection + schedule view | `POST /api/route/pois` (deterministic), `POST /api/route/schedule`, optional `commute_plans` | `POST /api/route` (Mapbox Directions), office geocode, POI search along route |
+
+### 12.9 Working agreements (unchanged from §11.12)
+Plain ASCII; update README + `docs/PROGRESS.md` every merge; contract-first types in `lib/types/contract.ts`; the three-way B/C boundary (schema is B; anything reaching out / background / AI is C); least-privilege read-only external keys; rate-limit every route.

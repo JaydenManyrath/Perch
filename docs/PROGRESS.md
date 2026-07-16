@@ -70,8 +70,37 @@ Split THREE ways: Person A (all UI), Person B (schema + core CRUD APIs), Person 
 - [todo] RC4 Offer parser hardening: broader formats + OCR for scanned PDFs + per-field confidence/needsReview in the parser and /api/parse/offer response
 - [todo] RC5 Seed sourced listings via the adapter (demo dataset incl. one near-expiry) + Ticketmaster-shaped events; coordinate with B's base seed
 
+## Round 2 - Additional features / batch 2 (planned 2026-07-16)
+
+Still Round 2, same three-way split. Seams: FOUNDATION-CONTRACT.md §12. Added to the existing round-2 plans (IMPLEMENTATION-PERSON-{A,B,C}-ROUND2.md), continuing each person's numbering.
+
+### Person A (round 2, batch 2) - branch person-a - all UI
+- [todo] RA11 Remove NoteThread interleave from the feed; feed is events-only
+- [todo] RA12 Map comment placeholders + read/add sheet on the map (notes move here)
+- [todo] RA13 Event comments UI (composer + list) on the event card
+- [todo] RA14 Event going Y/N poll + "N interns going" count on the event card
+- [todo] RA15 Feed pictures (render event images)
+- [todo] RA16 Friends UI: add-friend button + friends list + requests inbox
+- [todo] RA17 DMs Instagram-Notes strip (friends going to events)
+- [todo] RA18 Remove front-page dev shortcuts (skip-to-shell, negotiation) in app/page.tsx
+- [todo] RA19 Apartment route on map (colored) + POI-along-route selection + schedule view
+
+### Person B (round 2, batch 2) - branch person-b - schema + core APIs
+- [todo] RB9 notes.lat/lng (map comments) + GET/POST /api/map/comments
+- [todo] RB10 comments table + RLS + GET/POST /api/events/{id}/comments
+- [todo] RB11 event_attendance as going Y/N; POST /api/events/{id}/attend { going } -> { going, viewerGoing }; feed image passthrough
+- [todo] RB12 friendships table + RLS + friends API (list, requests, request/accept/decline)
+- [todo] RB13 GET /api/friends/notes (accepted friends joined with event_attendance)
+- [todo] RB14 /api/route/pois (deterministic along-route filter) + /api/route/schedule (extends itinerary) + optional commute_plans table
+
+### Person C (round 2, batch 2) - branch person-c - integrations + AI
+- [todo] RC6 POST /api/route: Mapbox Directions (office -> apartment) polyline + distance/duration + seeded fallback
+- [todo] RC7 Office geocode from employer (Mapbox geocoding, seeded company coords fallback)
+- [todo] RC8 POI search along the route corridor (Mapbox) for coffee/gym candidates beyond the user's own places
+
 ## Log
 
 - 2026-07-16: Round 1 merged to main.
 - 2026-07-16: Round 2 planned; contract §11, sourcing proposal, and per-person round-2 plans added.
 - 2026-07-16: Round 2 re-split three ways (A = UI, B = schema + core APIs, C = integrations + AI); person-c branch added.
+- 2026-07-16: Round 2 batch 2 planned (comments to map, event comments + going poll, feed pictures, friends, DMs notes strip, front-page cleanup, apartment route + schedule); added to the same three round-2 plans.

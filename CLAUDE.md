@@ -270,4 +270,20 @@ Decisions resolved: §12.1 both heroes are live (v1 shipped); §12.4 stickers st
 
 ---
 
+## 14. Round 2 - Additional Scope / batch 2 (2026-07-16)
+
+Still Round 2, a second batch keeping the three-way split (person-a UI, person-b schema + core APIs, person-c integrations + AI). Full seams are in `docs/FOUNDATION-CONTRACT.md` §12; these features are added to the existing round-2 plans (`docs/IMPLEMENTATION-PERSON-{A,B,C}-ROUND2.md`), not a separate round.
+
+1. Comments leave the Flyway feed and live on the map: past-intern notes/comments become map-anchored placeholders; the feed is events-only.
+2. On the Flyway, each event gets a comment thread and a going yes/no poll that shows how many interns are going.
+3. Feed events show pictures.
+4. Friends: interns can add each other (request/accept), with a friends list and a requests inbox.
+5. DMs get an Instagram-Notes-style strip showing which friends are going to which events.
+6. The front page loses its dev shortcuts ("skip to the app shell", "try the negotiation hero"); onboarding is the entry.
+7. After selecting an apartment, the map draws the commute route from the user's office to the apartment in a color; the user picks favorite POIs (coffee, gym) along the route; a schedule is generated from those selections.
+
+Decisions: the commute route uses the Mapbox Directions API (seeded/straight-line fallback) with the office geocoded from the employer; the going poll reuses the round-2 `event_attendance` table as a yes/no; map comments reuse `notes` with added lat/lng.
+
+---
+
 *End of reference. Stack is locked; §8 and §12 are where the real work and decisions live.*

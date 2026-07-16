@@ -9,7 +9,7 @@ Docs style: plain ASCII only (no emojis, no em-dashes). Every merge to `main` up
 ## Status
 
 - Round 1 (v1 app): DONE, merged to `main`. Full Instagram-shaped app on seed/fixture data with both heroes wired (streaming negotiation and the live intern-connection beat). See [docs/PROGRESS.md](docs/PROGRESS.md).
-- Round 2: PLANNED. Auto-sourced sublets + freshness, swipe perches, subletter posting, Airbnb-style reviews, Ticketmaster events + intern attendance, offer-parser hardening, map icons, tappable profiles. Seams in [FOUNDATION-CONTRACT.md §11](docs/FOUNDATION-CONTRACT.md).
+- Round 2: PLANNED (two batches). Batch 1 (§11): auto-sourced sublets + freshness, swipe perches, subletter posting, Airbnb-style reviews, Ticketmaster events + intern attendance, offer-parser hardening, map icons, tappable profiles. Batch 2 (§12): comments move from the feed to the map, event comments + going yes/no poll + feed pictures, friends, an Instagram-Notes strip in DMs, front-page cleanup, and an apartment-to-office route with along-route POI selection and a generated schedule. Seams in [FOUNDATION-CONTRACT.md §11-§12](docs/FOUNDATION-CONTRACT.md).
 
 ## The stack (locked)
 
@@ -25,7 +25,7 @@ Round 1 (v1 app) was split two ways; round 2 is split THREE ways.
 | [person-b](../../tree/person-b) | Intelligence, Data & Hero | Schema + core CRUD APIs | `docs/IMPLEMENTATION-PERSON-B.md` | `docs/IMPLEMENTATION-PERSON-B-ROUND2.md` |
 | [person-c](../../tree/person-c) | (new in round 2) | Integrations + AI (sourcing pipeline + freshness jobs, Ticketmaster, OCR parser) | - | `docs/IMPLEMENTATION-PERSON-C-ROUND2.md` |
 
-All three build against the shared interface in [docs/FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md). The round-2 ownership map and seams are §11 of that file; the sourcing design is [docs/SOURCING-PROPOSAL.md](docs/SOURCING-PROPOSAL.md).
+All three build against the shared interface in [docs/FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md). The round-2 ownership maps and seams are §11 (batch 1) and §12 (batch 2) of that file; the sourcing design is [docs/SOURCING-PROPOSAL.md](docs/SOURCING-PROPOSAL.md). Both batches live in the same per-person round-2 plans (`docs/IMPLEMENTATION-PERSON-{A,B,C}-ROUND2.md`).
 
 ## Run it locally
 

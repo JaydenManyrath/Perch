@@ -340,10 +340,14 @@ export async function getPerchDeck(): Promise<PerchDeckResponse> {
     const r = await safeFetchJson<PerchDeckResponse>("/api/perches");
     if (r) return r;
   }
+  // Rebuild the deck on every call so a listing that just went to status='taken'
+  // (via a confirmed booking, RA34) drops out immediately - the pre-computed
+  // fixture only sees the initial state.
+  const freshCards = fx.listingsFixture
+    .filter((l) => (l.status ?? "available") === "available")
+    .map((l) => fx.buildPerchCard(l));
   return {
-    deck: fx.perchDeckFixture.deck.filter(
-      (c) => !swipedRight.has(c.id) && !swipedLeft.has(c.id),
-    ),
+    deck: freshCards.filter((c) => !swipedRight.has(c.id) && !swipedLeft.has(c.id)),
   };
 }
 

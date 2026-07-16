@@ -3,6 +3,7 @@ import { getMe, getListings } from "@/lib/data/source";
 import { sublettersFixture } from "@/lib/fixtures";
 import { PostListingForm } from "@/components/post/PostListingForm";
 import { SubletterListings } from "@/components/post/SubletterListings";
+import { BookingsInbox } from "@/components/booking/BookingsInbox";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Chip } from "@/components/ui/Chip";
 import { Button } from "@/components/ui/Button";
@@ -58,6 +59,8 @@ export default async function PostPage({ searchParams }: { searchParams: { as?: 
       </header>
 
       <PostListingForm />
+
+      <BookingsInbox subletterId={acting.id} />
 
       <SubletterListings listings={listings} />
     </div>

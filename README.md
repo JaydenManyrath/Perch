@@ -4,56 +4,52 @@ The social network interns use to land in a new city: find your flock (roommates
 
 Demo build in dev/test mode (no production auth/verification). Full context in [CLAUDE.md](CLAUDE.md).
 
-Docs style: plain ASCII only (no emojis, no em-dashes). Every merge to `main` updates this README and [docs/PROGRESS.md](docs/PROGRESS.md).
+Docs style: plain ASCII only (no emojis, no em-dashes).
 
 ## Status
 
-- Round 1 (v1 app): DONE, merged to `main`. Full Instagram-shaped app on seed/fixture data with both heroes wired (streaming negotiation and the live intern-connection beat). See [docs/PROGRESS.md](docs/PROGRESS.md).
-- Round 2 Person A (all UI): DONE on `person-a`, both batches (RA1-RA19). Perches swipe deck + saved tray, subletter posting + freshness confirm, Airbnb-style reviews on perches and on subletter profiles, tappable profiles, Google-Maps-style icons + legend + event pins, event card with picture + venue + Going Y/N poll + comments, offer manual-correction, feed events-only, map comments with placeholders + read/add, friends UI (add + list + requests), DMs Instagram-Notes strip, front-page cleanup, and apartment -> office colored route + along-route POI selection + generated schedule. Full walkthrough in [docs/IMPLEMENTATION-PERSON-A-ROUND2.md](docs/IMPLEMENTATION-PERSON-A-ROUND2.md).
-- Round 2 Person B (schema + core CRUD APIs): PLANNED (RB1-RB14). See [docs/IMPLEMENTATION-PERSON-B-ROUND2.md] and PROGRESS.md.
-- Round 2 Person C (integrations + AI): PLANNED (RC1-RC8). See [docs/IMPLEMENTATION-PERSON-C-ROUND2.md] and PROGRESS.md.
+- Round 1 (v1 app): DONE. The full Instagram-shaped shell on seed/fixture data, plus the streaming housing negotiation and the live intern-connection beat.
+- Round 2: DONE. UI + APIs + integrations all merged to `main`.
+  - All UI: perches swipe deck + saved tray, subletter posting + freshness confirm, Airbnb-style reviews on perches and on subletter profiles, tappable profiles, Google-Maps-style icons + legend + event pins, event card with picture + venue + Going Y/N poll + comments, offer manual-correction, feed events-only, map comments with placeholders + read/add, friends UI (add + list + requests), DMs Instagram-Notes strip, front-page cleanup, apartment -> office road-following route + along-route POI selection + generated schedule, Message-on-profile.
+  - Schema + core APIs: user_type + freshness columns; listing_swipes, reviews, event_attendance, comments, friendships, map-comment notes; API routes for perches (deck/swipe/saved), listings (post/confirm), reviews, event attendance/comments, friends (list/requests/request/accept/decline/notes), map comments, public profiles, route POIs + schedule.
+  - Integrations + AI: sourcing pipeline (adapter + normalize + dedupe + ingest), freshness expiry job, "still available?" ping dispatch, Ticketmaster Discovery API + /api/events/nearby + seeded fallback, offer parser hardening (confidence + needsReview + OCR + broader formats), Mapbox Directions POST /api/route + geocode + along-route POI search.
 
-Seams for round 2: [FOUNDATION-CONTRACT.md sections 11 and 12](docs/FOUNDATION-CONTRACT.md). Person A ships against fixtures that mirror the frozen shapes exactly; flipping to live is a data-source env switch once B and C land their routes.
+Seams are documented in [FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md) sections 11 (round-2 batch 1) and 12 (round-2 batch 2). The `lib/types/contract.ts` file mirrors those shapes verbatim.
 
 ## The stack (locked)
 
 Next.js + TypeScript, Tailwind + shadcn/ui, Framer Motion, Supabase (DB / Auth / Realtime / Storage), OpenAI via Vercel AI SDK, Composio (Spotify + IG Business OAuth), Mapbox, deployed on Vercel.
 
-## How the work is split
-
-Round 1 (v1 app) was split two ways; round 2 is split THREE ways.
-
-| Branch | Round-1 role | Round-2 role | Round-1 plan | Round-2 plan |
-|---|---|---|---|---|
-| [person-a](../../tree/person-a) | Experience & Social Shell | All consumer UI | `docs/IMPLEMENTATION-PERSON-A.md` | `docs/IMPLEMENTATION-PERSON-A-ROUND2.md` |
-| [person-b](../../tree/person-b) | Intelligence, Data & Hero | Schema + core CRUD APIs | `docs/IMPLEMENTATION-PERSON-B.md` | `docs/IMPLEMENTATION-PERSON-B-ROUND2.md` |
-| [person-c](../../tree/person-c) | (new in round 2) | Integrations + AI (sourcing pipeline + freshness jobs, Ticketmaster, OCR parser) | - | `docs/IMPLEMENTATION-PERSON-C-ROUND2.md` |
-
-All three build against the shared interface in [docs/FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md). The round-2 ownership maps and seams are section 11 (batch 1) and section 12 (batch 2) of that file; the sourcing design is [docs/SOURCING-PROPOSAL.md](docs/SOURCING-PROPOSAL.md). Both batches live in the same per-person round-2 plans (`docs/IMPLEMENTATION-PERSON-{A,B,C}-ROUND2.md`).
-
 ## Run it locally
 
 1. `npm install`
 2. Copy `.env.local.example` to `.env.local` and fill the client keys (Supabase anon URL/key, Mapbox token). Server keys (service role, OpenAI, Composio, Ticketmaster) go in `.env` per [docs/SECRETS.md](docs/SECRETS.md); never commit secrets.
-3. `npm run dev`. The app runs on the fixture data source with no live keys; set `NEXT_PUBLIC_DATA_SOURCE=live` to hit real routes/Supabase.
-4. Supabase: apply `supabase/migrations` and run the seed to populate a live DB.
+3. `npm run dev`. The app runs on the fixture data source with no live keys; set `NEXT_PUBLIC_DATA_SOURCE=live` to hit the real API routes and Supabase.
+4. Supabase (optional for live mode): `supabase db reset` to apply `supabase/migrations`, then `npm run seed` to populate a live DB. `npm run seed:sourcing` seeds via the auto-sourcing pipeline.
 
-## Round 2 walkthrough (all fixture-driven; live routes gated behind env)
+## Walkthrough
 
-- `/stories` - Tinder-style swipe deck of fresh sublets, right-swipe saves to the Saved tab, tap opens a detail sheet with the host + reviews + a Plan-the-commute button.
-- `/post` (or `/post?as=subletter` for the demo) - post a sublease + see your listings with a confirm/relist affordance.
-- Any avatar or name across feed, discovery, DMs, reviews, or a perch host is tappable and opens `/profile/[id]`. A subletter profile shows listings + a review summary + a reviews panel.
-- `/feed` is events-only. Each card shows a picture, venue, category, taste-match, a Going Y/N poll + count, and a comment thread.
-- `/map` is one map for everything: Google-Maps-style category icons for places, stickers, events, listings, comments; a legend; drop-a-comment + drop-a-sticker placement modes; and when an apartment is selected (from the perch detail sheet or by tapping a listing pin) it draws the office-to-apartment commute as a colored polyline, lets you pick along-route POIs (coffee / gym), and generates a schedule.
-- `/friends` - accepted friends + incoming/outgoing requests. Add-friend button lands on match cards and other-user profiles.
-- `/dms` - the conversation list with an Instagram-Notes strip on top showing friends who are going to events.
-- Onboarding OfferStep flags low-confidence fields (needsReview) and lets you correct any field before continuing.
+- `/` splash - Start onboarding.
+- `/onboarding` - upload offer -> parsed fields render (low-confidence fields are flagged and editable) -> Spotify connect (or skip) -> Takeout upload (optional) -> done.
+- `/feed` - events only, ranked to your taste. Each card shows a picture, venue, category, taste-match bar, a Going Y/N poll + intern count, and a comment thread.
+- `/stories` (labeled "Perches" in nav) - Tinder-style swipe deck of fresh sublets. Drag or use Pass/Save buttons. Right-swipes populate the Saved tab. Tap a card for details, host, reviews, and "Plan the commute".
+- `/post` - subletter posting form + your listings + confirm/relist affordance. `?as=subletter` previews the flow as a subletter account for the demo.
+- `/discovery` - match cards. Tap "Message now" for the connection-hero beat.
+- `/map` - Google-Maps-style Streets base with a subtle water tint. Category-icon pins for places, stickers, events, listings, and map comments. Legend. Drop-a-comment + drop-a-sticker placement modes. Select a listing pin (or arrive via `?apartmentId=`) to draw a real road-following commute polyline (Mapbox Directions), pick coffee/gym stops along the route, and generate a schedule.
+- `/dms` - conversation list with an Instagram-Notes strip on top showing friends going to events. Message any profile from a Message button.
+- `/friends` - accepted friends + incoming/outgoing requests.
+- `/profile/[id]` - intern profile (banded badge, taste, pre-flight checklist for self, Message + Add-friend for others). Subletter profile shows listings + review summary + reviews panel.
+- `/landing` - first-week itinerary.
+- `/negotiate` - the streaming housing-negotiation hero.
+
+## Data source
+
+`lib/data/source.ts` reads `NEXT_PUBLIC_DATA_SOURCE=fixture|live` (default `fixture`). When `live` is set but a route errors or a key is missing, it falls back to the fixture rather than crashing. That means the whole app runs cold with zero live keys, and you flip surfaces to `live` one at a time as Supabase + the API routes come online.
 
 ## Start here
 
 1. Read [CLAUDE.md](CLAUDE.md) for the full architecture reference.
-2. Read [docs/FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md) for the data model, design tokens, API shapes, and the round-2 seams (sections 11 and 12).
-3. Check out your branch and follow your round-1 and round-2 implementation plans in `docs/`.
-4. Track and update status in [docs/PROGRESS.md](docs/PROGRESS.md).
+2. Read [docs/FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md) for the data model, design tokens, and API shapes.
+3. Read [docs/PROGRESS.md](docs/PROGRESS.md) for build status.
 
-Mascot assets live in [assets/mascot/](assets/mascot/).
+Mascot assets live in [assets/mascot/](assets/mascot/). Env template lives in [docs/SECRETS.md](docs/SECRETS.md).

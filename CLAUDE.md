@@ -6,9 +6,7 @@ This document is the single source of truth for the system. It is written to be 
 
 > **How to use this doc (this file IS `CLAUDE.md` in Claude Code):** This is persistent CONTEXT, not a single task. Don't try to build all of Perch in one shot. Work SECTION BY SECTION following the build split in §11 - e.g. (1) scaffold Next.js + Tailwind + shadcn + Supabase; (2) build the schema + RLS from §5; (3) build the streaming negotiation hero from §4; (4) realtime DMs; (5) map + stickers; etc. Review each piece before moving on. This is a **demo build in dev/test mode** - no production auth/verification/review flows (see §2). The tool choices in §2 are LOCKED; the real work and open product decisions live in §8 and §12.
 >
-> **Team split note (2026-07-15):** This project is split between two people. See `docs/FOUNDATION-CONTRACT.md` for the shared interface both build against, and the per-person plans:
-> - **Person A - Experience & Social Shell** → `docs/IMPLEMENTATION-PERSON-A.md` (branch `person-a`)
-> - **Person B - Intelligence, Data & Hero** → `docs/IMPLEMENTATION-PERSON-B.md` (branch `person-b`)
+> **Status (2026-07-16):** Round 1 + Round 2 shipped and merged to `main`. Historical per-person implementation docs have been removed; the shared interface (data model, tokens, API shapes) lives in `docs/FOUNDATION-CONTRACT.md`. Build/feature status is tracked in `docs/PROGRESS.md`.
 
 ---
 
@@ -255,7 +253,7 @@ All keys go in a **gitignored `.env`** - NEVER commit. A leaked OpenAI key costs
 
 ## 13. Round 2 Scope (2026-07-16)
 
-The v1 app is built and merged to `main` (Person A shell + Person B intelligence). Round 2 adds the features below and is split THREE ways (branches `person-a`, `person-b`, `person-c`): Person A owns all consumer UI, Person B owns schema + core CRUD APIs, Person C owns integrations + AI (sourcing pipeline + freshness jobs, Ticketmaster, OCR parser). Full frozen seams and the ownership map are in `docs/FOUNDATION-CONTRACT.md` §11; per-person plans are in `docs/IMPLEMENTATION-PERSON-A-ROUND2.md`, `docs/IMPLEMENTATION-PERSON-B-ROUND2.md`, and `docs/IMPLEMENTATION-PERSON-C-ROUND2.md`; sourcing design in `docs/SOURCING-PROPOSAL.md`.
+Both the v1 app and Round 2 are built and merged to `main`. Round 2 added: perches swipe deck + saved tray, subletter posting + freshness, Airbnb-style reviews, tappable profiles (intern + subletter view), Google-Maps-style map icons + legend + event pins, event card with picture + venue + Going Y/N poll + comments, offer manual-correction, feed events-only, map comments, friends UI + IG-Notes strip in DMs, front-page cleanup, apartment -> office road-following route (Mapbox Directions) + POI-along-route selection + generated schedule. Frozen seams and the ownership map are in `docs/FOUNDATION-CONTRACT.md` sections 11 (batch 1) and 12 (batch 2).
 
 1. Auto-sourced sublets, not manual entry. A server-side sourcing pipeline (adapter interface plus a seed/mock adapter for the demo) fills `listings` in the area. Real scraping of third-party sites is OUT of scope for the dev-mode demo (ToS and legal risk); the adapter pattern leaves room for real sources later.
 2. Listing freshness. Listings carry `status` (available/pending/taken/stale) plus `expires_at` and `last_confirmed_at`; an expiry job and "still available?" pings keep the deck honest. Stale listings kill trust, so they never surface in the swipe deck.
@@ -272,7 +270,7 @@ Decisions resolved: §12.1 both heroes are live (v1 shipped); §12.4 stickers st
 
 ## 14. Round 2 - Additional Scope / batch 2 (2026-07-16)
 
-Still Round 2, a second batch keeping the three-way split (person-a UI, person-b schema + core APIs, person-c integrations + AI). Full seams are in `docs/FOUNDATION-CONTRACT.md` §12; these features are added to the existing round-2 plans (`docs/IMPLEMENTATION-PERSON-{A,B,C}-ROUND2.md`), not a separate round.
+Still Round 2, a second batch on top of section 11 above. Full seams are in `docs/FOUNDATION-CONTRACT.md` section 12. All shipped and merged to `main`.
 
 1. Comments leave the Flyway feed and live on the map: past-intern notes/comments become map-anchored placeholders; the feed is events-only.
 2. On the Flyway, each event gets a comment thread and a going yes/no poll that shows how many interns are going.

@@ -1,4 +1,4 @@
-# Mascot Assets — "Perch" the plush chick
+# Mascot Assets - "Perch" the plush chick
 
 Three SVGs of the same round plush-chick character. **Owned by Person A** (design system). See `CLAUDE.md` §9.
 
@@ -6,7 +6,7 @@ Three SVGs of the same round plush-chick character. **Owned by Person A** (desig
 |---|---|---|
 | `plush-chick-idle.svg` | Flattened, animation-ready. Breathe + blink + slow wing-sway loop. | Default resting mascot: empty states, idle onboarding, milestone beats. |
 | `plush-chick-hop.svg` | Flattened, animation-ready. Hop + wing-flap + ground-shadow loop. | Loading / "working" states (negotiation running, matching, uploads). |
-| `plush-chick-static-fur.svg` | High-detail `feTurbulence`+`feDisplacementMap` "fur" texture. Single static pose, **no** animation. | Large **static** hero placements only (e.g. splash). Do NOT animate — the filter stutters in loops. |
+| `plush-chick-static-fur.svg` | High-detail `feTurbulence`+`feDisplacementMap` "fur" texture. Single static pose, **no** animation. | Large **static** hero placements only (e.g. splash). Do NOT animate - the filter stutters in loops. |
 
 ## Three fixes before shipping (Person A owns)
 
@@ -28,7 +28,7 @@ The character is currently mint/teal. Recolor to the locked palette (see `docs/F
 Do the same recolor across all three files. `static-fur` shares the exact same fills.
 
 ### 2. Keep flattened versions for animation
-`idle` and `hop` are already flattened (no `fur` filter) — safe to loop. Only `static-fur` keeps the expensive filter, and only for static placement.
+`idle` and `hop` are already flattened (no `fur` filter) - safe to loop. Only `static-fur` keeps the expensive filter, and only for static placement.
 
 ### 3. Supply the `@keyframes` (they are NOT in the SVG)
 The animated SVGs reference `apBreathe`, `apWingSwaySlow`, `apBlink`, `apHop`, `apFlap`, `apShadow`. These live in **app CSS**, not the file. Starter set (drop into a global stylesheet or a Mascot component's `<style>`):
@@ -45,4 +45,4 @@ The animated SVGs reference `apBreathe`, `apWingSwaySlow`, `apBlink`, `apHop`, `
 Respect `prefers-reduced-motion`: gate the loops behind `@media (prefers-reduced-motion: no-preference)` and fall back to the static pose.
 
 ## Placement rule (from §9)
-The chick appears ONLY in personality moments — onboarding, loading, empty states, milestones. It is ABSENT from decision surfaces (listings, safety, money, map decisions). The chick handles emotion and waiting; the interface handles decisions.
+The chick appears ONLY in personality moments - onboarding, loading, empty states, milestones. It is ABSENT from decision surfaces (listings, safety, money, map decisions). The chick handles emotion and waiting; the interface handles decisions.

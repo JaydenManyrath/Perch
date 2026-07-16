@@ -1,4 +1,4 @@
-# Secret Management Convention (Person B — B12)
+# Secret Management Convention (Person B - B12)
 
 > Owner: Person B. Establishes how every credential in Perch is stored, named, and
 > kept out of git and out of the client bundle. Referenced by FOUNDATION-CONTRACT §6
@@ -16,7 +16,7 @@
 3. **The service-role key bypasses RLS.** It is used ONLY in `src/lib/supabase/admin.ts`
    (seed scripts, server routes that legitimately need elevated access). It must never
    be imported into a client component.
-4. **Rotate on leak.** A leaked OpenAI key costs real money — every LLM/external route
+4. **Rotate on leak.** A leaked OpenAI key costs real money - every LLM/external route
    is rate-limited (`src/lib/llm/ratelimit.ts`) so an exposed endpoint can't be drained.
 5. **Vercel:** set the server secrets as Vercel Environment Variables (Production +
    Preview). Person B owns ensuring the server env vars are present; Person A owns the
@@ -33,6 +33,6 @@
 
 ```bash
 npm run build
-# then grep the client chunks — must find nothing:
+# then grep the client chunks - must find nothing:
 grep -REn "SERVICE_ROLE|OPENAI_API_KEY|COMPOSIO_API_KEY" .next/static || echo "clean"
 ```

@@ -26,13 +26,9 @@ async function main() {
     y -= fontSize * 1.6;
   }
 
-  // pdf-parse bundles an older pdf.js release that cannot reliably read pdf-lib's
-  // compressed object streams. Keep the real PDF fixture broadly compatible.
+  // useObjectStreams:false -> a classic xref PDF that pdf-parse (old pdfjs) reads
+  // reliably. pdf-lib's default object streams trip pdf-parse's flate decoder.
   const bytes = await pdf.save({ useObjectStreams: false });
-  // pdf-lib emits a 1.7 header even when the body uses classic objects and xref.
-  // pdf-parse 1.x embeds an older pdf.js parser, so advertise the compatible 1.4
-  // feature level used by this simple text-only document.
-  bytes[7] = "4".charCodeAt(0);
   const out = join(FIX, "sample-offer-letter.pdf");
   writeFileSync(out, bytes);
   console.log(`wrote ${out} (${bytes.length} bytes)`);

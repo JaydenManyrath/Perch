@@ -134,8 +134,8 @@ export type OfferParse = {
   endDate: string | null;
   city: string | null;
   // Section 11.9 - per-field 0..1 confidence + list of low-confidence fields.
-  confidence?: Record<OfferField, number>;
-  needsReview?: OfferField[];
+  confidence: Record<OfferField, number>;
+  needsReview: OfferField[];
 };
 
 export type TakeoutParse = { places: Place[] };

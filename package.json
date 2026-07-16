@@ -13,7 +13,8 @@
     "seed": "tsx scripts/seed.ts",
     "gen:fixtures": "tsx scripts/gen-fixtures.ts",
     "db:reset": "supabase db reset",
-    "rls:test": "tsx scripts/rls-harness.ts"
+    "rls:test": "tsx scripts/rls-harness.ts",
+    "seed:sourcing": "tsx scripts/seed-sourcing.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.0",

@@ -6,13 +6,14 @@ import { postListing } from "@/lib/data/source";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Plus, X } from "lucide-react";
 import type { PostListingInput } from "@/lib/types/contract";
+import { cn } from "@/lib/utils";
 
 /**
- * PostListingForm (RA3) - subletter posts a sublease.
- * Simple, info-first fields. On submit -> postListing (live -> POST /api/listings;
- * fixture -> echo into the deck). Decision surface: no mascot.
+ * PostListingForm (RA3 + RA32) - subletter posts a sublease.
+ * Round 3: adds furnished, pros, bed/bath/sqft, amenities, utilities.
+ * Info-first, decision surface, no mascot.
  */
 export function PostListingForm() {
   const router = useRouter();
@@ -27,8 +28,18 @@ export function PostListingForm() {
     leaseType: "sublet",
     photos: [],
     safetyNotes: [],
+    // Round 3 defaults
+    furnished: true,
+    pros: [],
+    bedrooms: 1,
+    bathrooms: 1,
+    sqft: null,
+    amenities: [],
+    utilitiesIncluded: null,
   });
   const [photoUrl, setPhotoUrl] = useState("");
+  const [prosDraft, setProsDraft] = useState("");
+  const [amenityDraft, setAmenityDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [posted, setPosted] = useState<string | null>(null);
 
@@ -42,6 +53,26 @@ export function PostListingForm() {
     setPhotoUrl("");
   }
 
+  function addPro() {
+    const v = prosDraft.trim();
+    if (!v) return;
+    setState((s) => ({ ...s, pros: [...(s.pros ?? []), v] }));
+    setProsDraft("");
+  }
+  function removePro(i: number) {
+    setState((s) => ({ ...s, pros: (s.pros ?? []).filter((_, idx) => idx !== i) }));
+  }
+
+  function addAmenity() {
+    const v = amenityDraft.trim();
+    if (!v) return;
+    setState((s) => ({ ...s, amenities: [...(s.amenities ?? []), v] }));
+    setAmenityDraft("");
+  }
+  function removeAmenity(i: number) {
+    setState((s) => ({ ...s, amenities: (s.amenities ?? []).filter((_, idx) => idx !== i) }));
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!state.title.trim() || !state.address.trim()) return;
@@ -49,7 +80,6 @@ export function PostListingForm() {
     try {
       const created = await postListing(state);
       setPosted(created.id);
-      // Refresh the page so the new listing appears in the Your Listings section below.
       router.refresh();
     } finally {
       setBusy(false);
@@ -74,6 +104,7 @@ export function PostListingForm() {
             </span>
           </div>
         ) : null}
+
         <form onSubmit={submit} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Title" required>
             <input
@@ -95,6 +126,7 @@ export function PostListingForm() {
               required
             />
           </Field>
+
           <Field label="Price (USD / mo)" required>
             <input
               type="number"
@@ -117,6 +149,7 @@ export function PostListingForm() {
               <option value="standard">Standard</option>
             </select>
           </Field>
+
           <Field label="Lease start (ISO)">
             <input
               type="date"
@@ -133,6 +166,152 @@ export function PostListingForm() {
               className={inputCls}
             />
           </Field>
+
+          {/* Round 3 (RA32): furnished + specs + utilities */}
+          <Field label="Furnished">
+            <div className="flex gap-2">
+              <ToggleButton active={state.furnished === true} onClick={() => set("furnished", true)}>
+                Furnished
+              </ToggleButton>
+              <ToggleButton active={state.furnished === false} onClick={() => set("furnished", false)}>
+                Unfurnished
+              </ToggleButton>
+            </div>
+          </Field>
+          <Field label="Utilities">
+            <div className="flex gap-2">
+              <ToggleButton
+                active={state.utilitiesIncluded === true}
+                onClick={() => set("utilitiesIncluded", true)}
+              >
+                Included
+              </ToggleButton>
+              <ToggleButton
+                active={state.utilitiesIncluded === false}
+                onClick={() => set("utilitiesIncluded", false)}
+              >
+                Not included
+              </ToggleButton>
+            </div>
+          </Field>
+
+          <Field label="Bedrooms (0 = studio)">
+            <input
+              type="number"
+              min={0}
+              max={10}
+              value={state.bedrooms ?? 0}
+              onChange={(e) => set("bedrooms", Number(e.target.value))}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Bathrooms">
+            <input
+              type="number"
+              min={0}
+              max={10}
+              step="0.5"
+              value={state.bathrooms ?? 1}
+              onChange={(e) => set("bathrooms", Number(e.target.value))}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Square feet" className="sm:col-span-2">
+            <input
+              type="number"
+              min={100}
+              max={10000}
+              value={state.sqft ?? ""}
+              onChange={(e) => set("sqft", e.target.value ? Number(e.target.value) : null)}
+              placeholder="500"
+              className={inputCls}
+            />
+          </Field>
+
+          <Field label="Pros" className="sm:col-span-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={prosDraft}
+                onChange={(e) => setProsDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addPro();
+                  }
+                }}
+                placeholder="e.g. Walk to five coffee shops"
+                className={inputCls}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={addPro}
+                disabled={!prosDraft.trim()}
+              >
+                <Plus className="h-4 w-4" aria-hidden /> Add
+              </Button>
+            </div>
+            {(state.pros ?? []).length > 0 ? (
+              <ul className="mt-2 flex flex-wrap gap-1.5">
+                {(state.pros ?? []).map((p, i) => (
+                  <li key={p + i}>
+                    <button
+                      type="button"
+                      onClick={() => removePro(i)}
+                      className="inline-flex items-center gap-1 rounded-full bg-sky-100 text-ink-strong text-caption font-semibold px-2.5 py-0.5 hover:bg-sky-200"
+                    >
+                      {p}
+                      <X className="h-3 w-3" aria-hidden />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </Field>
+
+          <Field label="Amenities" className="sm:col-span-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={amenityDraft}
+                onChange={(e) => setAmenityDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addAmenity();
+                  }
+                }}
+                placeholder="e.g. In-unit laundry"
+                className={inputCls}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={addAmenity}
+                disabled={!amenityDraft.trim()}
+              >
+                <Plus className="h-4 w-4" aria-hidden /> Add
+              </Button>
+            </div>
+            {(state.amenities ?? []).length > 0 ? (
+              <ul className="mt-2 flex flex-wrap gap-1.5">
+                {(state.amenities ?? []).map((a, i) => (
+                  <li key={a + i}>
+                    <button
+                      type="button"
+                      onClick={() => removeAmenity(i)}
+                      className="inline-flex items-center gap-1 rounded-full bg-sky-100 text-ink-strong text-caption font-semibold px-2.5 py-0.5 hover:bg-sky-200"
+                    >
+                      {a}
+                      <X className="h-3 w-3" aria-hidden />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </Field>
+
           <Field label="Latitude">
             <input
               type="number"
@@ -207,5 +386,31 @@ function Field({
       </span>
       {children}
     </label>
+  );
+}
+
+function ToggleButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "flex-1 rounded-xl border px-3 py-2 text-caption font-semibold transition-colors",
+        active
+          ? "bg-sky-500 text-white border-sky-500"
+          : "bg-white text-ink-strong border-sky-300 hover:bg-sky-50",
+      )}
+    >
+      {children}
+    </button>
   );
 }

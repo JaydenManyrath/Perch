@@ -341,6 +341,8 @@ export type SwipeResponse = { listingId: string; direction: SwipeDirection };
 export type SavedPerchesResponse = { saved: PerchCard[] };
 
 // Round 2 (section 11.4) - Subletter posting
+// Round 3 (section 13.2) - the additional detail fields (furnished, pros,
+// bed/bath/sqft, amenities, utilities). Optional so older callers keep working.
 export type PostListingInput = {
   title: string;
   address: string;
@@ -352,6 +354,14 @@ export type PostListingInput = {
   leaseType: "sublet" | "short_term" | "standard";
   photos: string[];
   safetyNotes?: string[];
+  // Round 3 additions
+  furnished?: boolean | null;
+  pros?: string[];
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  sqft?: number | null;
+  amenities?: string[];
+  utilitiesIncluded?: boolean | null;
 };
 
 export type ListingResponse = { listing: PerchCard };

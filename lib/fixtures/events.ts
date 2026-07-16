@@ -1,6 +1,8 @@
 import type { EventRow } from "@/lib/types/contract";
 
 // Round 2: events carry venue + url + image_url + price_range (from Ticketmaster or seed).
+// Round 3 (section 13.1): dates are UPCOMING (>= today) - past events would be filtered out
+// server-side, so the fixture mirrors that guarantee. Dates set for the Aug-Oct 2026 window.
 const IMG = (id: string) => `https://images.unsplash.com/${id}?w=800`;
 
 export const eventsFixture: EventRow[] = [
@@ -10,7 +12,7 @@ export const eventsFixture: EventRow[] = [
     category: "electronic",
     lat: 47.6221,
     lng: -122.3541,
-    datetime: "2026-06-14T20:00:00Z",
+    datetime: "2026-08-14T20:00:00Z",
     source: "seeded",
     external_id: "tm-E1",
     url: "https://www.ticketmaster.com/event/E1",
@@ -24,7 +26,7 @@ export const eventsFixture: EventRow[] = [
     category: "indie",
     lat: 47.6094,
     lng: -122.3395,
-    datetime: "2026-06-21T20:00:00Z",
+    datetime: "2026-08-21T20:00:00Z",
     source: "seeded",
     external_id: "tm-E2",
     url: "https://www.ticketmaster.com/event/E2",
@@ -38,7 +40,7 @@ export const eventsFixture: EventRow[] = [
     category: "social",
     lat: 47.6141,
     lng: -122.3208,
-    datetime: "2026-06-11T19:00:00Z",
+    datetime: "2026-07-24T19:00:00Z",
     source: "community",
     external_id: null,
     url: null,
@@ -52,7 +54,7 @@ export const eventsFixture: EventRow[] = [
     category: "shoegaze",
     lat: 47.6612,
     lng: -122.313,
-    datetime: "2026-07-05T20:30:00Z",
+    datetime: "2026-09-05T20:30:00Z",
     source: "seeded",
     external_id: "tm-E4",
     url: "https://www.ticketmaster.com/event/E4",
@@ -66,7 +68,7 @@ export const eventsFixture: EventRow[] = [
     category: "outdoors",
     lat: 47.6469,
     lng: -122.3396,
-    datetime: "2026-06-13T18:00:00Z",
+    datetime: "2026-07-25T18:00:00Z",
     source: "meetup",
     external_id: null,
     url: null,
@@ -80,7 +82,7 @@ export const eventsFixture: EventRow[] = [
     category: "techno",
     lat: 47.6062,
     lng: -122.335,
-    datetime: "2026-06-28T22:00:00Z",
+    datetime: "2026-08-28T22:00:00Z",
     source: "seeded",
     external_id: "tm-E6",
     url: "https://www.ticketmaster.com/event/E6",
@@ -94,7 +96,7 @@ export const eventsFixture: EventRow[] = [
     category: "food",
     lat: 47.6684,
     lng: -122.384,
-    datetime: "2026-07-11T12:00:00Z",
+    datetime: "2026-08-08T12:00:00Z",
     source: "seeded",
     external_id: "tm-E7",
     url: "https://www.ballardseafoodfest.com",
@@ -108,7 +110,7 @@ export const eventsFixture: EventRow[] = [
     category: "social",
     lat: 47.6115,
     lng: -122.3401,
-    datetime: "2026-06-18T19:30:00Z",
+    datetime: "2026-07-31T19:30:00Z",
     source: "community",
     external_id: null,
     url: null,
@@ -122,7 +124,7 @@ export const eventsFixture: EventRow[] = [
     category: "indie",
     lat: 47.6131,
     lng: -122.3316,
-    datetime: "2026-07-19T20:00:00Z",
+    datetime: "2026-09-19T20:00:00Z",
     source: "seeded",
     external_id: "tm-E9",
     url: "https://www.ticketmaster.com/event/E9",
@@ -136,7 +138,7 @@ export const eventsFixture: EventRow[] = [
     category: "outdoors",
     lat: 46.8523,
     lng: -121.7603,
-    datetime: "2026-06-27T07:00:00Z",
+    datetime: "2026-08-02T07:00:00Z",
     source: "community",
     external_id: null,
     url: null,
@@ -144,10 +146,4 @@ export const eventsFixture: EventRow[] = [
     image_url: IMG("photo-1454391304352-2bf4678b1a7a"),
     price_range: "Gas share",
   },
-].map((event) => ({
-  ...event,
-  venue: null,
-  url: null,
-  image_url: null,
-  price_range: null,
-}));
+];

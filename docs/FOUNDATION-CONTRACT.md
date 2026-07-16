@@ -4,7 +4,9 @@
 >
 > **Round 2 (2026-07-16):** the v1 app is built and merged to `main`. New feature seams (auto-sourced sublets + freshness, swipe perches, subletter posting, Airbnb-style reviews, Ticketmaster events + intern attendance, offer-parser hardening, map icons, tappable profiles) are specified in **§11**. Round 2 is split THREE ways (branches `person-a`, `person-b`, `person-c`) - ownership map in §11.11, working agreements in §11.12. Per-person plans: `docs/IMPLEMENTATION-PERSON-A-ROUND2.md` (all UI), `docs/IMPLEMENTATION-PERSON-B-ROUND2.md` (schema + core APIs), `docs/IMPLEMENTATION-PERSON-C-ROUND2.md` (integrations + AI).
 >
-> **Round 2, batch 2 (2026-07-16):** still Round 2 - more features (comments move from the feed to the map, event comments + going Y/N poll + feed pictures, friends, an Instagram-Notes strip in DMs, removal of the front-page dev shortcuts, and an apartment-to-office route with along-route POI selection and a generated schedule) - specified in **§12**, same three-way split, added to the existing round-2 plans (`docs/IMPLEMENTATION-PERSON-{A,B,C}-ROUND2.md`).
+> **Round 2, batch 2 (2026-07-16):** still Round 2 - more features (comments move from the feed to the map, event comments + going Y/N poll + feed pictures, friends, an Instagram-Notes strip in DMs, removal of the front-page dev shortcuts, and an apartment-to-office route with along-route POI selection and a generated schedule) - specified in **§12**, same three-way split, added to the existing round-2 plans. (Round 1 + Round 2 are now SHIPPED and merged to `main`; those historical per-person plan files were removed after merge.)
+>
+> **Round 3 (2026-07-16):** upcoming-events-only + event images, comprehensive sublet details (pros + furnished), roommate grouping, a real booking flow (owner approves -> booked -> removed from listings), a realistic financial model (cost-of-living, upfront cash, relocation stipend, take-home != salary), fuller pre-flight checklist (flights, shipping, what-to-bring, parking/car), removal of onboarding percentages, and richer map-marker info on press - specified in **§13**, same three-way split. Per-person plans: `docs/IMPLEMENTATION-PERSON-A-ROUND3.md`, `docs/IMPLEMENTATION-PERSON-B-ROUND3.md`, `docs/IMPLEMENTATION-PERSON-C-ROUND3.md`.
 
 Perch is an Instagram-shaped social app that helps interns land in a new city - find other interns (flock) and short-term sublets (perches), warm up to the place before arrival. Full product context lives in `CLAUDE.md`. This is a **demo build in dev/test mode** (no production auth/verification/review flows). Stack is **LOCKED**: Next.js + TypeScript, Tailwind, shadcn/ui, Framer Motion, Supabase (DB/Auth/Realtime/Storage), OpenAI via Vercel AI SDK, Composio (Spotify + IG Business OAuth), Mapbox, Vercel.
 
@@ -829,3 +831,121 @@ export type CommuteScheduleResponse = { day: ItineraryDay }; // reuse ItineraryD
 
 ### 12.9 Working agreements (unchanged from §11.12)
 Plain ASCII; update README + `docs/PROGRESS.md` every merge; contract-first types in `lib/types/contract.ts`; the three-way B/C boundary (schema is B; anything reaching out / background / AI is C); least-privilege read-only external keys; rate-limit every route.
+
+---
+
+## 13. Round 3 - Feature Additions (2026-07-16)
+
+Round 1 and Round 2 are shipped and merged to `main`. Round 3 keeps the same THREE-way split (A = all UI, B = schema + core CRUD APIs, C = integrations + AI) and the same working agreements (§11.12 / §12.9). Per-person plans: `docs/IMPLEMENTATION-PERSON-A-ROUND3.md`, `docs/IMPLEMENTATION-PERSON-B-ROUND3.md`, `docs/IMPLEMENTATION-PERSON-C-ROUND3.md`. Round-3 migrations start at `0011`; add the §13.9 types to `lib/types/contract.ts`.
+
+### 13.1 Ticketmaster: upcoming events only, with images
+The events integration must return UPCOMING events, not past ones, and each event's image must appear.
+- C: in the Ticketmaster Discovery call, filter `startDateTime >= now` (and a reasonable window, e.g. next 90 days), sort ascending by date, and drop anything already past. Capture the best `image_url` from the API (prefer a 16:9 / largest non-`falseTUBA` image) into `events.image_url`.
+- A: the event card renders `image_url` prominently with a graceful placeholder when absent. B: `GET /api/feed` and `GET /api/events/nearby` return only upcoming events (also guard `datetime >= now` in-query).
+
+### 13.2 Comprehensive sublet details (+ pros, + furnished)
+The perch detail is currently thin. Make it comprehensive.
+- Schema (B): `listings` gains `furnished boolean`, `pros text[]` (a short list of selling points), `bedrooms integer`, `bathrooms numeric(3,1)`, `sqft integer`, `amenities text[]`, `utilities_included boolean`. All nullable; backfill sensible values for seeded/sourced rows.
+- API (B): `GET /api/listings/{id}` returns a `ListingDetail` (the row plus `pros`, `furnished`, bed/bath/sqft/amenities/utilities, `reviewSummary`, `host`, `status`).
+- UI (A): the perch detail sheet shows all of this - a clear furnished/unfurnished line (do NOT bury it in prose), a "Pros" bullet list, bed/bath/sqft, amenities chips, utilities. The subletter post form (A) and validation (B) collect these fields.
+
+### 13.3 Roommate grouping (share a sublet)
+If two interns become roommates, they can group onto one sublet.
+- Schema (B): `bookings.roommate_ids uuid[]` (see §13.4) holds co-occupants; a roommate must be an accepted friend (§12.3) or an invited user who accepts.
+- API (B): `POST /api/bookings/{id}/roommates { userId }` invites a roommate to a booking/held listing; `POST /api/bookings/{id}/roommates/accept` for the invitee. The listing is shared by the group; the group books together (§13.4).
+- UI (A): on a saved perch or an in-progress booking, an "Add a roommate" action (pick from friends) and a grouped view showing the roommates on that sublet.
+
+### 13.4 Booking flow (request -> owner approves -> booked, removed from listings)
+A real booking/claim so a taken place leaves everyone else's deck.
+- Schema (B): new `bookings` table: `id`, `listing_id` fk listings, `booker_id` fk users, `roommate_ids uuid[] default '{}'`, `status text check (status in ('requested','approved','booked','declined','cancelled'))`, `created_at`, `decided_at`. RLS: readable/writable only by the booker, the roommates, and the listing owner.
+- State machine (deterministic, B): `requested` -> owner `approved` -> booker (or group) confirms -> `booked`. On `booked`, set `listings.status='taken'` so `GET /api/perches` (fresh-only) drops it for everyone else. `declined`/`cancelled` release the hold.
+- API (B): `POST /api/listings/{id}/book { roommateIds? }` (request), `POST /api/bookings/{id}/approve` (owner), `POST /api/bookings/{id}/decline` (owner), `POST /api/bookings/{id}/confirm` (booker -> booked), `GET /api/bookings` (mine + incoming as owner).
+- UI (A): "Request to book" on a perch; an owner approval inbox; a booked state on the perch; once booked, it disappears from the swipe deck and shows as taken on the map/profile.
+
+### 13.5 Real financial model (cost-of-living, upfront cash, relocation stipend, take-home != salary)
+Money must be realistic, not "salary = budget".
+- Parsing (C): extend the offer parser to also extract `relocationStipend` and `signingBonus` (upfront cash) when present; add them to `OfferParse` with confidence like the other fields.
+- Cost-of-living data (C): a per-city cost-of-living source - `lib/finance/costOfLiving.ts` backed by a seeded city index table (with an optional external lookup); exposes `{ city, index, medianRent }`.
+- Deterministic finance model (B): `lib/finance/model.ts` computes `takeHome` from `salary` (apply a deterministic effective tax/withholding by bracket, NOT a flat 0.75 hand-wave; document the brackets), a monthly budget adjusted by the city cost-of-living index, `upfrontCash` needed (deposit + first month + moving), and folds in `relocationStipend` + `signingBonus`. `GET /api/finance` returns a `FinanceBreakdown`. The negotiation budget scout uses this model (take-home and COL-adjusted), never raw salary.
+- UI (A): show the breakdown wherever money appears (onboarding summary, the negotiation/budget readout, a perch's affordability): take-home vs salary, cost-of-living, upfront cash, relocation stipend. Keep it clean and information-first (no mascot on money surfaces).
+
+### 13.6 Pre-flight checklist additions
+The checklist is missing real relocation tasks.
+- Data (B): seed `checklist_items` with flights, shipping/movers, what-to-bring (a packing list), and parking/car (and keep the existing ones). Add an optional `category text` column to group them (travel, logistics, packing, admin).
+- UI (A): render the fuller checklist, grouped by category if present. No new decisions; just completeness.
+
+### 13.7 Remove percentages from onboarding
+- UI (A): remove percentage displays from the onboarding flow - both the offer-parse per-field confidence shown as a percent and any progress-percent. Replace confidence with a simple "check this" flag on low-confidence (`needsReview`) fields; use step dots/labels for progress, not a percent. No numbers-as-percent anywhere in onboarding.
+
+### 13.8 Map: press a location for more info
+- UI (A): pressing any map marker (place, sticker, event, listing, map comment) opens a richer info sheet - not just a name. Places show kind + the "N min from your usual coffee spot" line; listings show price + furnished + pros + status + a link to the detail; events show date/venue/going count + a link; comments show author + text; stickers show category + note. Use existing data; if a marker needs a detail fetch, call the relevant existing route.
+- B/C: ensure the marker payloads carry enough to populate the sheet (B for listings/comments/events data; C only if an external place-details lookup is wanted).
+
+### 13.9 Frozen round-3 types (add to `lib/types/contract.ts`)
+```ts
+// Comprehensive listing detail
+export type ListingDetail = {
+  id: string;
+  title: string;
+  address: string;
+  lat: number;
+  lng: number;
+  price: number;
+  leaseStart: string;
+  leaseEnd: string;
+  leaseType: "sublet" | "short_term" | "standard";
+  furnished: boolean | null;
+  pros: string[];
+  bedrooms: number | null;
+  bathrooms: number | null;
+  sqft: number | null;
+  amenities: string[];
+  utilitiesIncluded: boolean | null;
+  photos: string[];
+  status: "available" | "pending" | "taken" | "stale";
+  host: { id: string; name: string; avatarUrl: string | null } | null;
+  reviewSummary: { avgRating: number; count: number };
+};
+
+// Booking + roommate grouping
+export type BookingStatus = "requested" | "approved" | "booked" | "declined" | "cancelled";
+export type Booking = {
+  id: string;
+  listingId: string;
+  booker: { id: string; name: string; avatarUrl: string | null };
+  roommates: { id: string; name: string; avatarUrl: string | null }[];
+  status: BookingStatus;
+  createdAt: string;
+  decidedAt: string | null;
+};
+export type BookRequestInput = { roommateIds?: string[] };
+
+// Financial model
+export type FinanceBreakdown = {
+  salary: number | null;          // annual, gross
+  takeHome: number;               // annual, after deterministic tax model
+  monthlyTakeHome: number;
+  relocationStipend: number;      // 0 if none
+  signingBonus: number;           // upfront cash, 0 if none
+  upfrontCashNeeded: number;      // deposit + first month + moving estimate
+  costOfLivingIndex: number;      // 100 = national average
+  monthlyBudget: number;          // COL-adjusted recommended rent ceiling
+  city: string;
+};
+// OfferParse additions: relocationStipend: number | null; signingBonus: number | null;
+```
+
+### 13.10 Ownership map (round 3)
+| Feature | Person A (consumer UI) | Person B (schema + core API) | Person C (integrations + AI) |
+|---|---|---|---|
+| Upcoming events + images | render event image + placeholder | feed/events routes guard `datetime >= now` | Ticketmaster: upcoming-only filter + best `image_url` |
+| Comprehensive sublet details + pros + furnished | rich detail sheet; post-form fields | `listings` columns; `GET /api/listings/{id}` (ListingDetail); validation | - |
+| Roommate grouping | add-roommate action + grouped view | `bookings.roommate_ids`; roommate invite/accept API | - |
+| Booking flow | request-to-book, owner approval inbox, booked state | `bookings` table + state machine + API; booked -> listing taken | - |
+| Real finance model | take-home/COL/upfront/stipend breakdown UI | deterministic finance model + `GET /api/finance`; budget scout uses it | offer parser extracts stipend + upfront; cost-of-living data source |
+| Checklist additions | fuller checklist, grouped | seed flights/shipping/what-to-bring/parking-car + `category` | - |
+| Remove onboarding percentages | drop confidence-% and progress-%; use flags/dots | - | - |
+| Map press -> more info | richer marker info sheet | marker payloads carry detail | optional external place-details lookup |
+
+### 13.11 Working agreements (unchanged)
+Same as §11.12 / §12.9. Determinism note for round 3: the finance model and the booking state machine are DETERMINISTIC code (no model decides money or a booking status); the offer parser may extract stipend/bonus text but never invents a number.

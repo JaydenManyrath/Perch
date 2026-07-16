@@ -14,7 +14,9 @@ Docs style: plain ASCII only (no emojis, no em-dashes).
   - Schema + core APIs: user_type + freshness columns; listing_swipes, reviews, event_attendance, comments, friendships, map-comment notes; API routes for perches (deck/swipe/saved), listings (post/confirm), reviews, event attendance/comments, friends (list/requests/request/accept/decline/notes), map comments, public profiles, route POIs + schedule.
   - Integrations + AI: sourcing pipeline (adapter + normalize + dedupe + ingest), freshness expiry job, "still available?" ping dispatch, Ticketmaster Discovery API + /api/events/nearby + seeded fallback, offer parser hardening (confidence + needsReview + OCR + broader formats), Mapbox Directions POST /api/route + geocode + along-route POI search.
 
-Seams are documented in [FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md) sections 11 (round-2 batch 1) and 12 (round-2 batch 2). The `lib/types/contract.ts` file mirrors those shapes verbatim.
+- Round 3: PLANNED. Upcoming-events-only + event images, comprehensive sublet details (pros + furnished + bed/bath/sqft/amenities), roommate grouping, a real booking flow (owner approves then booked, removed from listings), a realistic financial model (cost-of-living, upfront cash, relocation stipend, take-home != salary), a fuller pre-flight checklist (flights, shipping, what-to-bring, parking/car), removal of onboarding percentages, and richer map-marker info on press. Split three ways on branches `person-a` / `person-b` / `person-c`; plans in `docs/IMPLEMENTATION-PERSON-{A,B,C}-ROUND3.md`.
+
+Seams are documented in [FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md): sections 11 (round-2 batch 1), 12 (round-2 batch 2), and 13 (round 3). The `lib/types/contract.ts` file mirrors those shapes verbatim.
 
 ## The stack (locked)
 

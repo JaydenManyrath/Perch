@@ -6,7 +6,7 @@ This document is the single source of truth for the system. It is written to be 
 
 > **How to use this doc (this file IS `CLAUDE.md` in Claude Code):** This is persistent CONTEXT, not a single task. Don't try to build all of Perch in one shot. Work SECTION BY SECTION following the build split in §11 - e.g. (1) scaffold Next.js + Tailwind + shadcn + Supabase; (2) build the schema + RLS from §5; (3) build the streaming negotiation hero from §4; (4) realtime DMs; (5) map + stickers; etc. Review each piece before moving on. This is a **demo build in dev/test mode** - no production auth/verification/review flows (see §2). The tool choices in §2 are LOCKED; the real work and open product decisions live in §8 and §12.
 >
-> **Status (2026-07-16):** Round 1 + Round 2 shipped and merged to `main`. Historical per-person implementation docs have been removed; the shared interface (data model, tokens, API shapes) lives in `docs/FOUNDATION-CONTRACT.md`. Build/feature status is tracked in `docs/PROGRESS.md`.
+> **Status (2026-07-16):** Round 1 + Round 2 shipped and merged to `main`. Historical per-person implementation docs have been removed; the shared interface (data model, tokens, API shapes) lives in `docs/FOUNDATION-CONTRACT.md`. Build/feature status is tracked in `docs/PROGRESS.md`. **Round 3 is planned** (upcoming-events + images, comprehensive sublet details + pros + furnished, roommate grouping, a real booking flow, a realistic financial model, fuller checklist, onboarding-percentage removal, richer map-marker info) - seams in `docs/FOUNDATION-CONTRACT.md` §13, split three ways (branches `person-a`/`person-b`/`person-c`), plans in `docs/IMPLEMENTATION-PERSON-{A,B,C}-ROUND3.md`.
 
 ---
 

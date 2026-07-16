@@ -89,9 +89,38 @@ All UI + schema + APIs + integrations landed on `main`. Split three ways during 
 - [done] RC7 Office geocode from employer
 - [done] RC8 POI search along the route corridor (Mapbox) for coffee/gym candidates
 
+## Round 3 (planned 2026-07-16)
+
+Same three-way split. Seams: FOUNDATION-CONTRACT.md section 13. Plans: IMPLEMENTATION-PERSON-A-ROUND3.md, IMPLEMENTATION-PERSON-B-ROUND3.md, IMPLEMENTATION-PERSON-C-ROUND3.md. Round-3 migrations start at 0011.
+
+### UI (person-a)
+- [todo] RA31 Ticketmaster event image renders on the feed card (+ placeholder fallback)
+- [todo] RA32 Comprehensive sublet detail sheet: furnished line, Pros list, bed/bath/sqft, amenities, utilities; add the fields to the post form
+- [todo] RA33 Roommate grouping UI: add-a-roommate (from friends) on a saved perch/booking + grouped view
+- [todo] RA34 Booking flow UI: Request-to-book, owner approval inbox, booked state; a booked perch leaves the deck
+- [todo] RA35 Finance UI: take-home vs salary, cost-of-living, upfront cash, relocation stipend (onboarding summary + budget/negotiation + perch affordability)
+- [todo] RA36 Checklist UI: render the fuller checklist (flights, shipping, what-to-bring, parking/car), grouped by category
+- [todo] RA37 Remove percentages from onboarding (confidence percent -> a "check this" flag; progress dots, not a percent)
+- [todo] RA38 Map marker press -> richer info sheet (place / listing / event / comment / sticker detail)
+
+### Schema + core APIs (person-b)
+- [todo] RB31 listings columns (0011): furnished, pros, bedrooms, bathrooms, sqft, amenities, utilities_included + GET /api/listings/{id} (ListingDetail) + post validation
+- [todo] RB32 bookings table + RLS + state machine (requested -> approved -> booked; booked sets listings.status=taken) + booking API (book/approve/decline/confirm/list)
+- [todo] RB33 Roommate grouping: bookings.roommate_ids + invite/accept API
+- [todo] RB34 Finance model (deterministic): take-home tax brackets, COL-adjusted budget, upfront cash, stipend/bonus; GET /api/finance; negotiation budget scout uses it
+- [todo] RB35 Checklist seed: flights, shipping, what-to-bring, parking/car + optional category column
+- [todo] RB36 Feed/events guard datetime >= now (upcoming only); marker payloads carry enough detail for the map info sheet
+
+### Integrations + AI (person-c)
+- [todo] RC31 Ticketmaster: upcoming-only filter (startDateTime >= now, sorted ascending) + capture best image_url
+- [todo] RC32 Offer parser: extract relocationStipend + signingBonus (upfront cash) with per-field confidence
+- [todo] RC33 Cost-of-living data source (city index + median rent; seeded table + optional external lookup) feeding B's finance model
+- [todo] RC34 (optional) Map place-details lookup (Mapbox) for richer marker info
+
 ## Log
 
 - 2026-07-16: Round 1 merged to main.
 - 2026-07-16: Round 2 planned and split three ways.
 - 2026-07-16: Round 2 batch 2 planned.
 - 2026-07-16: Round 2 fully shipped and merged to main. Implementation docs removed; keeping FOUNDATION-CONTRACT.md, PROGRESS.md, SECRETS.md, README.md, CLAUDE.md.
+- 2026-07-16: Round 3 planned (upcoming events + images, comprehensive sublet details + pros + furnished, roommate grouping, booking flow, real finance model, fuller checklist, onboarding-percentage removal, richer map info); split three ways on branches person-a/person-b/person-c.

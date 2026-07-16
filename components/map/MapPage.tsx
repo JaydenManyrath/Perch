@@ -6,6 +6,8 @@ import { MapCanvas, type MapClickMode } from "./MapCanvas";
 import { PlaceStickerSheet } from "./PlaceStickerSheet";
 import { CommentSheet } from "./CommentSheet";
 import { EventPreviewSheet } from "./EventPreviewSheet";
+import { ListingInfoSheet } from "./ListingInfoSheet";
+import { StickerReadSheet } from "./StickerReadSheet";
 import { MapLegend } from "./MapLegend";
 import { CommutePlanPanel } from "./CommutePlanPanel";
 import { officeCoordsForCompany } from "./office-coords";
@@ -62,6 +64,9 @@ export function MapPage({
   const [commentMode, setCommentMode] = useState<"read" | "add" | null>(null);
   const [openComment, setOpenComment] = useState<MapComment | null>(null);
   const [openEvent, setOpenEvent] = useState<EventRow | null>(null);
+  // RA38 - info sheets for listing + sticker markers.
+  const [openListing, setOpenListing] = useState<ListingRow | null>(null);
+  const [openSticker, setOpenSticker] = useState<StickerRow | null>(null);
 
   // Commute plan state (RA19).
   const [apartmentId, setApartmentId] = useState<string | null>(initialApartmentId);
@@ -251,7 +256,12 @@ export function MapPage({
             setCommentMode(c ? "read" : null);
           }}
           onListingClick={(id) => {
-            setApartmentId(id);
+            const l = listings.find((x) => x.id === id) ?? null;
+            setOpenListing(l);
+          }}
+          onStickerClick={(id) => {
+            const s = stickers.find((x) => x.id === id) ?? null;
+            setOpenSticker(s);
           }}
           onPoiClick={toggleSelectedPoi}
         />
@@ -347,6 +357,44 @@ export function MapPage({
         open={openEvent !== null}
         onOpenChange={(o) => !o && setOpenEvent(null)}
       />
+
+      <ListingInfoSheet
+        listing={openListing}
+        isCommuteAnchor={openListing?.id === apartmentId}
+        onOpenChange={(o) => !o && setOpenListing(null)}
+        onUseAsCommuteAnchor={(id) => {
+          setApartmentId(id);
+          setOpenListing(null);
+        }}
+      />
+
+      <StickerReadSheet
+        sticker={openSticker}
+        author={authorForSticker(openSticker, [me, ...seededAuthors(comments)])}
+        onOpenChange={(o) => !o && setOpenSticker(null)}
+      />
     </div>
   );
+}
+
+/**
+ * Resolve a sticker author from anyone we already have on this page (the
+ * viewer + any users referenced by map comments). The map surface intentionally
+ * doesn't fetch the whole user table just to render a badge; if we can't find
+ * the user, the sheet just shows "unknown author".
+ */
+function authorForSticker(
+  sticker: StickerRow | null,
+  candidates: Array<Pick<UserRow, "id" | "name" | "avatar_url">>,
+): Pick<UserRow, "id" | "name" | "avatar_url"> | null {
+  if (!sticker) return null;
+  return candidates.find((u) => u.id === sticker.created_by) ?? null;
+}
+
+function seededAuthors(comments: MapComment[]): Array<Pick<UserRow, "id" | "name" | "avatar_url">> {
+  return comments.map((c) => ({
+    id: c.author.id,
+    name: c.author.name,
+    avatar_url: c.author.avatarUrl,
+  }));
 }

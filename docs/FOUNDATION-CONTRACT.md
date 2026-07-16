@@ -2,7 +2,7 @@
 
 > **The single anti-drift artifact.** Both people on the Perch build implement against THIS document. If code and this doc disagree, either fix the code or amend this doc in a PR that both people review - never let them silently diverge. Data model (§2), design token names+hex (§3), and API shapes (§4-§5) are the frozen seams. Change them only by editing this file first.
 >
-> **Round 2 (2026-07-16):** the v1 app is built and merged to `main`. New feature seams (auto-sourced sublets + freshness, swipe perches, subletter posting, Airbnb-style reviews, Ticketmaster events + intern attendance, offer-parser hardening, map icons, tappable profiles) are specified in **§11**. Round-2 per-person plans: `docs/IMPLEMENTATION-PERSON-A-ROUND2.md` and `docs/IMPLEMENTATION-PERSON-B-ROUND2.md`. Working agreements in §11.10.
+> **Round 2 (2026-07-16):** the v1 app is built and merged to `main`. New feature seams (auto-sourced sublets + freshness, swipe perches, subletter posting, Airbnb-style reviews, Ticketmaster events + intern attendance, offer-parser hardening, map icons, tappable profiles) are specified in **§11**. Round 2 is split THREE ways (branches `person-a`, `person-b`, `person-c`) - ownership map in §11.11, working agreements in §11.12. Per-person plans: `docs/IMPLEMENTATION-PERSON-A-ROUND2.md` (all UI), `docs/IMPLEMENTATION-PERSON-B-ROUND2.md` (schema + core APIs), `docs/IMPLEMENTATION-PERSON-C-ROUND2.md` (integrations + AI).
 
 Perch is an Instagram-shaped social app that helps interns land in a new city - find other interns (flock) and short-term sublets (perches), warm up to the place before arrival. Full product context lives in `CLAUDE.md`. This is a **demo build in dev/test mode** (no production auth/verification/review flows). Stack is **LOCKED**: Next.js + TypeScript, Tailwind, shadcn/ui, Framer Motion, Supabase (DB/Auth/Realtime/Storage), OpenAI via Vercel AI SDK, Composio (Spotify + IG Business OAuth), Mapbox, Vercel.
 
@@ -680,22 +680,31 @@ export type PublicProfile = {
 };
 ```
 
-### 11.11 Ownership map (round 2)
-| Feature | Person A (consumer UI) | Person B (data / API / integration) |
-|---|---|---|
-| Auto-sourced sublets + freshness | status badges, subletter confirm/relist UI | sourcing pipeline + adapter, freshness job, ping dispatch (SOURCING-PROPOSAL.md) |
-| Perches swipe deck (Tinder-style) | swipe deck UI (drag + buttons + detail sheet), saved tray | `GET /api/perches`, `POST /api/perches/swipe`, `GET /api/perches/saved`, `listing_swipes` |
-| Subletter posting | post-a-sublease form (subletter accounts) | `POST /api/listings`, `POST /api/listings/{id}/confirm`, `user_type`, validation |
-| Reviews (Airbnb-style) | review composer + lists + rating badges | `reviews` table + RLS + `GET`/`POST /api/reviews` |
-| Ticketmaster events | event card (venue/image), map event pins | Ticketmaster integration, `events` upsert, `GET /api/events/nearby` |
-| Event attendance count | Going toggle + "N interns going" | `event_attendance` table + counts + `POST /api/events/{id}/attend` |
-| Offer parser hardening | manual-correction UI in OfferStep | OCR + broader formats + `confidence`/`needsReview` |
-| Map icons (Google-Maps style) | icon marker set + legend + clustering | expose `kind`/`category` per mappable row |
-| Tappable profiles | make names/avatars tap to profile; subletter profile view | `GET /api/users/{id}` public profile |
+### 11.11 Ownership map (round 2) - THREE-WAY split
+
+Round 2 is split across three branches: `person-a`, `person-b`, `person-c`.
+- Person A (all consumer UI): every UI surface.
+- Person B (schema + core APIs): all migrations, RLS, and synchronous CRUD API routes for the core social/housing data.
+- Person C (integrations & AI): background pipelines and jobs, external integrations, and AI/parsing.
+
+Boundary rule between B and C: B owns the database (migrations, RLS, seed) and the request/response CRUD routes; C owns anything that reaches OUT (third-party APIs), runs in the BACKGROUND (jobs, ingest), or does AI/heuristic parsing. When C needs a column, B adds it (schema is B); when B's route needs fresh data, C's pipeline keeps it current.
+
+| Feature | Person A (consumer UI) | Person B (schema + core API) | Person C (integrations & AI) |
+|---|---|---|---|
+| Auto-sourced sublets + freshness | status badges, subletter confirm/relist UI | freshness columns (schema), `POST /api/listings/{id}/confirm` | sourcing pipeline + adapter, expiry job, "still available?" ping dispatch (SOURCING-PROPOSAL.md) |
+| Perches swipe deck (Tinder-style) | swipe deck UI (drag + buttons + detail sheet), saved tray | `GET /api/perches`, `POST /api/perches/swipe`, `GET /api/perches/saved`, `listing_swipes` table + RLS | - |
+| Subletter posting | post-a-sublease form (subletter accounts) | `POST /api/listings`, `user_type`, validation, owner RLS | - |
+| Reviews (Airbnb-style) | review composer + lists + rating badges | `reviews` table + RLS + `GET`/`POST /api/reviews` + aggregation | - |
+| Ticketmaster events | event card (venue/image), map event pins | `events` columns (schema); feed reads them | Ticketmaster client + `GET /api/events/nearby` + `events` upsert + seeded fallback |
+| Event attendance count | Going toggle + "N interns going" | `event_attendance` table + RLS + counts + `POST /api/events/{id}/attend` + feed additions | - |
+| Offer parser hardening | manual-correction UI in OfferStep | (route shell exists) | OCR + broader formats + `confidence`/`needsReview` in the parser + `POST /api/parse/offer` response |
+| Map icons (Google-Maps style) | icon marker set + legend + clustering | expose `kind`/`category` per mappable row | Ticketmaster events carry `category` for pins |
+| Tappable profiles | make names/avatars tap to profile; subletter profile view | `GET /api/users/{id}` public profile | - |
 
 ### 11.12 Working agreements (round 2)
 - Plain ASCII everywhere: docs and user-facing strings use no emojis and no em-dashes or en-dashes (use `-`, `:`, or reword). In prose use `-`; use `->` only inside code/spec.
 - Every merge to `main` updates `README.md` (status + feature list) and `docs/PROGRESS.md` (mark the item done, dated).
 - Contract-first: a new cross-person seam is added HERE before code, and `lib/types/contract.ts` mirrors it in the same PR. No silent drift.
+- Three branches: `person-a` (all UI), `person-b` (schema + core CRUD APIs), `person-c` (background pipelines, external integrations, AI parsing). B and C both touch the backend, so coordinate: schema/migrations/RLS are always B (in the contract first); C builds pipelines and integrations ON TOP of B's schema and keeps B's data fresh. When C needs a new column, B adds it.
 - Freshness and trust: never surface a `taken`/`stale`/expired listing in the perches deck; expiry + confirm pings keep the deck honest.
 - Reviews and sourcing carry real trust weight: seed reviews are clearly demo content, sourced listings are marked `sourced=true`, and no "avoid/unsafe" framing leaks into any surface (stickers stay positive-only).

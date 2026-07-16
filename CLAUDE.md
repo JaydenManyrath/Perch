@@ -255,7 +255,7 @@ All keys go in a **gitignored `.env`** - NEVER commit. A leaked OpenAI key costs
 
 ## 13. Round 2 Scope (2026-07-16)
 
-The v1 app is built and merged to `main` (Person A shell + Person B intelligence). Round 2 adds the features below. Full frozen seams are in `docs/FOUNDATION-CONTRACT.md` §11; per-person plans are in `docs/IMPLEMENTATION-PERSON-A-ROUND2.md` and `docs/IMPLEMENTATION-PERSON-B-ROUND2.md`; sourcing design in `docs/SOURCING-PROPOSAL.md`.
+The v1 app is built and merged to `main` (Person A shell + Person B intelligence). Round 2 adds the features below and is split THREE ways (branches `person-a`, `person-b`, `person-c`): Person A owns all consumer UI, Person B owns schema + core CRUD APIs, Person C owns integrations + AI (sourcing pipeline + freshness jobs, Ticketmaster, OCR parser). Full frozen seams and the ownership map are in `docs/FOUNDATION-CONTRACT.md` §11; per-person plans are in `docs/IMPLEMENTATION-PERSON-A-ROUND2.md`, `docs/IMPLEMENTATION-PERSON-B-ROUND2.md`, and `docs/IMPLEMENTATION-PERSON-C-ROUND2.md`; sourcing design in `docs/SOURCING-PROPOSAL.md`.
 
 1. Auto-sourced sublets, not manual entry. A server-side sourcing pipeline (adapter interface plus a seed/mock adapter for the demo) fills `listings` in the area. Real scraping of third-party sites is OUT of scope for the dev-mode demo (ToS and legal risk); the adapter pattern leaves room for real sources later.
 2. Listing freshness. Listings carry `status` (available/pending/taken/stale) plus `expires_at` and `last_confirmed_at`; an expiry job and "still available?" pings keep the deck honest. Stale listings kill trust, so they never surface in the swipe deck.

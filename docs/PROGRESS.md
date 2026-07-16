@@ -39,7 +39,7 @@ Merged 2026-07-16 via "Merge person-b into main". The full Instagram-shaped app 
 
 ## Round 2 - Feature additions (planned 2026-07-16)
 
-Seams: FOUNDATION-CONTRACT.md §11. Sourcing: SOURCING-PROPOSAL.md. Plans: IMPLEMENTATION-PERSON-A-ROUND2.md, IMPLEMENTATION-PERSON-B-ROUND2.md.
+Split THREE ways: Person A (all UI), Person B (schema + core CRUD APIs), Person C (integrations + AI). Seams + ownership map: FOUNDATION-CONTRACT.md §11. Sourcing: SOURCING-PROPOSAL.md. Plans: IMPLEMENTATION-PERSON-A-ROUND2.md, IMPLEMENTATION-PERSON-B-ROUND2.md, IMPLEMENTATION-PERSON-C-ROUND2.md.
 
 ### Person A (round 2) - branch person-a
 - [todo] RA1 Perches swipe deck (Tinder-style: drag left/right + buttons + detail sheet)
@@ -53,21 +53,25 @@ Seams: FOUNDATION-CONTRACT.md §11. Sourcing: SOURCING-PROPOSAL.md. Plans: IMPLE
 - [todo] RA9 Onboarding OfferStep: manual-correction UI for low-confidence fields
 - [todo] RA10 Plain-ASCII sweep of existing user-facing strings (no emojis/em-dashes)
 
-### Person B (round 2) - branch person-b
-- [todo] RB1 Migration: user_type; listings status/expiry/sourced/source_name/source_url/external_id
-- [todo] RB2 Migration + RLS: listing_swipes, reviews, event_attendance
-- [todo] RB3 Sourcing pipeline: adapter interface + seed adapter + ingest + dedupe (SOURCING-PROPOSAL.md)
-- [todo] RB4 Freshness: expiry job + "still available?" ping dispatch + confirm route
-- [todo] RB5 Perches API: GET /api/perches, POST /api/perches/swipe, GET /api/perches/saved
-- [todo] RB6 Subletter posting: POST /api/listings, POST /api/listings/{id}/confirm + validation
-- [todo] RB7 Reviews API: GET/POST /api/reviews + summary aggregation
-- [todo] RB8 Ticketmaster integration: /api/events/nearby + upsert + seeded fallback
-- [todo] RB9 Attendance: POST /api/events/{id}/attend + counts; feed additions
-- [todo] RB10 Offer parser hardening: OCR + broader formats + confidence/needsReview
-- [todo] RB11 GET /api/users/{id} public profile
-- [todo] RB12 Expose kind/category per mappable row for A's icons; seed round-2 data
+### Person B (round 2) - branch person-b - schema + core CRUD APIs
+- [todo] RB1 Migration: user_type; listings status/expiry/sourced/source_name/source_url/external_id (schema only; C runs the pipeline that fills them)
+- [todo] RB2 Migration + RLS: listing_swipes, reviews, event_attendance (+ extend RLS test suite)
+- [todo] RB3 Perches API: GET /api/perches (fresh-only, excludes swiped, enriched), POST /api/perches/swipe, GET /api/perches/saved
+- [todo] RB4 Subletter posting: POST /api/listings (subletter-only), POST /api/listings/{id}/confirm + validation + owner RLS
+- [todo] RB5 Reviews API: GET/POST /api/reviews + summary aggregation (intern-only writes)
+- [todo] RB6 Attendance API: POST /api/events/{id}/attend + counts; feed additions (internsGoing, viewerGoing, event venue/url/imageUrl/priceRange)
+- [todo] RB7 Public profile: GET /api/users/{id}
+- [todo] RB8 Expose kind/category per mappable row for A's icons; round-2 base seed (subletters, listings across statuses, swipes, reviews, attendance)
+
+### Person C (round 2) - branch person-c - integrations + AI
+- [todo] RC1 Sourcing pipeline: SourceAdapter interface + seed adapter + normalize + dedupe + ingest + admin trigger route (SOURCING-PROPOSAL.md), on B's schema
+- [todo] RC2 Freshness jobs: expiry pass (available -> stale) + "still available?" ping dispatch (B owns the confirm route)
+- [todo] RC3 Ticketmaster integration: Discovery API client (keyed, read-only, rate-limited) + GET /api/events/nearby + events upsert (dedupe external_id) + seeded fallback
+- [todo] RC4 Offer parser hardening: broader formats + OCR for scanned PDFs + per-field confidence/needsReview in the parser and /api/parse/offer response
+- [todo] RC5 Seed sourced listings via the adapter (demo dataset incl. one near-expiry) + Ticketmaster-shaped events; coordinate with B's base seed
 
 ## Log
 
 - 2026-07-16: Round 1 merged to main.
 - 2026-07-16: Round 2 planned; contract §11, sourcing proposal, and per-person round-2 plans added.
+- 2026-07-16: Round 2 re-split three ways (A = UI, B = schema + core APIs, C = integrations + AI); person-c branch added.

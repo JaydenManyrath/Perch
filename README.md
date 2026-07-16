@@ -15,14 +15,17 @@ Docs style: plain ASCII only (no emojis, no em-dashes). Every merge to `main` up
 
 Next.js + TypeScript, Tailwind + shadcn/ui, Framer Motion, Supabase (DB / Auth / Realtime / Storage), OpenAI via Vercel AI SDK, Composio (Spotify + IG Business OAuth), Mapbox, deployed on Vercel.
 
-## How the work is split (2 people)
+## How the work is split
 
-| Branch | Owner | Round-1 plan | Round-2 plan |
-|---|---|---|---|
-| [person-a](../../tree/person-a) | Person A - Experience & Social Shell (design system, mascot, shell, feed, perches, profile, discovery, live DMs, map/stickers) | `docs/IMPLEMENTATION-PERSON-A.md` | `docs/IMPLEMENTATION-PERSON-A-ROUND2.md` |
-| [person-b](../../tree/person-b) | Person B - Intelligence, Data & Hero (schema + RLS + auth, seed, integrations + parsers, matching engine, streaming negotiation hero) | `docs/IMPLEMENTATION-PERSON-B.md` | `docs/IMPLEMENTATION-PERSON-B-ROUND2.md` |
+Round 1 (v1 app) was split two ways; round 2 is split THREE ways.
 
-Both build against the shared interface in [docs/FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md). Round-2 seams are §11 of that file; the sourcing design is [docs/SOURCING-PROPOSAL.md](docs/SOURCING-PROPOSAL.md).
+| Branch | Round-1 role | Round-2 role | Round-1 plan | Round-2 plan |
+|---|---|---|---|---|
+| [person-a](../../tree/person-a) | Experience & Social Shell | All consumer UI | `docs/IMPLEMENTATION-PERSON-A.md` | `docs/IMPLEMENTATION-PERSON-A-ROUND2.md` |
+| [person-b](../../tree/person-b) | Intelligence, Data & Hero | Schema + core CRUD APIs | `docs/IMPLEMENTATION-PERSON-B.md` | `docs/IMPLEMENTATION-PERSON-B-ROUND2.md` |
+| [person-c](../../tree/person-c) | (new in round 2) | Integrations + AI (sourcing pipeline + freshness jobs, Ticketmaster, OCR parser) | - | `docs/IMPLEMENTATION-PERSON-C-ROUND2.md` |
+
+All three build against the shared interface in [docs/FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md). The round-2 ownership map and seams are §11 of that file; the sourcing design is [docs/SOURCING-PROPOSAL.md](docs/SOURCING-PROPOSAL.md).
 
 ## Run it locally
 

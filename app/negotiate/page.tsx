@@ -8,7 +8,7 @@ const INK_STRONG = "#2C4A63";
 const INK_SOFT = "#5E7E97";
 
 /**
- * B10 negotiation hero — the single UI surface Person B owns end-to-end. Collect an
+ * B10 negotiation hero - the single UI surface Person B owns end-to-end. Collect an
  * offer + shortlist, then stream deterministic scout verdicts with live narration and
  * a ranked results screen. Inputs default to the seeded demo so the flow is one click.
  */
@@ -36,7 +36,7 @@ export default function NegotiatePage() {
     <main style={{ padding: "2.5rem 1.25rem", maxWidth: 720, margin: "0 auto" }}>
       <h1 style={{ fontSize: 26, fontWeight: 800, color: INK_STRONG }}>Housing negotiation</h1>
       <p style={{ color: INK_SOFT, marginTop: 4 }}>
-        Scouts check each perch — budget, safety, lease fit, routine fit — with real
+        Scouts check each perch - budget, safety, lease fit, routine fit - with real
         numbers. The chick handles the waiting; the numbers stay serious.
       </p>
 
@@ -44,12 +44,12 @@ export default function NegotiatePage() {
         <form onSubmit={submit} style={{ marginTop: 20, display: "grid", gap: 12 }}>
           <label style={{ display: "grid", gap: 4 }}>
             <span style={{ fontSize: 13, color: INK_SOFT }}>
-              Listing IDs (comma-separated — from your shortlist / seed)
+              Listing IDs (comma-separated - from your shortlist / seed)
             </span>
             <input
               value={listingIds}
               onChange={(e) => setListingIds(e.target.value)}
-              placeholder="e.g. 3f2a…, 9b1c…"
+              placeholder="e.g. 3f2a..., 9b1c..."
               style={{ padding: "10px 12px", borderRadius: 8, border: "1px solid #9CC5DD" }}
             />
           </label>

@@ -7,7 +7,7 @@ import type { ItineraryResponse } from "@/lib/types/contract";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/itinerary?days=7 — first-week plan (B8). Deterministic day scaffold; the
+// GET /api/itinerary?days=7 - first-week plan (B8). Deterministic day scaffold; the
 // LLM may only fill per-item prose (degrades to deterministic notes). Calendar sync
 // is optional and never blocks the response.
 export async function GET(req: NextRequest) {

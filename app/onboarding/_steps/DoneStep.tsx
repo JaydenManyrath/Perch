@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { CalendarCheck, Home } from "lucide-react";
 
 /**
- * Step 4 — Done. The one milestone beat where the mascot celebrates
+ * Step 4 - Done. The one milestone beat where the mascot celebrates
  * (contract §3 rule: mascot for personality moments only).
  */
 export function DoneStep() {
@@ -21,7 +21,7 @@ export function DoneStep() {
       <div>
         <h1 className="text-display text-ink-strong">You're set</h1>
         <p className="mt-2 text-body text-ink-soft max-w-sm mx-auto">
-          Taste profile, offer, and your landing week — all in place. Time to open
+          Taste profile, offer, and your landing week - all in place. Time to open
           the app.
         </p>
       </div>

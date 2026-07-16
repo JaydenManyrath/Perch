@@ -1,7 +1,7 @@
 import { BrandMark } from "./BrandMark";
 
 /**
- * TopBar — mobile-only header shown at the top of every shell page.
+ * TopBar - mobile-only header shown at the top of every shell page.
  * Simple: brand mark on the left, room for a right-side action later.
  */
 export function TopBar({ right }: { right?: React.ReactNode }) {

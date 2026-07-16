@@ -3,7 +3,7 @@ import { Mascot } from "@/components/mascot/Mascot";
 import { cn } from "@/lib/utils";
 
 /**
- * BrandMark — small Perch wordmark + tiny chick. Used in SideRail (desktop)
+ * BrandMark - small Perch wordmark + tiny chick. Used in SideRail (desktop)
  * and the top of the mobile shell.
  */
 export function BrandMark({ className, size = 32 }: { className?: string; size?: number }) {

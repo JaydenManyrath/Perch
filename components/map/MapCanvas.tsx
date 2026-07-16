@@ -2,49 +2,91 @@
 
 import { useEffect, useRef, useState } from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { Place, StickerRow } from "@/lib/types/contract";
+import type {
+  Place,
+  StickerRow,
+  EventRow,
+  ListingRow,
+  MapComment,
+  GeoJSONLineString,
+  RoutePoi,
+} from "@/lib/types/contract";
 import { env, hasMapbox } from "@/lib/env";
-import { STICKER_META } from "./sticker-catalog";
+import {
+  markerHtml,
+  eventKindFor,
+  placeKindFor,
+  STICKER_META_HTML_HINT,
+} from "./icon-utils";
+
+export type MapClickMode = "none" | "sticker" | "comment";
 
 /**
- * MapCanvas — Mapbox GL render with the baby-blue theme applied on load.
- * Renders place pins + sticker markers. Optionally toggles "place a sticker"
- * mode where the next map click captures a lng/lat and hands it up.
- *
- * Baby-blue theming: after 'load', iterate the style's layers and repaint
- * water/land/road/building fills to the frozen §3 tokens.
+ * MapCanvas - Mapbox GL render + all Round 2 layers.
+ * Renders places (RA7 icons), stickers, events (RA7 event pins), listings,
+ * map comments (RA12), the highlighted apartment + office (RA19), and an
+ * optional colored commute polyline (RA19).
+ * Baby-blue theme + Google-Maps-style circular category pins.
  */
 export function MapCanvas({
   places,
   stickers,
-  placementMode,
-  onPickLocation,
+  events,
+  listings,
+  highlightedListingId,
+  officeLocation,
+  mapComments,
+  routeGeometry,
+  routePois,
+  selectedPoiIds,
+  clickMode,
+  onMapClick,
+  onEventClick,
+  onStickerClick,
+  onPlaceClick,
+  onListingClick,
+  onCommentClick,
+  onPoiClick,
 }: {
   places: Place[];
   stickers: StickerRow[];
-  placementMode: boolean;
-  onPickLocation?: (loc: { lat: number; lng: number }) => void;
+  events: EventRow[];
+  listings: ListingRow[];
+  highlightedListingId?: string | null;
+  officeLocation?: { lat: number; lng: number } | null;
+  mapComments: MapComment[];
+  routeGeometry?: GeoJSONLineString | null;
+  routePois?: RoutePoi[];
+  selectedPoiIds?: Set<string>;
+  clickMode: MapClickMode;
+  onMapClick?: (coord: { lat: number; lng: number }) => void;
+  onEventClick?: (id: string) => void;
+  onStickerClick?: (id: string) => void;
+  onPlaceClick?: (id: string) => void;
+  onListingClick?: (id: string) => void;
+  onCommentClick?: (id: string) => void;
+  onPoiClick?: (id: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<unknown>(null);
   const markersRef = useRef<unknown[]>([]);
-  const onPickRef = useRef(onPickLocation);
-  const placementRef = useRef(placementMode);
+  const clickModeRef = useRef(clickMode);
+  const onMapClickRef = useRef(onMapClick);
   const [ready, setReady] = useState(false);
 
-  // Keep callback refs current without re-running the mount effect.
   useEffect(() => {
-    onPickRef.current = onPickLocation;
-  }, [onPickLocation]);
-  useEffect(() => {
-    placementRef.current = placementMode;
+    clickModeRef.current = clickMode;
     if (mapRef.current) {
       const m = mapRef.current as { getCanvas: () => HTMLCanvasElement };
-      m.getCanvas().style.cursor = placementMode ? "crosshair" : "";
+      m.getCanvas().style.cursor = clickMode !== "none" ? "crosshair" : "";
     }
-  }, [placementMode]);
+  }, [clickMode]);
 
-  // Initialize map once.
+  useEffect(() => {
+    onMapClickRef.current = onMapClick;
+  }, [onMapClick]);
+
+  // Init map once.
   useEffect(() => {
     if (!hasMapbox() || !containerRef.current) return;
     let cancelled = false;
@@ -53,19 +95,20 @@ export function MapCanvas({
       const mbgl = (await import("mapbox-gl")).default;
       if (cancelled) return;
 
-      // Provide the Mapbox access token.
       (mbgl as unknown as { accessToken: string }).accessToken = env.mapbox.token;
 
       const map = new mbgl.Map({
         container: containerRef.current!,
-        style: "mapbox://styles/mapbox/light-v11",
-        center: [-122.3321, 47.6062], // Seattle
+        // Streets v12 is the detailed Google-Maps-like base: road names,
+        // building outlines, POI icons, park green, water blue. We overlay a
+        // subtle water tint below for Perch flavor.
+        style: "mapbox://styles/mapbox/streets-v12",
+        center: [-122.3321, 47.6062],
         zoom: 12,
         attributionControl: false,
         cooperativeGestures: false,
       });
       mapRef.current = map;
-
       map.addControl(new mbgl.AttributionControl({ compact: true }), "bottom-right");
       map.addControl(new mbgl.NavigationControl({ showCompass: false }), "top-right");
 
@@ -76,8 +119,8 @@ export function MapCanvas({
       });
 
       map.on("click", (e) => {
-        if (!placementRef.current || !onPickRef.current) return;
-        onPickRef.current({ lat: e.lngLat.lat, lng: e.lngLat.lng });
+        if (clickModeRef.current === "none" || !onMapClickRef.current) return;
+        onMapClickRef.current({ lat: e.lngLat.lat, lng: e.lngLat.lng });
       });
     })();
 
@@ -90,51 +133,184 @@ export function MapCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // (Re)render markers on data change or when map becomes ready.
+  // Route source/layer sync.
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    const map = mapRef.current as MapWithSources;
+    const src = "ap-route";
+    if (routeGeometry) {
+      const feature = {
+        type: "Feature" as const,
+        properties: {},
+        geometry: routeGeometry,
+      };
+      const existing = map.getSource(src);
+      if (existing) {
+        (existing as { setData: (d: unknown) => void }).setData({
+          type: "FeatureCollection",
+          features: [feature],
+        });
+      } else {
+        map.addSource(src, {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [feature] },
+        });
+        map.addLayer({
+          id: "ap-route-line",
+          type: "line",
+          source: src,
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: {
+            "line-color": "#F6A22C",
+            "line-width": 5,
+            "line-opacity": 0.9,
+          },
+        });
+      }
+      try {
+        const coords = routeGeometry.coordinates;
+        if (coords.length >= 2) {
+          let minLng = coords[0][0];
+          let maxLng = coords[0][0];
+          let minLat = coords[0][1];
+          let maxLat = coords[0][1];
+          for (const [lng, lat] of coords) {
+            if (lng < minLng) minLng = lng;
+            if (lng > maxLng) maxLng = lng;
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+          }
+          const bounds: [[number, number], [number, number]] = [
+            [minLng, minLat],
+            [maxLng, maxLat],
+          ];
+          (map as unknown as {
+            fitBounds: (b: unknown, o?: unknown) => void;
+          }).fitBounds(bounds, { padding: 60, duration: 700 });
+        }
+      } catch {
+        /* fitBounds optional */
+      }
+    } else {
+      try {
+        if (map.getLayer("ap-route-line")) map.removeLayer("ap-route-line");
+        if (map.getSource(src)) map.removeSource(src);
+      } catch {
+        /* ok */
+      }
+    }
+  }, [ready, routeGeometry]);
+
+  // (Re)render markers on data change.
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     let cancelled = false;
     (async () => {
       const mbgl = (await import("mapbox-gl")).default;
       if (cancelled) return;
-      const map = mapRef.current as {
-        addTo?: (m: unknown) => void;
-      };
-      // Clear previous markers.
+      const map = mapRef.current as unknown as never;
+
       markersRef.current.forEach((m) => (m as { remove: () => void }).remove());
       markersRef.current = [];
 
       places.forEach((p) => {
-        const el = document.createElement("div");
-        el.className =
-          "ap-place-pin inline-flex items-center gap-1 rounded-full bg-white shadow-card border border-sky-300 px-2 py-1 text-[0.7rem] font-semibold text-ink-strong cursor-default";
-        el.style.transform = "translateY(-8px)";
-        el.innerHTML = `<span aria-hidden>${PLACE_EMOJI[p.kind]}</span><span>${escapeHtml(p.label)}</span>`;
-        if (typeof p.nearestListingMinutes === "number") {
-          const chip = document.createElement("span");
-          chip.className = "ml-1 rounded-full bg-accent-beak/15 text-accent-beakDeep px-1.5 py-0.5";
-          chip.textContent = `${p.nearestListingMinutes} min away`;
-          el.appendChild(chip);
-        }
-        const marker = new mbgl.Marker({ element: el }).setLngLat([p.lng, p.lat]).addTo(map as unknown as never);
+        const el = mkEl(markerHtml(placeKindFor(p.kind), { size: 30 }), () => onPlaceClick?.(p.id));
+        el.title = p.label;
+        const marker = new mbgl.Marker({ element: el }).setLngLat([p.lng, p.lat]).addTo(map);
         markersRef.current.push(marker);
       });
 
       stickers.forEach((s) => {
-        const meta = STICKER_META[s.category];
-        const el = document.createElement("div");
-        el.className =
-          "ap-sticker inline-flex items-center gap-1 rounded-full bg-sky-100 shadow-card border border-sky-200 px-2 py-1 text-[0.75rem] font-semibold text-ink-strong cursor-default";
-        el.innerHTML = `<span aria-hidden style="font-size:14px">${meta.emoji}</span><span>${escapeHtml(meta.label)}</span>`;
-        el.title = s.note || meta.label;
-        const marker = new mbgl.Marker({ element: el }).setLngLat([s.lng, s.lat]).addTo(map as unknown as never);
+        const el = mkEl(
+          `<span class="ap-marker inline-flex items-center justify-center rounded-full shadow-card bg-sky-100 ring-2 ring-sky-400/40" style="width:30px;height:30px;font-size:16px;line-height:1" title="${STICKER_META_HTML_HINT(
+            s.category,
+          )}"><span aria-hidden>${stickerEmoji(s.category)}</span></span>`,
+          () => onStickerClick?.(s.id),
+        );
+        const marker = new mbgl.Marker({ element: el }).setLngLat([s.lng, s.lat]).addTo(map);
+        markersRef.current.push(marker);
+      });
+
+      events.forEach((ev) => {
+        const el = mkEl(markerHtml(eventKindFor(ev.category), { size: 34 }), () =>
+          onEventClick?.(ev.id),
+        );
+        el.title = ev.title;
+        const marker = new mbgl.Marker({ element: el }).setLngLat([ev.lng, ev.lat]).addTo(map);
+        markersRef.current.push(marker);
+      });
+
+      listings.forEach((l) => {
+        const highlighted = l.id === highlightedListingId;
+        const el = mkEl(
+          markerHtml(highlighted ? "listing-highlighted" : "listing", {
+            size: highlighted ? 44 : 26,
+            // Google-Maps-style label + area halo for the selected apartment.
+            label: highlighted ? l.title : undefined,
+            halo: highlighted,
+          }),
+          () => onListingClick?.(l.id),
+        );
+        el.title = l.title;
+        // Anchor: keep the marker centered under the halo.
+        const marker = new mbgl.Marker({ element: el, anchor: "center" })
+          .setLngLat([l.lng, l.lat])
+          .addTo(map);
+        markersRef.current.push(marker);
+      });
+
+      if (officeLocation) {
+        const el = mkEl(
+          markerHtml("office", { size: 38, label: "Office", halo: true }),
+        );
+        el.title = "Your office";
+        const marker = new mbgl.Marker({ element: el, anchor: "center" })
+          .setLngLat([officeLocation.lng, officeLocation.lat])
+          .addTo(map);
+        markersRef.current.push(marker);
+      }
+
+      mapComments.forEach((c) => {
+        const el = mkEl(markerHtml("comment", { size: 28 }), () => onCommentClick?.(c.id));
+        el.title = c.topic;
+        const marker = new mbgl.Marker({ element: el }).setLngLat([c.lng, c.lat]).addTo(map);
+        markersRef.current.push(marker);
+      });
+
+      (routePois ?? []).forEach((poi) => {
+        const isSelected = selectedPoiIds?.has(poi.place.id) ?? false;
+        const el = mkEl(
+          markerHtml("poi-candidate", { size: isSelected ? 32 : 24, selected: isSelected }),
+          () => onPoiClick?.(poi.place.id),
+        );
+        el.title = `${poi.place.label} (${Math.round(poi.distanceFromRouteMeters)}m off route)`;
+        const marker = new mbgl.Marker({ element: el })
+          .setLngLat([poi.place.lng, poi.place.lat])
+          .addTo(map);
         markersRef.current.push(marker);
       });
     })();
     return () => {
       cancelled = true;
     };
-  }, [ready, places, stickers]);
+  }, [
+    ready,
+    places,
+    stickers,
+    events,
+    listings,
+    highlightedListingId,
+    officeLocation,
+    mapComments,
+    routePois,
+    selectedPoiIds,
+    onEventClick,
+    onStickerClick,
+    onPlaceClick,
+    onListingClick,
+    onCommentClick,
+    onPoiClick,
+  ]);
 
   if (!hasMapbox()) {
     return (
@@ -153,18 +329,31 @@ export function MapCanvas({
 }
 
 // ─── helpers ────────────────────────────────────────────────
-const PLACE_EMOJI: Record<Place["kind"], string> = {
-  coffee: "☕",
-  gym: "🏋️",
-  grocery: "🛒",
-  transit: "🚊",
-  show: "🎵",
-  work: "🏢",
-  other: "📍",
-};
 
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
+function mkEl(html: string, onClick?: () => void): HTMLDivElement {
+  const el = document.createElement("div");
+  el.innerHTML = html;
+  const child = el.firstElementChild as HTMLElement;
+  if (onClick) {
+    (child ?? el).style.cursor = "pointer";
+    (child ?? el).addEventListener("click", (e) => {
+      e.stopPropagation();
+      onClick();
+    });
+  }
+  return el;
+}
+
+function stickerEmoji(category: string): string {
+  const map: Record<string, string> = {
+    good_coffee: "☕",
+    safe_feeling: "🛡",
+    interns_hang: "👋",
+    good_vibe: "✨",
+    great_food: "🍜",
+    green_space: "🌳",
+  };
+  return map[category] ?? "✨";
 }
 
 type MapLike = {
@@ -172,37 +361,30 @@ type MapLike = {
   setPaintProperty: (id: string, prop: string, value: unknown) => void;
 };
 
+type MapWithSources = MapLike & {
+  addSource: (id: string, opts: unknown) => void;
+  removeSource: (id: string) => void;
+  getSource: (id: string) => unknown;
+  addLayer: (opts: unknown) => void;
+  removeLayer: (id: string) => void;
+  getLayer: (id: string) => unknown;
+};
+
 function applyBabyBlueTheme(map: MapLike) {
+  // Keep the Streets base LEGIBLE (roads, buildings, POI icons visible) but
+  // add a subtle Perch touch: water tinted toward sky.200. Anything more
+  // erases the Google-Maps-like detail we want.
   const style = map.getStyle();
   if (!style?.layers) return;
   const fillColor = (id: string, color: string) => {
     try {
       map.setPaintProperty(id, "fill-color", color);
-    } catch { /* layer may not exist */ }
+    } catch {
+      /* ok */
+    }
   };
-  const lineColor = (id: string, color: string) => {
-    try {
-      map.setPaintProperty(id, "line-color", color);
-    } catch { /* layer may not exist */ }
-  };
-  const bgColor = (id: string, color: string) => {
-    try {
-      map.setPaintProperty(id, "background-color", color);
-    } catch { /* layer may not exist */ }
-  };
-
   for (const layer of style.layers) {
     const id: string = layer.id ?? "";
-    if (id === "background" || id === "land") {
-      bgColor(id, "#F2F9FE"); // sky.50
-    } else if (id.startsWith("water") || id === "water") {
-      fillColor(id, "#BFE3F7"); // sky.200
-    } else if (id.startsWith("road") && layer.type === "line") {
-      lineColor(id, "#FFFFFF");
-    } else if (id.includes("building") && layer.type === "fill") {
-      fillColor(id, "#DCEFFB"); // sky.100
-    } else if (id.includes("landuse") && layer.type === "fill") {
-      fillColor(id, "#EFF8FE");
-    }
+    if (id.startsWith("water") || id === "water") fillColor(id, "#BFE3F7"); // sky.200
   }
 }

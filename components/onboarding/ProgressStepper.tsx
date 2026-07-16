@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
 /**
- * ProgressStepper — a horizontal 1-of-N indicator for the onboarding flow.
+ * ProgressStepper - a horizontal 1-of-N indicator for the onboarding flow.
  * Uses sky.400 for the completed run and sky.200 for the upcoming.
  */
 export function ProgressStepper({

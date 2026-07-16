@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-/** Card — the default surface. White on sky.50 with a subtle card shadow. */
+/** Card - the default surface. White on sky.50 with a subtle card shadow. */
 export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div

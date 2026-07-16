@@ -10,8 +10,8 @@ import { parseTakeout } from "@/lib/data/source";
 import type { Place } from "@/lib/types/contract";
 
 /**
- * Step 3 — Google Maps Takeout (optional). Enables the "4 min from your usual
- * coffee spot" beat. Skippable — B pre-loads a sample so the demo never breaks.
+ * Step 3 - Google Maps Takeout (optional). Enables the "4 min from your usual
+ * coffee spot" beat. Skippable - B pre-loads a sample so the demo never breaks.
  */
 export function TakeoutStep({
   onDone,
@@ -35,8 +35,8 @@ export function TakeoutStep({
       <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center">
         <Mascot variant="hop" size={160} />
         <div>
-          <h2 className="text-h2 text-ink-strong">Finding your recurring places…</h2>
-          <p className="mt-1 text-body text-ink-soft">Coffee, gym, transit — the anchors of your week.</p>
+          <h2 className="text-h2 text-ink-strong">Finding your recurring places...</h2>
+          <p className="mt-1 text-body text-ink-soft">Coffee, gym, transit - the anchors of your week.</p>
         </div>
       </div>
     );
@@ -78,7 +78,7 @@ export function TakeoutStep({
       <header className="text-center">
         <Mascot variant="idle" size={120} />
         <h2 className="text-h2 text-ink-strong mt-4">
-          Maps Takeout — <em className="text-ink-soft not-italic">optional</em>
+          Maps Takeout - <em className="text-ink-soft not-italic">optional</em>
         </h2>
         <p className="mt-1 text-body text-ink-soft">
           Drop your Google Maps Takeout JSON to unlock the "4 min from your usual

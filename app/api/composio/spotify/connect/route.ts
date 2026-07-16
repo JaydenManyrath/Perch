@@ -5,7 +5,7 @@ import type { SpotifyConnectResponse } from "@/lib/types/contract";
 
 export const dynamic = "force-dynamic";
 
-// POST /api/composio/spotify/connect — begin read-only Spotify connect (B5). A12
+// POST /api/composio/spotify/connect - begin read-only Spotify connect (B5). A12
 // opens/redirects to redirectUrl. Read-only scopes only (no playback/write).
 export async function POST(req: Request) {
   const g = await guard(req);

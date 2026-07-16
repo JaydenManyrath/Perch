@@ -19,7 +19,7 @@ const RequestSchema = z.object({
   }),
 });
 
-// POST /api/negotiate — HERO streaming route (B10). Deterministic verdicts + numbers;
+// POST /api/negotiate - HERO streaming route (B10). Deterministic verdicts + numbers;
 // LLM only narrates. Response is NDJSON: one NegotiateStreamEvent per line.
 export async function POST(req: Request) {
   const g = await guard(req);

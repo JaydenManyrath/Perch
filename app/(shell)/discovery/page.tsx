@@ -9,7 +9,7 @@ export default async function DiscoveryPage() {
       <header className="mb-4">
         <h1 className="text-h1 text-ink-strong">Discovery</h1>
         <p className="text-caption text-ink-soft">
-          Find your flock — other interns at your company, in your city, moving your week.
+          Find your flock - other interns at your company, in your city, moving your week.
           Tap <strong className="text-ink-strong">Message now</strong> and a live DM opens.
         </p>
       </header>

@@ -2,8 +2,10 @@ import Link from "next/link";
 import { Mascot } from "@/components/mascot/Mascot";
 
 /**
- * Root splash. Not part of the shell. Offers a way into onboarding or the shell.
- * In production this would route based on session state.
+ * Root splash. Not part of the shell.
+ * RA18: only Start onboarding remains as the entry. The /feed and /negotiate
+ * routes stay accessible from inside the app; the front-page shortcuts to
+ * them are gone.
  */
 export default function RootPage() {
   return (
@@ -22,24 +24,6 @@ export default function RootPage() {
             className="rounded-2xl bg-sky-400 hover:bg-sky-500 text-white font-semibold py-3 text-center shadow-card transition-colors"
           >
             Start onboarding
-          </Link>
-          <Link
-            href="/feed"
-            className="rounded-2xl bg-white border border-sky-300 text-ink-strong font-semibold py-3 text-center shadow-card hover:bg-sky-100 transition-colors"
-          >
-            Skip to the app shell
-          </Link>
-          <Link
-            href="/negotiate"
-            className="rounded-2xl bg-accent-beak hover:bg-accent-beakDeep text-white font-semibold py-3 text-center shadow-card transition-colors"
-          >
-            Try the negotiation hero
-          </Link>
-          <Link
-            href="/tokens"
-            className="text-caption text-ink-soft hover:text-ink-strong underline underline-offset-2"
-          >
-            (dev) design tokens
           </Link>
         </div>
       </div>

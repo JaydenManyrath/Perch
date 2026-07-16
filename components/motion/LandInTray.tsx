@@ -4,10 +4,10 @@ import { motion, useReducedMotion, type Variants } from "framer-motion";
 import * as React from "react";
 
 /**
- * LandInTray — the signature "listing lands on a perch" motion primitive.
+ * LandInTray - the signature "listing lands on a perch" motion primitive.
  *
- * Used by A5 (Stories/perches tray) when a shortlisted listing appears, and —
- * the reason this is a *primitive* — exported to Person B for the negotiation
+ * Used by A5 (Stories/perches tray) when a shortlisted listing appears, and -
+ * the reason this is a *primitive* - exported to Person B for the negotiation
  * results screen when a per-listing verdict "lands".
  *
  * Motion: arcs in from above, overshoots slightly, settles. Under
@@ -21,7 +21,7 @@ export const landInTrayVariants: Variants = {
   animate: { y: 0, x: 0, rotate: 0, scale: 1, opacity: 1 },
 };
 
-/** Reduced-motion fallback — plain cross-fade, no motion. */
+/** Reduced-motion fallback - plain cross-fade, no motion. */
 export const reducedFadeVariants: Variants = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
@@ -66,7 +66,7 @@ export function LandInTray({
 }
 
 /**
- * Hook variant — returns props to spread onto a `<motion.div>` directly.
+ * Hook variant - returns props to spread onto a `<motion.div>` directly.
  * Callers use this when they need to control the wrapping element themselves.
  */
 export function useLandInTray(delay = 0) {

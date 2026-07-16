@@ -15,10 +15,10 @@ export default function MascotDemoPage() {
 
         <section className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="rounded-2xl bg-white p-6 shadow-card flex flex-col items-center">
-            <Mascot variant="idle" size={168} caption='variant="idle" — breathe + blink + slow wing-sway' />
+            <Mascot variant="idle" size={168} caption='variant="idle" - breathe + blink + slow wing-sway' />
           </div>
           <div className="rounded-2xl bg-white p-6 shadow-card flex flex-col items-center">
-            <Mascot variant="hop" size={168} caption='variant="hop" — hop + flap + ground shadow' />
+            <Mascot variant="hop" size={168} caption='variant="hop" - hop + flap + ground shadow' />
           </div>
           <div className="rounded-2xl bg-white p-6 shadow-card flex flex-col items-center">
             <Mascot variant="idle" size={96} caption="small (96px)" />
@@ -31,7 +31,7 @@ export default function MascotDemoPage() {
           <h2 className="text-h2 text-ink-strong">Reduced motion</h2>
           <p className="mt-2 text-body text-ink-strong">
             Toggle <em>Reduce motion</em> in your OS (or in devtools → Rendering →
-            Emulate CSS media feature <code>prefers-reduced-motion: reduce</code>) — both
+            Emulate CSS media feature <code>prefers-reduced-motion: reduce</code>) - both
             variants should freeze to a still pose.
           </p>
         </section>

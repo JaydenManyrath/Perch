@@ -13,7 +13,7 @@ const KIND_ICON = {
 } as const;
 
 /**
- * ItineraryDayCard — one day's plan. Decision content: no mascot. Each item
+ * ItineraryDayCard - one day's plan. Decision content: no mascot. Each item
  * is time + title + note + optional map link.
  */
 export function ItineraryDayCard({ day }: { day: ItineraryDay }) {

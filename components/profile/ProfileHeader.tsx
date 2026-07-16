@@ -5,7 +5,7 @@ import type { UserRow } from "@/lib/types/contract";
 import { formatMonthDay } from "@/lib/utils";
 
 /**
- * ProfileHeader — decision surface (identity + trust). No mascot here.
+ * ProfileHeader - decision surface (identity + trust). No mascot here.
  */
 export function ProfileHeader({ user }: { user: UserRow }) {
   return (

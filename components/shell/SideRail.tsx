@@ -7,7 +7,7 @@ import { BrandMark } from "./BrandMark";
 import { cn } from "@/lib/utils";
 
 /**
- * SideRail — desktop left-side navigation (>= md). Fixed to the left edge.
+ * SideRail - desktop left-side navigation (>= md). Fixed to the left edge.
  */
 export function SideRail() {
   const pathname = usePathname();

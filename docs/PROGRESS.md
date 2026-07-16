@@ -39,21 +39,21 @@ Merged 2026-07-16 via "Merge person-b into main". The full Instagram-shaped app 
 
 ## Round 2 - Feature additions (planned 2026-07-16)
 
-Split THREE ways: Person A (all UI), Person B (schema + core CRUD APIs), Person C (integrations + AI). Seams + ownership map: FOUNDATION-CONTRACT.md §11. Sourcing: SOURCING-PROPOSAL.md. Plans: IMPLEMENTATION-PERSON-A-ROUND2.md, IMPLEMENTATION-PERSON-B-ROUND2.md, IMPLEMENTATION-PERSON-C-ROUND2.md.
+Split THREE ways: Person A (all UI), Person B (schema + core CRUD APIs), Person C (integrations + AI). Seams + ownership map: FOUNDATION-CONTRACT.md sections 11 and 12. Sourcing: SOURCING-PROPOSAL.md. Plans: IMPLEMENTATION-PERSON-A-ROUND2.md, IMPLEMENTATION-PERSON-B-ROUND2.md, IMPLEMENTATION-PERSON-C-ROUND2.md.
 
-### Person A (round 2) - branch person-a
-- [todo] RA1 Perches swipe deck (Tinder-style: drag left/right + buttons + detail sheet)
-- [todo] RA2 Saved tray populated by right-swipes
-- [todo] RA3 Subletter "post a sublease" form (subletter accounts)
-- [todo] RA4 Listing freshness badges + subletter confirm/relist UI
-- [todo] RA5 Reviews UI: star composer + review lists + rating badges
-- [todo] RA6 Tappable profiles everywhere; subletter profile view
-- [todo] RA7 Map: Google-Maps-style category icons + event pins + legend
-- [todo] RA8 Event card: venue/image + "N interns going" + Going toggle
-- [todo] RA9 Onboarding OfferStep: manual-correction UI for low-confidence fields
-- [todo] RA10 Plain-ASCII sweep of existing user-facing strings (no emojis/em-dashes)
+### Person A (round 2, batch 1) - branch person-a
+- [done] RA1 Perches swipe deck (Tinder-style: drag left/right + buttons + detail sheet)
+- [done] RA2 Saved tray populated by right-swipes
+- [done] RA3 Subletter "post a sublease" form (subletter accounts)
+- [done] RA4 Listing freshness badges + subletter confirm/relist UI
+- [done] RA5 Reviews UI: star composer + review lists + rating badges (on perch detail + subletter profile)
+- [done] RA6 Tappable profiles everywhere; subletter profile view
+- [done] RA7 Map: Google-Maps-style category icons + event pins + legend
+- [done] RA8 Event card: venue/image + "N interns going" + Going toggle
+- [done] RA9 Onboarding OfferStep: manual-correction UI for low-confidence fields
+- [done] RA10 Plain-ASCII sweep of existing user-facing strings (no emojis/em-dashes)
 
-### Person B (round 2) - branch person-b - schema + core CRUD APIs
+### Person B (round 2, batch 1) - branch person-b - schema + core CRUD APIs
 - [todo] RB1 Migration: user_type; listings status/expiry/sourced/source_name/source_url/external_id (schema only; C runs the pipeline that fills them)
 - [todo] RB2 Migration + RLS: listing_swipes, reviews, event_attendance (+ extend RLS test suite)
 - [todo] RB3 Perches API: GET /api/perches (fresh-only, excludes swiped, enriched), POST /api/perches/swipe, GET /api/perches/saved
@@ -63,7 +63,7 @@ Split THREE ways: Person A (all UI), Person B (schema + core CRUD APIs), Person 
 - [todo] RB7 Public profile: GET /api/users/{id}
 - [todo] RB8 Expose kind/category per mappable row for A's icons; round-2 base seed (subletters, listings across statuses, swipes, reviews, attendance)
 
-### Person C (round 2) - branch person-c - integrations + AI
+### Person C (round 2, batch 1) - branch person-c - integrations + AI
 - [todo] RC1 Sourcing pipeline: SourceAdapter interface + seed adapter + normalize + dedupe + ingest + admin trigger route (SOURCING-PROPOSAL.md), on B's schema
 - [todo] RC2 Freshness jobs: expiry pass (available -> stale) + "still available?" ping dispatch (B owns the confirm route)
 - [todo] RC3 Ticketmaster integration: Discovery API client (keyed, read-only, rate-limited) + GET /api/events/nearby + events upsert (dedupe external_id) + seeded fallback
@@ -72,18 +72,18 @@ Split THREE ways: Person A (all UI), Person B (schema + core CRUD APIs), Person 
 
 ## Round 2 - Additional features / batch 2 (planned 2026-07-16)
 
-Still Round 2, same three-way split. Seams: FOUNDATION-CONTRACT.md §12. Added to the existing round-2 plans (IMPLEMENTATION-PERSON-{A,B,C}-ROUND2.md), continuing each person's numbering.
+Still Round 2, same three-way split. Seams: FOUNDATION-CONTRACT.md section 12. Added to the existing round-2 plans (IMPLEMENTATION-PERSON-{A,B,C}-ROUND2.md), continuing each person's numbering.
 
 ### Person A (round 2, batch 2) - branch person-a - all UI
-- [todo] RA11 Remove NoteThread interleave from the feed; feed is events-only
-- [todo] RA12 Map comment placeholders + read/add sheet on the map (notes move here)
-- [todo] RA13 Event comments UI (composer + list) on the event card
-- [todo] RA14 Event going Y/N poll + "N interns going" count on the event card
-- [todo] RA15 Feed pictures (render event images)
-- [todo] RA16 Friends UI: add-friend button + friends list + requests inbox
-- [todo] RA17 DMs Instagram-Notes strip (friends going to events)
-- [todo] RA18 Remove front-page dev shortcuts (skip-to-shell, negotiation) in app/page.tsx
-- [todo] RA19 Apartment route on map (colored) + POI-along-route selection + schedule view
+- [done] RA11 Remove NoteThread interleave from the feed; feed is events-only
+- [done] RA12 Map comment placeholders + read/add sheet on the map (notes move here)
+- [done] RA13 Event comments UI (composer + list) on the event card
+- [done] RA14 Event going Y/N poll + "N interns going" count on the event card
+- [done] RA15 Feed pictures (render event images)
+- [done] RA16 Friends UI: add-friend button + friends list + requests inbox
+- [done] RA17 DMs Instagram-Notes strip (friends going to events)
+- [done] RA18 Remove front-page dev shortcuts (skip-to-shell, negotiation) in app/page.tsx
+- [done] RA19 Apartment route on map (colored) + POI-along-route selection + schedule view
 
 ### Person B (round 2, batch 2) - branch person-b - schema + core APIs
 - [todo] RB9 notes.lat/lng (map comments) + GET/POST /api/map/comments
@@ -101,6 +101,7 @@ Still Round 2, same three-way split. Seams: FOUNDATION-CONTRACT.md §12. Added t
 ## Log
 
 - 2026-07-16: Round 1 merged to main.
-- 2026-07-16: Round 2 planned; contract §11, sourcing proposal, and per-person round-2 plans added.
+- 2026-07-16: Round 2 planned; contract section 11, sourcing proposal, and per-person round-2 plans added.
 - 2026-07-16: Round 2 re-split three ways (A = UI, B = schema + core APIs, C = integrations + AI); person-c branch added.
 - 2026-07-16: Round 2 batch 2 planned (comments to map, event comments + going poll, feed pictures, friends, DMs notes strip, front-page cleanup, apartment route + schedule); added to the same three round-2 plans.
+- 2026-07-16: Person A Round 2 (RA1-RA19) shipped on branch person-a. All UI surfaces built against fixtures; wire to live routes when B ships RB1-RB14 and C ships RC1-RC8. See docs/IMPLEMENTATION-PERSON-A-ROUND2.md for the full feature list and demo checklist.

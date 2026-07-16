@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
 /**
- * BandedBadge — the trust "banded" (verified) badge (A6).
+ * BandedBadge - the trust "banded" (verified) badge (A6).
  * Bird metaphor: a bird is "banded" when tagged/identified. Here it's the
  * verified-intern indicator. Positive/pass color per contract §3.
  */
@@ -22,7 +22,7 @@ export function BandedBadge({
   const sm = size === "sm";
   return (
     <span
-      title={title ?? "Banded — verified intern"}
+      title={title ?? "Banded - verified intern"}
       className={cn(
         "inline-flex items-center gap-1 rounded-full border",
         "bg-func-passBg text-func-pass border-func-passBg",

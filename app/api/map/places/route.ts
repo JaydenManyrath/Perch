@@ -7,7 +7,7 @@ import type { MapPlacesResponse } from "@/lib/types/contract";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/map/places — life-map places (B9) + deterministic "N min from your usual
+// GET /api/map/places - life-map places (B9) + deterministic "N min from your usual
 // coffee spot". Backed by the pre-loaded sample Takeout so the demo never breaks.
 export async function GET(req: Request) {
   const g = await guard(req);

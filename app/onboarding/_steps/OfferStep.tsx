@@ -1,18 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, FileText, ArrowRight } from "lucide-react";
+import { Upload, FileText, ArrowRight, AlertCircle } from "lucide-react";
 import { Mascot } from "@/components/mascot/Mascot";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Card, CardContent } from "@/components/ui/Card";
 import { parseOffer } from "@/lib/data/source";
-import type { OfferParse } from "@/lib/types/contract";
-import { formatMonthDay } from "@/lib/utils";
+import type { OfferField, OfferParse } from "@/lib/types/contract";
+import { cn } from "@/lib/utils";
 
 /**
- * Step 1 — Offer letter. Mascot appears in the waiting beat; the parsed
- * result renders clean (no mascot over money/dates), CLAUDE.md §9.
+ * Step 1 - Offer letter (RA9 manual-correction).
+ * Mascot appears in the waiting beat; the parsed result renders clean
+ * (no mascot over money/dates). Low-confidence fields (needsReview) are
+ * highlighted with a flag color and rendered as editable inputs on entry
+ * so a bad OCR/parse never blocks the flow.
  */
 export function OfferStep({
   onDone,
@@ -36,9 +39,9 @@ export function OfferStep({
       <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center">
         <Mascot variant="hop" size={160} />
         <div>
-          <h2 className="text-h2 text-ink-strong">Reading your offer…</h2>
+          <h2 className="text-h2 text-ink-strong">Reading your offer...</h2>
           <p className="mt-1 text-body text-ink-soft">
-            Extracting employer, role, dates and salary.
+            Extracting employer, role, dates, and salary.
           </p>
         </div>
       </div>
@@ -46,48 +49,11 @@ export function OfferStep({
   }
 
   if (state.kind === "done") {
-    const o = state.offer;
     return (
-      <div className="flex-1 flex flex-col gap-6">
-        <header>
-          <h2 className="text-h2 text-ink-strong">Here's what we got</h2>
-          <p className="mt-1 text-body text-ink-soft">
-            Edit anything that doesn't look right.
-          </p>
-        </header>
-
-        {/* Decision content — no mascot over the numbers. */}
-        <Card>
-          <CardContent className="p-4 grid grid-cols-2 gap-3">
-            <Field label="Employer" value={o.employer} />
-            <Field label="Role" value={o.role ?? "—"} />
-            <Field
-              label="Salary (annual)"
-              value={o.salary ? `$${o.salary.toLocaleString()}` : "—"}
-            />
-            <Field label="City" value={o.city ?? "—"} />
-            <Field
-              label="Start"
-              value={o.startDate ? formatMonthDay(o.startDate) : "—"}
-            />
-            <Field
-              label="End"
-              value={o.endDate ? formatMonthDay(o.endDate) : "—"}
-            />
-          </CardContent>
-        </Card>
-
-        <div className="flex flex-wrap gap-1.5">
-          <Chip>Deterministic extraction</Chip>
-          <Chip tone="muted">LLM only normalizes ambiguous fields — never invents numbers</Chip>
-        </div>
-
-        <div className="mt-auto pt-6">
-          <Button size="lg" className="w-full" onClick={() => onDone(o)}>
-            Continue <ArrowRight className="h-4 w-4" aria-hidden />
-          </Button>
-        </div>
-      </div>
+      <OfferCorrection
+        offer={state.offer}
+        onContinue={(o) => onDone(o)}
+      />
     );
   }
 
@@ -101,9 +67,7 @@ export function OfferStep({
         </p>
       </header>
 
-      <label
-        className="border-2 border-dashed border-sky-300 rounded-3xl p-8 text-center bg-white hover:bg-sky-100 transition-colors cursor-pointer"
-      >
+      <label className="border-2 border-dashed border-sky-300 rounded-3xl p-8 text-center bg-white hover:bg-sky-100 transition-colors cursor-pointer">
         <FileText className="h-8 w-8 text-sky-400 mx-auto" aria-hidden />
         <span className="block mt-3 text-body font-semibold text-ink-strong">
           Choose a PDF
@@ -133,11 +97,143 @@ export function OfferStep({
   );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+const FIELDS: { key: OfferField; label: string; type: "text" | "number" | "date" }[] = [
+  { key: "employer", label: "Employer", type: "text" },
+  { key: "role", label: "Role", type: "text" },
+  { key: "salary", label: "Salary (annual USD)", type: "number" },
+  { key: "city", label: "City", type: "text" },
+  { key: "startDate", label: "Start date", type: "date" },
+  { key: "endDate", label: "End date", type: "date" },
+];
+
+function OfferCorrection({
+  offer,
+  onContinue,
+}: {
+  offer: OfferParse;
+  onContinue: (o: OfferParse) => void;
+}) {
+  const [values, setValues] = useState<Record<OfferField, string>>({
+    employer: offer.employer ?? "",
+    role: offer.role ?? "",
+    salary: offer.salary != null ? String(offer.salary) : "",
+    startDate: offer.startDate ?? "",
+    endDate: offer.endDate ?? "",
+    city: offer.city ?? "",
+  });
+  const [reviewed, setReviewed] = useState<Set<OfferField>>(new Set());
+  const needsReview = new Set(offer.needsReview ?? []);
+  const confidence = offer.confidence ?? ({} as Record<OfferField, number>);
+
+  function set(key: OfferField, value: string) {
+    setValues((v) => ({ ...v, [key]: value }));
+    // As soon as the user edits a flagged field, mark it reviewed.
+    if (needsReview.has(key)) setReviewed((r) => new Set(r).add(key));
+  }
+
+  function markReviewed(key: OfferField) {
+    setReviewed((r) => new Set(r).add(key));
+  }
+
+  const outstanding = Array.from(needsReview).filter((k) => !reviewed.has(k));
+
+  function submit() {
+    const corrected: OfferParse = {
+      ...offer,
+      employer: values.employer.trim() || offer.employer,
+      role: values.role.trim() || null,
+      salary: values.salary.trim() ? Number(values.salary) : null,
+      startDate: values.startDate || null,
+      endDate: values.endDate || null,
+      city: values.city.trim() || null,
+      // Downstream code should trust the user's edits fully.
+      needsReview: outstanding.length === 0 ? [] : outstanding,
+    };
+    onContinue(corrected);
+  }
+
   return (
-    <div>
-      <dt className="text-caption text-ink-soft">{label}</dt>
-      <dd className="text-body text-ink-strong font-semibold mt-0.5">{value}</dd>
+    <div className="flex-1 flex flex-col gap-4">
+      <header>
+        <h2 className="text-h2 text-ink-strong">Here's what we got</h2>
+        <p className="mt-1 text-body text-ink-soft">
+          Edit anything that doesn't look right. Fields we're less sure about
+          are flagged - a quick check unblocks you.
+        </p>
+      </header>
+
+      {outstanding.length > 0 ? (
+        <div className="inline-flex items-center gap-2 rounded-2xl bg-func-flagBg text-func-flag px-3 py-2 border border-func-flagBg text-caption font-semibold">
+          <AlertCircle className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+          {outstanding.length} field{outstanding.length === 1 ? "" : "s"} need a
+          quick review before continuing.
+        </div>
+      ) : null}
+
+      <Card>
+        <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {FIELDS.map((f) => {
+            const flagged = needsReview.has(f.key) && !reviewed.has(f.key);
+            const conf = confidence[f.key];
+            return (
+              <label key={f.key} className="block">
+                <span className={cn(
+                  "flex items-center gap-1 text-caption",
+                  flagged ? "text-func-flag font-semibold" : "text-ink-soft",
+                )}>
+                  {flagged ? <AlertCircle className="h-3 w-3" aria-hidden strokeWidth={2.5} /> : null}
+                  {f.label}
+                  {typeof conf === "number" ? (
+                    <span className="text-ink-muted font-normal">
+                      ({Math.round(conf * 100)}%)
+                    </span>
+                  ) : null}
+                </span>
+                <input
+                  type={f.type}
+                  value={values[f.key]}
+                  onChange={(e) => set(f.key, e.target.value)}
+                  onBlur={() => markReviewed(f.key)}
+                  aria-invalid={flagged}
+                  className={cn(
+                    "mt-1 w-full rounded-xl bg-white px-3 py-2 text-body text-ink-strong focus:outline-none focus:ring-2 focus:ring-sky-500",
+                    flagged
+                      ? "border-2 border-func-flag focus:ring-func-flag"
+                      : "border border-sky-300 focus:border-sky-500",
+                  )}
+                />
+              </label>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-wrap gap-1.5">
+        <Chip>Deterministic extraction</Chip>
+        <Chip tone="muted">LLM only normalizes ambiguous fields - never invents numbers</Chip>
+        <Chip tone="accent">Your corrections proceed</Chip>
+      </div>
+
+      <div className="mt-auto pt-4">
+        <Button
+          size="lg"
+          className="w-full"
+          onClick={submit}
+          disabled={
+            !values.employer.trim() ||
+            !values.role.trim() ||
+            !values.startDate ||
+            outstanding.length > 0
+          }
+        >
+          Continue <ArrowRight className="h-4 w-4" aria-hidden />
+        </Button>
+        {outstanding.length > 0 ? (
+          <p className="mt-2 text-caption text-ink-soft text-center">
+            Confirm each flagged field to enable Continue.
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

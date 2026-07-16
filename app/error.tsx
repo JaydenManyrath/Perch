@@ -5,7 +5,7 @@ import { Mascot } from "@/components/mascot/Mascot";
 import { Button } from "@/components/ui/Button";
 
 /**
- * Root error boundary — friendly landing, chick apologetic, retry button.
+ * Root error boundary - friendly landing, chick apologetic, retry button.
  * Empty/error states are personality moments (chick allowed).
  */
 export default function GlobalError({
@@ -24,7 +24,7 @@ export default function GlobalError({
       <Mascot variant="idle" size={140} />
       <h1 className="mt-6 text-h1 text-ink-strong">Something knocked us off the perch</h1>
       <p className="mt-2 max-w-md text-body text-ink-soft">
-        Sorry about that. Try again — if it keeps failing, tell us what you clicked
+        Sorry about that. Try again - if it keeps failing, tell us what you clicked
         so we can help.
       </p>
       <div className="mt-6 flex gap-2">

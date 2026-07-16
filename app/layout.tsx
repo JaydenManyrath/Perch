@@ -10,7 +10,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Perch — land in a new city",
+  title: "Perch - land in a new city",
   description:
     "The social network interns use to land in a new city: find your flock, perch on a sublease, get familiar before you arrive.",
 };

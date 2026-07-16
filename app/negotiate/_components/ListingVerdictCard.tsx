@@ -38,10 +38,10 @@ function VerdictPill({ verdict }: { verdict: Verdict }) {
 
 /**
  * A single listing card that fills in live as scout verdicts arrive. Numbers are
- * rendered as a clean, serious, information-first surface — no mascot here (decision
+ * rendered as a clean, serious, information-first surface - no mascot here (decision
  * surface, CLAUDE.md §9). When the overall verdict is `pass`, the card gets the
  * "lands into tray" settle animation (stub CSS transition until A's motion primitive
- * merges — plan §2.2).
+ * merges - plan §2.2).
  */
 export function ListingVerdictCard({ state }: { state: ListingState }) {
   const overall = state.summary?.overall;
@@ -63,7 +63,7 @@ export function ListingVerdictCard({ state }: { state: ListingState }) {
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
         <h3 style={{ fontSize: 16, fontWeight: 700, color: INK_STRONG }}>{state.title}</h3>
         {overall ? <VerdictPill verdict={overall} /> : (
-          <span style={{ fontSize: 12, color: INK_SOFT }}>scouting…</span>
+          <span style={{ fontSize: 12, color: INK_SOFT }}>scouting...</span>
         )}
       </header>
 

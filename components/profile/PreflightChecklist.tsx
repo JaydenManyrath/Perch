@@ -8,7 +8,7 @@ import type { ChecklistItemRow } from "@/lib/types/contract";
 import { toggleChecklistItem } from "@/lib/data/source";
 
 /**
- * PreflightChecklist — the pre-move checklist (A6). Owner-scoped; each toggle
+ * PreflightChecklist - the pre-move checklist (A6). Owner-scoped; each toggle
  * is optimistic and reverts on error. Sorted by due_offset (days before move_in).
  */
 export function PreflightChecklist({ initial }: { initial: ChecklistItemRow[] }) {

@@ -8,7 +8,7 @@ import type { StickerCategory } from "@/lib/types/contract";
 import { cn } from "@/lib/utils";
 
 /**
- * PlaceStickerSheet — pick a POSITIVE category + write a short note.
+ * PlaceStickerSheet - pick a POSITIVE category + write a short note.
  *
  * POSITIVE-ONLY (contract §2, §8). The picker is built from STICKER_ORDER
  * (six categories), which comes from POSITIVE_STICKER_CATEGORIES in
@@ -110,7 +110,7 @@ export function PlaceStickerSheet({
             Cancel
           </Button>
           <Button onClick={submit} disabled={!selected || !location || saving}>
-            {saving ? "Placing…" : "Leave sticker"}
+            {saving ? "Placing..." : "Leave sticker"}
           </Button>
         </div>
       </SheetContent>

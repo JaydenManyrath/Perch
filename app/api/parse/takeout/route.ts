@@ -6,7 +6,7 @@ import type { TakeoutParse } from "@/lib/types/contract";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// POST /api/parse/takeout — Google Maps Takeout upload (multipart file or raw JSON
+// POST /api/parse/takeout - Google Maps Takeout upload (multipart file or raw JSON
 // body) → recurring places (B6). Deterministic clustering; frequency populated.
 export async function POST(req: Request) {
   const g = await guard(req);

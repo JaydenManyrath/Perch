@@ -1,5 +1,8 @@
 import type { EventRow } from "@/lib/types/contract";
 
+// Round 2: events carry venue + url + image_url + price_range (from Ticketmaster or seed).
+const IMG = (id: string) => `https://images.unsplash.com/${id}?w=800`;
+
 export const eventsFixture: EventRow[] = [
   {
     id: "E1",
@@ -9,6 +12,11 @@ export const eventsFixture: EventRow[] = [
     lng: -122.3541,
     datetime: "2026-06-14T20:00:00Z",
     source: "seeded",
+    external_id: "tm-E1",
+    url: "https://www.ticketmaster.com/event/E1",
+    venue: "Climate Pledge Arena",
+    image_url: IMG("photo-1506157786151-b8491531f063"),
+    price_range: "$65-$120",
   },
   {
     id: "E2",
@@ -18,15 +26,25 @@ export const eventsFixture: EventRow[] = [
     lng: -122.3395,
     datetime: "2026-06-21T20:00:00Z",
     source: "seeded",
+    external_id: "tm-E2",
+    url: "https://www.ticketmaster.com/event/E2",
+    venue: "The Showbox",
+    image_url: IMG("photo-1493225457124-a3eb161ffa5f"),
+    price_range: "$45-$85",
   },
   {
     id: "E3",
-    title: "Interns pub-quiz — Capitol Hill",
+    title: "Interns pub-quiz - Capitol Hill",
     category: "social",
     lat: 47.6141,
     lng: -122.3208,
     datetime: "2026-06-11T19:00:00Z",
     source: "community",
+    external_id: null,
+    url: null,
+    venue: "Optimism Brewing",
+    image_url: IMG("photo-1517457373958-b7bdd4587205"),
+    price_range: "Free",
   },
   {
     id: "E4",
@@ -36,6 +54,11 @@ export const eventsFixture: EventRow[] = [
     lng: -122.313,
     datetime: "2026-07-05T20:30:00Z",
     source: "seeded",
+    external_id: "tm-E4",
+    url: "https://www.ticketmaster.com/event/E4",
+    venue: "Neptune Theatre",
+    image_url: IMG("photo-1470229722913-7c0e2dbbafd3"),
+    price_range: "$55-$95",
   },
   {
     id: "E5",
@@ -45,6 +68,11 @@ export const eventsFixture: EventRow[] = [
     lng: -122.3396,
     datetime: "2026-06-13T18:00:00Z",
     source: "meetup",
+    external_id: null,
+    url: null,
+    venue: "Lake Union Park",
+    image_url: IMG("photo-1476514525535-07fb3b4ae5f1"),
+    price_range: "$25",
   },
   {
     id: "E6",
@@ -54,6 +82,11 @@ export const eventsFixture: EventRow[] = [
     lng: -122.335,
     datetime: "2026-06-28T22:00:00Z",
     source: "seeded",
+    external_id: "tm-E6",
+    url: "https://www.ticketmaster.com/event/E6",
+    venue: "Q Nightclub",
+    image_url: IMG("photo-1583244532610-2a234c1ff8fb"),
+    price_range: "$40-$70",
   },
   {
     id: "E7",
@@ -63,6 +96,11 @@ export const eventsFixture: EventRow[] = [
     lng: -122.384,
     datetime: "2026-07-11T12:00:00Z",
     source: "seeded",
+    external_id: "tm-E7",
+    url: "https://www.ballardseafoodfest.com",
+    venue: "Ballard Ave NW",
+    image_url: IMG("photo-1504674900247-0877df9cc836"),
+    price_range: "Free entry",
   },
   {
     id: "E8",
@@ -72,6 +110,11 @@ export const eventsFixture: EventRow[] = [
     lng: -122.3401,
     datetime: "2026-06-18T19:30:00Z",
     source: "community",
+    external_id: null,
+    url: null,
+    venue: "The Nest",
+    image_url: IMG("photo-1543007630-9710e4a00a20"),
+    price_range: "Free",
   },
   {
     id: "E9",
@@ -81,6 +124,11 @@ export const eventsFixture: EventRow[] = [
     lng: -122.3316,
     datetime: "2026-07-19T20:00:00Z",
     source: "seeded",
+    external_id: "tm-E9",
+    url: "https://www.ticketmaster.com/event/E9",
+    venue: "Paramount Theatre",
+    image_url: IMG("photo-1459749411175-04bf5292ceea"),
+    price_range: "$75-$140",
   },
   {
     id: "E10",
@@ -90,5 +138,10 @@ export const eventsFixture: EventRow[] = [
     lng: -121.7603,
     datetime: "2026-06-27T07:00:00Z",
     source: "community",
+    external_id: null,
+    url: null,
+    venue: "Paradise Trailhead",
+    image_url: IMG("photo-1454391304352-2bf4678b1a7a"),
+    price_range: "Gas share",
   },
 ];

@@ -7,7 +7,7 @@ import type { OfferParse } from "@/lib/types/contract";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs"; // pdf-parse needs Node, not edge
 
-// POST /api/parse/offer — multipart PDF upload → structured offer (B6). Deterministic
+// POST /api/parse/offer - multipart PDF upload → structured offer (B6). Deterministic
 // extraction; salary is never invented. Stores the file to the private offer-letters
 // bucket under the caller's uid prefix (owner-only RLS, 0005).
 export async function POST(req: Request) {

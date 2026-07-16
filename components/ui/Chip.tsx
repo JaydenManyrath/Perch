@@ -2,8 +2,8 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Chip — small info pill for taste reasons / genres / kinds.
- * Sky-100 fill, ink.strong text (per WCAG rule — never baby-blue text on white).
+ * Chip - small info pill for taste reasons / genres / kinds.
+ * Sky-100 fill, ink.strong text (per WCAG rule - never baby-blue text on white).
  */
 export function Chip({
   className,

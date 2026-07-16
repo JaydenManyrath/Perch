@@ -21,9 +21,17 @@ export type FeedItem = {
     lng: number;
     datetime: string; // ISO 8601
     source: string;
+    // Round 2 (§11.6): Ticketmaster/seed event enrichments.
+    venue?: string | null;
+    url?: string | null;
+    imageUrl?: string | null;
+    priceRange?: string | null;
   };
   tasteScore: number; // 0..1, deterministic
   reason: string;     // short human-readable, LLM-generated
+  // Round 2 (§11.6, §12.2): attendance count + viewer's own going flag.
+  internsGoing?: number;
+  viewerGoing?: boolean;
 };
 
 export type FeedResponse = {
@@ -138,6 +146,9 @@ export type MapPlacesResponse = {
 // ─────────────────────────────────────────────────────────────
 // §4.6 — onboarding data routes
 // ─────────────────────────────────────────────────────────────
+/** Field ids in an OfferParse — used for confidence + needsReview (§11.9). */
+export type OfferField = "employer" | "role" | "salary" | "startDate" | "endDate" | "city";
+
 export type OfferParse = {
   employer: string;
   role: string | null;
@@ -145,6 +156,9 @@ export type OfferParse = {
   startDate: string | null; // ISO
   endDate: string | null;   // ISO
   city: string | null;
+  // Round 2 (§11.9): per-field 0..1 confidence + list of low-confidence fields the UI must let the user correct.
+  confidence?: Record<OfferField, number>;
+  needsReview?: OfferField[];
 };
 
 export type TakeoutParse = { places: Place[] };
@@ -185,6 +199,9 @@ export type ConversationRow = {
 // ─────────────────────────────────────────────────────────────
 // §2 — Table row shapes (Postgres, snake_case) — consumed by A
 // ─────────────────────────────────────────────────────────────
+/** §11.1 — one of the two account roles for the demo. */
+export type UserType = "intern" | "subletter";
+
 export type UserRow = {
   id: string;
   name: string;
@@ -196,7 +213,12 @@ export type UserRow = {
   verified: boolean;
   avatar_url: string | null;
   created_at: string;
+  // Round 2 (§11.1).
+  user_type?: UserType;
 };
+
+/** §11.2 — listing freshness state machine. */
+export type ListingStatus = "available" | "pending" | "taken" | "stale";
 
 export type ListingRow = {
   id: string;
@@ -213,6 +235,14 @@ export type ListingRow = {
   safety_flags: { scamSignals: string[]; notes: string[] };
   created_by: string;
   created_at: string;
+  // Round 2 (§11.2): freshness + provenance.
+  status?: ListingStatus;
+  expires_at?: string | null;
+  last_confirmed_at?: string | null;
+  sourced?: boolean;
+  source_name?: string;
+  source_url?: string | null;
+  external_id?: string | null;
 };
 
 /** Positive-only enum — no avoid/unsafe categories, EVER. (contract §2, §8) */
@@ -248,6 +278,12 @@ export type EventRow = {
   lng: number;
   datetime: string;
   source: string;
+  // Round 2 (§11.6): Ticketmaster/seed enrichments.
+  external_id?: string | null;
+  url?: string | null;
+  venue?: string | null;
+  image_url?: string | null;
+  price_range?: string | null;
 };
 
 export type NoteRow = {
@@ -258,6 +294,9 @@ export type NoteRow = {
   body: string;
   created_by: string;
   created_at: string;
+  // Round 2 (§12.1): when set, the note is a map comment.
+  lat?: number | null;
+  lng?: number | null;
 };
 
 export type ChecklistItemRow = {
@@ -267,3 +306,183 @@ export type ChecklistItemRow = {
   due_offset: number; // days before move_in
   done: boolean;
 };
+
+// ─────────────────────────────────────────────────────────────
+// ROUND 2 (§11) — Reviews (Airbnb-style)
+// ─────────────────────────────────────────────────────────────
+export type ReviewSubject = "listing" | "subletter";
+
+export type Review = {
+  id: string;
+  subjectType: ReviewSubject;
+  subjectId: string;
+  reviewer: { id: string; name: string; avatarUrl: string | null };
+  rating: 1 | 2 | 3 | 4 | 5;
+  body: string;
+  createdAt: string; // ISO
+};
+
+export type ReviewSummary = { avgRating: number; count: number };
+export type ReviewsResponse = { reviews: Review[]; summary: ReviewSummary };
+export type PostReviewInput = {
+  subjectType: ReviewSubject;
+  subjectId: string;
+  rating: 1 | 2 | 3 | 4 | 5;
+  body: string;
+};
+
+// ─────────────────────────────────────────────────────────────
+// ROUND 2 (§11.3) — Perches swipe deck
+// ─────────────────────────────────────────────────────────────
+export type PerchCard = ListingRow & {
+  status: ListingStatus;
+  expiresAt: string | null;
+  lastConfirmedAt: string | null;
+  sourced: boolean;
+  sourceName: string;
+  reviewSummary: ReviewSummary;
+  host: { id: string; name: string; avatarUrl: string | null } | null;
+};
+
+export type PerchDeckResponse = { deck: PerchCard[] };
+export type SwipeDirection = "left" | "right";
+export type SwipeInput = { listingId: string; direction: SwipeDirection };
+
+// ─────────────────────────────────────────────────────────────
+// ROUND 2 (§11.4) — Subletter posting
+// ─────────────────────────────────────────────────────────────
+export type PostListingInput = {
+  title: string;
+  address: string;
+  lat: number;
+  lng: number;
+  price: number;          // USD/mo
+  leaseStart: string;     // ISO date
+  leaseEnd: string;       // ISO date
+  leaseType: "sublet" | "short_term" | "standard";
+  photos: string[];
+  safetyNotes?: string[];
+};
+
+// ─────────────────────────────────────────────────────────────
+// ROUND 2 (§11.6, §12.2) — Events + attendance
+// ─────────────────────────────────────────────────────────────
+export type AttendanceStatus = "going" | "interested";
+/** Batch 2 (§12.7) SUPERSEDES the earlier AttendResponse — this is the final shape. */
+export type AttendInput = { going: boolean };
+export type AttendResponse = { going: number; viewerGoing: boolean };
+
+// ─────────────────────────────────────────────────────────────
+// ROUND 2 (§11.8) — Public profile (tappable)
+// ─────────────────────────────────────────────────────────────
+export type PublicProfile = {
+  user: {
+    id: string;
+    name: string;
+    role: string;
+    city: string;
+    company: string;
+    avatarUrl: string | null;
+  };
+  userType: UserType;
+  banded: boolean;
+  reviewSummary?: ReviewSummary; // present for subletters
+  listings?: ListingRow[];       // present for subletters
+};
+
+// ─────────────────────────────────────────────────────────────
+// ROUND 2 batch 2 (§12.1) — Map comments (notes with a location)
+// ─────────────────────────────────────────────────────────────
+export type MapComment = {
+  id: string;
+  author: { id: string; name: string; avatarUrl: string | null };
+  lat: number;
+  lng: number;
+  topic: string;
+  body: string;
+  createdAt: string;
+};
+
+export type MapCommentsResponse = { comments: MapComment[] };
+export type PostMapCommentInput = {
+  lat: number;
+  lng: number;
+  topic: string;
+  body: string;
+};
+
+// ─────────────────────────────────────────────────────────────
+// ROUND 2 batch 2 (§12.2) — Event comments
+// ─────────────────────────────────────────────────────────────
+export type EventComment = {
+  id: string;
+  eventId: string;
+  author: { id: string; name: string; avatarUrl: string | null };
+  body: string;
+  createdAt: string;
+};
+
+export type EventCommentsResponse = { comments: EventComment[] };
+export type PostEventCommentInput = { body: string };
+
+// ─────────────────────────────────────────────────────────────
+// ROUND 2 batch 2 (§12.3, §12.4) — Friends + friend notes
+// ─────────────────────────────────────────────────────────────
+export type FriendStatus = "pending" | "accepted";
+
+export type Friend = {
+  user: { id: string; name: string; avatarUrl: string | null; company: string };
+  status: FriendStatus;
+  direction?: "incoming" | "outgoing";
+};
+
+export type FriendsResponse = { friends: Friend[] };
+export type FriendRequestsResponse = { requests: Friend[] };
+
+export type FriendNote = {
+  friend: { id: string; name: string; avatarUrl: string | null };
+  event: { id: string; title: string; datetime: string };
+};
+
+export type FriendNotesResponse = { notes: FriendNote[] };
+
+// ─────────────────────────────────────────────────────────────
+// ROUND 2 batch 2 (§12.6) — Commute route + POIs + schedule
+// ─────────────────────────────────────────────────────────────
+export type GeoJSONLineString = {
+  type: "LineString";
+  coordinates: [number, number][]; // [lng, lat]
+};
+
+export type RouteRequest = {
+  officeLat: number;
+  officeLng: number;
+  apartmentLat: number;
+  apartmentLng: number;
+};
+
+export type RouteResponse = {
+  geometry: GeoJSONLineString;
+  distanceMeters: number;
+  durationSeconds: number;
+};
+
+export type RoutePoi = {
+  place: { id: string; label: string; kind: string; lat: number; lng: number };
+  distanceFromRouteMeters: number;
+};
+
+export type RoutePoisRequest = {
+  geometry: GeoJSONLineString;
+  kinds: string[];
+};
+
+export type RoutePoisResponse = { pois: RoutePoi[] };
+
+export type CommuteScheduleRequest = {
+  apartmentId: string;
+  selectedPlaceIds: string[];
+};
+
+export type CommuteScheduleResponse = { day: ItineraryDay };
+

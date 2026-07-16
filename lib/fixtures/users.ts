@@ -1,6 +1,6 @@
 import type { UserRow } from "@/lib/types/contract";
 
-// Stable UUID for "me" — persistent across all fixtures so profile/DMs/matches align.
+// Stable UUID for "me" - persistent across all fixtures so profile/DMs/matches align.
 export const ME_ID = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
 
 const A = (seed: string) => `https://api.dicebear.com/9.x/thumbs/svg?seed=${seed}&backgroundColor=BFE3F7`;
@@ -21,9 +21,10 @@ export const meFixture: UserRow = {
   verified: true,
   avatar_url: A("alex"),
   created_at: "2026-05-30T14:00:00Z",
+  user_type: "intern",
 };
 
-// Other seeded users — density-first Seattle cohort.
+// Other seeded users - density-first Seattle cohort.
 export const otherUsersFixture: UserRow[] = [
   {
     id: "a3b4c5d6-e7f8-4901-a234-56789abcdef0",
@@ -41,6 +42,7 @@ export const otherUsersFixture: UserRow[] = [
     verified: true,
     avatar_url: A("jordan"),
     created_at: "2026-05-31T09:00:00Z",
+    user_type: "intern",
   },
   {
     id: "b1c2d3e4-f5a6-4789-b012-34567890abcd",
@@ -58,6 +60,7 @@ export const otherUsersFixture: UserRow[] = [
     verified: true,
     avatar_url: A("sam"),
     created_at: "2026-06-01T12:00:00Z",
+    user_type: "intern",
   },
   {
     id: "c9d8e7f6-a5b4-4321-c098-7654321fedcb",
@@ -75,6 +78,7 @@ export const otherUsersFixture: UserRow[] = [
     verified: true,
     avatar_url: A("priya"),
     created_at: "2026-06-01T15:00:00Z",
+    user_type: "intern",
   },
   {
     id: "d5e4f3a2-b1c0-4987-d654-321fedcba098",
@@ -87,6 +91,7 @@ export const otherUsersFixture: UserRow[] = [
     verified: true,
     avatar_url: A("miles"),
     created_at: "2026-06-02T10:00:00Z",
+    user_type: "intern",
   },
   {
     id: "e2f1a0b9-c8d7-4654-e321-098fedcba765",
@@ -103,6 +108,7 @@ export const otherUsersFixture: UserRow[] = [
     verified: false,
     avatar_url: A("nika"),
     created_at: "2026-06-02T18:00:00Z",
+    user_type: "intern",
   },
   {
     id: "f0a9b8c7-d6e5-4321-f098-7654321dcba0",
@@ -112,13 +118,14 @@ export const otherUsersFixture: UserRow[] = [
     city: "Seattle",
     move_in_date: "2026-06-08",
     taste_profile: {
-      topArtists: ["Bad Bunny", "Rosalía"],
+      topArtists: ["Bad Bunny", "Rosalia"],
       topGenres: ["reggaeton", "latin"],
       topTracks: [],
     },
     verified: true,
     avatar_url: A("diego"),
     created_at: "2026-06-03T09:00:00Z",
+    user_type: "intern",
   },
   {
     id: "1a2b3c4d-5e6f-4789-a012-3456789abc01",
@@ -135,6 +142,7 @@ export const otherUsersFixture: UserRow[] = [
     verified: false,
     avatar_url: A("yui"),
     created_at: "2026-06-04T11:00:00Z",
+    user_type: "intern",
   },
   {
     id: "2b3c4d5e-6f7a-4890-b123-456789abcd02",
@@ -151,6 +159,7 @@ export const otherUsersFixture: UserRow[] = [
     verified: true,
     avatar_url: A("wesley"),
     created_at: "2026-06-04T14:00:00Z",
+    user_type: "intern",
   },
   {
     id: "3c4d5e6f-7a8b-4901-c234-56789abcde03",
@@ -163,6 +172,7 @@ export const otherUsersFixture: UserRow[] = [
     verified: true,
     avatar_url: A("amelia"),
     created_at: "2026-06-05T09:00:00Z",
+    user_type: "intern",
   },
   {
     id: "4d5e6f7a-8b9c-4012-d345-6789abcdef04",
@@ -179,6 +189,7 @@ export const otherUsersFixture: UserRow[] = [
     verified: true,
     avatar_url: A("rafi"),
     created_at: "2026-06-05T13:00:00Z",
+    user_type: "intern",
   },
   {
     id: "5e6f7a8b-9c0d-4123-e456-789abcdef005",
@@ -195,5 +206,53 @@ export const otherUsersFixture: UserRow[] = [
     verified: true,
     avatar_url: A("talia"),
     created_at: "2026-06-06T10:00:00Z",
+    user_type: "intern",
+  },
+];
+
+// Round 2: subletters (people who post sublets, not interns).
+export const SUBLETTER_1_ID = "6f7a8b9c-0d1e-4234-f567-89abcdef0106";
+export const SUBLETTER_2_ID = "7a8b9c0d-1e2f-4345-a678-9abcdef00207";
+export const SUBLETTER_3_ID = "8b9c0d1e-2f3a-4456-b789-abcdef003008";
+
+export const sublettersFixture: UserRow[] = [
+  {
+    id: SUBLETTER_1_ID,
+    name: "Elena Vasquez",
+    company: "-",
+    role: "Sublet host",
+    city: "Seattle",
+    move_in_date: "2020-01-01",
+    taste_profile: null,
+    verified: true,
+    avatar_url: A("elena"),
+    created_at: "2025-11-14T09:00:00Z",
+    user_type: "subletter",
+  },
+  {
+    id: SUBLETTER_2_ID,
+    name: "Marcus Bell",
+    company: "-",
+    role: "Sublet host",
+    city: "Seattle",
+    move_in_date: "2020-01-01",
+    taste_profile: null,
+    verified: true,
+    avatar_url: A("marcus"),
+    created_at: "2025-12-02T09:00:00Z",
+    user_type: "subletter",
+  },
+  {
+    id: SUBLETTER_3_ID,
+    name: "Hana Park",
+    company: "-",
+    role: "Sublet host",
+    city: "Seattle",
+    move_in_date: "2020-01-01",
+    taste_profile: null,
+    verified: false,
+    avatar_url: A("hana"),
+    created_at: "2026-02-08T09:00:00Z",
+    user_type: "subletter",
   },
 ];

@@ -2,7 +2,7 @@ import { Mascot } from "@/components/mascot/Mascot";
 import { cn } from "@/lib/utils";
 
 /**
- * EmptyState — chick-fronted empty state (A11).
+ * EmptyState - chick-fronted empty state (A11).
  * Placement rule: this is a personality moment, so the chick lives here.
  */
 export function EmptyState({

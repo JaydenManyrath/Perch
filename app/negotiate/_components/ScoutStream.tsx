@@ -131,7 +131,7 @@ export function ScoutStream({ request }: { request: NegotiateRequest }) {
 
       {status === "error" ? (
         <p style={{ color: "#DC2626", fontWeight: 600 }}>
-          {error} — is the backend seeded and are you signed in?
+          {error} - is the backend seeded and are you signed in?
         </p>
       ) : null}
 

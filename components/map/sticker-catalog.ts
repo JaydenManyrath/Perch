@@ -2,7 +2,7 @@ import type { StickerCategory } from "@/lib/types/contract";
 import { POSITIVE_STICKER_CATEGORIES } from "@/lib/types/contract";
 
 /**
- * Sticker catalog — POSITIVE-ONLY per contract §2, §8.
+ * Sticker catalog - POSITIVE-ONLY per contract §2, §8.
  *
  * This file is the single source of truth for the sticker categories the UI
  * exposes. There is NO avoid/unsafe/negative category anywhere. Person B
@@ -24,5 +24,5 @@ export const STICKER_META: Record<StickerCategory, StickerMeta> = {
   green_space: { category: "green_space", emoji: "🌳", label: "Green space", hint: "Grass. Trees. A minute of quiet." },
 };
 
-/** Ordered list of sticker categories for the picker — positive only. */
+/** Ordered list of sticker categories for the picker - positive only. */
 export const STICKER_ORDER = POSITIVE_STICKER_CATEGORIES.map((c) => STICKER_META[c]);

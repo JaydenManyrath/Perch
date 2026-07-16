@@ -19,14 +19,14 @@ export default async function LandingPage() {
           ) : null}
         </div>
         <p className="text-caption text-ink-soft">
-          Your first week — a plausible plan for after you arrive.
+          Your first week - a plausible plan for after you arrive.
         </p>
       </header>
 
       {itinerary.landingWeek.length === 0 ? (
         <EmptyState
           title="No plan yet"
-          body="Finish onboarding — your landing week appears here."
+          body="Finish onboarding - your landing week appears here."
         />
       ) : (
         <ol className="flex flex-col gap-3">

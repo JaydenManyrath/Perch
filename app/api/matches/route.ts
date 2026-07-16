@@ -7,7 +7,7 @@ import type { MatchesResponse } from "@/lib/types/contract";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/matches?limit=20 — ranked flock (B7/B11, connection-hero back half).
+// GET /api/matches?limit=20 - ranked flock (B7/B11, connection-hero back half).
 export async function GET(req: NextRequest) {
   const g = await guard(req);
   if (g instanceof NextResponse) return g;

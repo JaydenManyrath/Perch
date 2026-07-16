@@ -6,7 +6,7 @@ export default function LandingLoading() {
     <div className="px-4 pt-4 md:pt-8 pb-8">
       <header className="mb-4">
         <h1 className="text-h1 text-ink-strong">Landing</h1>
-        <p className="text-caption text-ink-soft">Your first week — a plausible plan.</p>
+        <p className="text-caption text-ink-soft">Your first week - a plausible plan.</p>
       </header>
       <ol className="flex flex-col gap-3">
         {Array.from({ length: 5 }, (_, i) => (

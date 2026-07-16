@@ -5,13 +5,13 @@ import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Composer — single-line message input + send button. Autofocus on mount so
+ * Composer - single-line message input + send button. Autofocus on mount so
  * the connection-hero "Message now" flow lands in a ready-to-type state.
  */
 export function Composer({
   onSend,
   autoFocus = false,
-  placeholder = "Message…",
+  placeholder = "Message...",
   disabled = false,
 }: {
   onSend: (body: string) => void;

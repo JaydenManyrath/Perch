@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Sheet — bottom sheet / side sheet built on radix dialog. Used for the
+ * Sheet - bottom sheet / side sheet built on radix dialog. Used for the
  * sticker placement UI and any modal-scale flow on the shell.
  */
 export const Sheet = DialogPrimitive.Root;

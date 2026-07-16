@@ -10,7 +10,7 @@ import { spotifyConnect, spotifyStatus } from "@/lib/data/source";
 import type { TasteProfile } from "@/lib/types/contract";
 
 /**
- * Step 2 — Spotify (read-only). The connect kicks off Composio-hosted OAuth
+ * Step 2 - Spotify (read-only). The connect kicks off Composio-hosted OAuth
  * and we poll status until connected. On skip, Person B falls back to a
  * seeded taste profile (contract §4.6).
  */
@@ -27,7 +27,7 @@ export function SpotifyStep({
 
   async function connect() {
     setState({ kind: "connecting" });
-    // Kick off the redirect (in fixture we don't leave the page — we just poll status).
+    // Kick off the redirect (in fixture we don't leave the page - we just poll status).
     await spotifyConnect();
     // Poll for the resulting taste (fixture returns connected+taste immediately).
     const status = await spotifyStatus();
@@ -39,7 +39,7 @@ export function SpotifyStep({
       <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center">
         <Mascot variant="hop" size={160} />
         <div>
-          <h2 className="text-h2 text-ink-strong">Reading your top artists…</h2>
+          <h2 className="text-h2 text-ink-strong">Reading your top artists...</h2>
           <p className="mt-1 text-body text-ink-soft">Read-only, no writes. Ever.</p>
         </div>
       </div>
@@ -94,7 +94,7 @@ export function SpotifyStep({
         <Mascot variant="idle" size={120} />
         <h2 className="text-h2 text-ink-strong mt-4">Connect Spotify</h2>
         <p className="mt-1 text-body text-ink-soft">
-          Just <strong className="text-ink-strong">read-only</strong> — top artists + tracks.
+          Just <strong className="text-ink-strong">read-only</strong> - top artists + tracks.
           Nothing plays, nothing posts.
         </p>
       </header>

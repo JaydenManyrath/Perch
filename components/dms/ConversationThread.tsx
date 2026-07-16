@@ -7,7 +7,7 @@ import { Composer } from "./Composer";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
- * ConversationThread — the live DM thread. Owns the subscription + optimistic
+ * ConversationThread - the live DM thread. Owns the subscription + optimistic
  * send + retry via useRealtimeMessages (which uses the tested reconcile logic).
  */
 export function ConversationThread({

@@ -6,7 +6,7 @@ import type { SpotifyStatusResponse, TasteProfile } from "@/lib/types/contract";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/composio/spotify/status — poll connection + resulting taste (B5). When
+// GET /api/composio/spotify/status - poll connection + resulting taste (B5). When
 // Composio is disabled or a demo connect completed, the fixture taste vector is used
 // so taste_profile is always populated (fallback path, plan §6 Phase 6).
 export async function GET(req: NextRequest) {

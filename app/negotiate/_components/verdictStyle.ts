@@ -4,7 +4,7 @@ import type { Verdict } from "@/lib/types/contract";
  * Verdict → color. Straight from FOUNDATION-CONTRACT §3 functional tokens, kept
  * UNMUTED (never pastel-ify a warning). The pale *Bg values are backgrounds only,
  * paired with the strong foreground for the label. Inline hex is used deliberately so
- * these stay correct regardless of Tailwind's purge — decision surfaces must be legible.
+ * these stay correct regardless of Tailwind's purge - decision surfaces must be legible.
  */
 export const VERDICT_STYLE: Record<Verdict, { fg: string; bg: string; label: string }> = {
   pass: { fg: "#16A34A", bg: "#DCFCE7", label: "Lands" }, // func.pass / func.passBg

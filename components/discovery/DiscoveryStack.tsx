@@ -3,7 +3,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import type { Match } from "@/lib/types/contract";
 
 /**
- * DiscoveryStack — a grid/stack of ranked flock cards. First card is marked
+ * DiscoveryStack - a grid/stack of ranked flock cards. First card is marked
  * top pick; ordering is B's deterministic tasteScore (contract §4.2).
  */
 export function DiscoveryStack({ matches }: { matches: Match[] }) {
@@ -11,7 +11,7 @@ export function DiscoveryStack({ matches }: { matches: Match[] }) {
     return (
       <EmptyState
         title="No matches yet"
-        body="Finish onboarding to seed a taste profile — then your flock will land here."
+        body="Finish onboarding to seed a taste profile - then your flock will land here."
       />
     );
   }

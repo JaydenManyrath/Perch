@@ -1,30 +1,15 @@
 import { Suspense } from "react";
 import { EventCard } from "@/components/feed/EventCard";
-import { NoteThread } from "@/components/feed/NoteThread";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { getFeed, getNotes, getUserById } from "@/lib/data/source";
+import { getFeed } from "@/lib/data/source";
 
-/** Small helper: interleave notes into the ranked feed (every 3rd item). */
-function interleave<T, U>(items: T[], others: U[], stride: number): (T | U)[] {
-  const out: (T | U)[] = [];
-  let oi = 0;
-  items.forEach((it, i) => {
-    out.push(it);
-    if ((i + 1) % stride === 0 && others[oi]) {
-      out.push(others[oi]);
-      oi += 1;
-    }
-  });
-  while (oi < others.length) {
-    out.push(others[oi]);
-    oi += 1;
-  }
-  return out;
-}
-
+/**
+ * The Flyway - RA11: events-only. Past-intern notes moved to the map (RA12).
+ * Feed renders events with venue + image + Going Y/N + comment thread.
+ */
 async function FeedStream() {
-  const [feed, notes] = await Promise.all([getFeed(), getNotes()]);
+  const feed = await getFeed();
   if (feed.items.length === 0) {
     return (
       <EmptyState
@@ -33,24 +18,11 @@ async function FeedStream() {
       />
     );
   }
-  const authors = await Promise.all(notes.map((n) => getUserById(n.created_by)));
-  const noteRows = notes.map((n, i) => ({ note: n, author: authors[i] ?? undefined }));
-
-  const rows = interleave(
-    feed.items.map((it, i) => ({ kind: "event" as const, item: it, topPick: i === 0 })),
-    noteRows.map((nr) => ({ kind: "note" as const, ...nr })),
-    3,
-  );
-
   return (
     <ul className="flex flex-col gap-3">
-      {rows.map((row, idx) => (
-        <li key={idx}>
-          {row.kind === "event" ? (
-            <EventCard item={row.item} topPick={row.topPick} />
-          ) : (
-            <NoteThread note={row.note} author={row.author} />
-          )}
+      {feed.items.map((item, i) => (
+        <li key={item.event.id}>
+          <EventCard item={item} topPick={i === 0} />
         </li>
       ))}
     </ul>
@@ -63,7 +35,7 @@ export default function FeedPage() {
       <header className="mb-4">
         <h1 className="text-h1 text-ink-strong">Flyway</h1>
         <p className="text-caption text-ink-soft">
-          Events and Q&amp;A, ranked to your taste.
+          Events ranked to your taste. Tap Comments to talk about one; tap Going to join.
         </p>
       </header>
       <Suspense fallback={<FeedSkeleton />}>

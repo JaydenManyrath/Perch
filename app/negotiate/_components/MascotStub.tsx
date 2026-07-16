@@ -2,7 +2,7 @@
 
 /**
  * STUB for Person A's `Mascot` component (A2). Appears ONLY in the loading/working
- * area of the hero — a personality moment — never over the numbers (CLAUDE.md §9).
+ * area of the hero - a personality moment - never over the numbers (CLAUDE.md §9).
  * Swap for the real <Mascot variant="hop" /> at integration checkpoint C2. Baby-blue
  * body + orange beak per the §3 recolor; a gentle CSS hop gated behind reduced-motion.
  */
@@ -21,7 +21,7 @@ export function MascotStub() {
           <path d="M28 55 l-3 4 M36 55 l3 4" stroke="#F6A22C" strokeWidth="2.2" strokeLinecap="round" />
         </svg>
       </div>
-      <span style={{ fontSize: 13, color: "#5E7E97" }}>Scouting your perches…</span>
+      <span style={{ fontSize: 13, color: "#5E7E97" }}>Scouting your perches...</span>
       <style>{`
         @media (prefers-reduced-motion: no-preference) {
           .perch-hop { animation: perchHop 1s ease-in-out infinite; }

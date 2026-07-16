@@ -1,5 +1,5 @@
 /**
- * /tokens — a dev-only swatch page. Renders every FROZEN §3 design token so
+ * /tokens - a dev-only swatch page. Renders every FROZEN §3 design token so
  * both people can eyeball the palette (contract §6 acceptance).
  */
 
@@ -24,9 +24,9 @@ const swatches: Swatch[] = [
   { name: "accent.beak", hex: "#F6A22C", className: "bg-accent-beak", role: "top pick / highlights (sparingly)" },
   { name: "accent.beakDeep", hex: "#E5851C", className: "bg-accent-beakDeep", role: "accent pressed" },
   { name: "accent.beakLight", hex: "#E9A24C", className: "bg-accent-beakLight", role: "soft warm tint" },
-  { name: "func.pass", hex: "#16A34A", className: "bg-func-pass", role: "UNMUTED — passes / safe / verified" },
-  { name: "func.flag", hex: "#D97706", className: "bg-func-flag", role: "UNMUTED — caution / lease-fit warning" },
-  { name: "func.scam", hex: "#DC2626", className: "bg-func-scam", role: "UNMUTED — scam / hard fail" },
+  { name: "func.pass", hex: "#16A34A", className: "bg-func-pass", role: "UNMUTED - passes / safe / verified" },
+  { name: "func.flag", hex: "#D97706", className: "bg-func-flag", role: "UNMUTED - caution / lease-fit warning" },
+  { name: "func.scam", hex: "#DC2626", className: "bg-func-scam", role: "UNMUTED - scam / hard fail" },
   { name: "func.passBg", hex: "#DCFCE7", className: "bg-func-passBg", role: "pale green verdict pill bg" },
   { name: "func.flagBg", hex: "#FEF3C7", className: "bg-func-flagBg", role: "pale amber verdict pill bg" },
   { name: "func.scamBg", hex: "#FEE2E2", className: "bg-func-scamBg", role: "pale red verdict pill bg" },
@@ -41,7 +41,7 @@ export default function TokensPage() {
           <p className="mt-2 text-body text-ink-soft">
             The frozen palette from <code>docs/FOUNDATION-CONTRACT.md</code> §3.
             Body text is <em className="not-italic text-ink-strong font-semibold">always</em> ink.strong on
-            white/sky.50 — <em className="not-italic">never</em> baby-blue on white (WCAG).
+            white/sky.50 - <em className="not-italic">never</em> baby-blue on white (WCAG).
           </p>
         </header>
 
@@ -70,15 +70,15 @@ export default function TokensPage() {
           <h2 className="text-h2 text-ink-strong mb-3">Text on surfaces</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="rounded-2xl bg-white p-4">
-              <p className="text-body text-ink-strong">Body text on white — <strong>ink.strong</strong>. This is the reading surface.</p>
-              <p className="text-caption text-ink-soft mt-1">Caption text — ink.soft.</p>
+              <p className="text-body text-ink-strong">Body text on white - <strong>ink.strong</strong>. This is the reading surface.</p>
+              <p className="text-caption text-ink-soft mt-1">Caption text - ink.soft.</p>
             </div>
             <div className="rounded-2xl bg-sky-100 p-4">
-              <p className="text-body text-ink-strong">Body text on sky.100 — still <strong>ink.strong</strong>.</p>
-              <p className="text-caption text-ink-soft mt-1">Caption text — ink.soft.</p>
+              <p className="text-body text-ink-strong">Body text on sky.100 - still <strong>ink.strong</strong>.</p>
+              <p className="text-caption text-ink-soft mt-1">Caption text - ink.soft.</p>
             </div>
             <div className="rounded-2xl bg-sky-200 p-4">
-              <p className="text-body text-ink-strong">Body text on sky.200 — still ink.strong. Sky-blue is for surfaces, not text.</p>
+              <p className="text-body text-ink-strong">Body text on sky.200 - still ink.strong. Sky-blue is for surfaces, not text.</p>
             </div>
             <div className="rounded-2xl bg-ink-strong p-4">
               <p className="text-body text-white">On ink.strong, text goes white.</p>
@@ -87,7 +87,7 @@ export default function TokensPage() {
         </section>
 
         <section className="mt-10">
-          <h2 className="text-h2 text-ink-strong mb-3">Verdict pills — unmuted</h2>
+          <h2 className="text-h2 text-ink-strong mb-3">Verdict pills - unmuted</h2>
           <div className="flex flex-wrap gap-3">
             <span className="inline-flex items-center gap-2 rounded-full bg-func-passBg text-func-pass font-semibold text-caption px-3 py-1">
               <span className="h-2 w-2 rounded-full bg-func-pass" /> Passes budget

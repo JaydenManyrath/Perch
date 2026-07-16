@@ -5,7 +5,7 @@ import { TopBar } from "@/components/shell/TopBar";
 /**
  * The IG-shaped shell chrome. On mobile: TopBar + content + BottomNav.
  * On desktop (>=md): SideRail on the left, wide content, no bottom bar.
- * Body has overflow-x: hidden globally — wide content scrolls in its own container.
+ * Body has overflow-x: hidden globally - wide content scrolls in its own container.
  */
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
   return (

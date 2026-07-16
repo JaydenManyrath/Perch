@@ -6,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Button — themed on the Perch palette (contract §3).
+ * Button - themed on the Perch palette (contract §3).
  * Default (primary) uses sky.400 on white text; secondary uses white on sky.300 border.
  */
 const buttonVariants = cva(

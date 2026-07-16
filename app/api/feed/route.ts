@@ -6,7 +6,7 @@ import type { FeedResponse, TasteProfile } from "@/lib/types/contract";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/feed?limit=20&city=Seattle — taste-ranked events (B7). Deterministic.
+// GET /api/feed?limit=20&city=Seattle - taste-ranked events (B7). Deterministic.
 export async function GET(req: NextRequest) {
   const g = await guard(req);
   if (g instanceof NextResponse) return g;

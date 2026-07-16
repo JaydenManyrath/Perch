@@ -4,7 +4,7 @@ import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Perch — the plush-chick mascot. Recolored teal → baby-blue per FOUNDATION-CONTRACT §3
+ * Perch - the plush-chick mascot. Recolored teal → baby-blue per FOUNDATION-CONTRACT §3
  * (body = sky.200/chick.body, wings = sky.400/chick.wing, beak/feet = accent.beak*).
  *
  * `variant`:
@@ -13,9 +13,9 @@ import { cn } from "@/lib/utils";
  *
  * All motion loops gate behind @media (prefers-reduced-motion: no-preference)
  * in styles/mascot-keyframes.css. Under reduced motion the same SVG renders as
- * a static pose — no code changes needed.
+ * a static pose - no code changes needed.
  *
- * PLACEMENT RULE (CLAUDE.md §9): the chick lives ONLY in personality moments —
+ * PLACEMENT RULE (CLAUDE.md §9): the chick lives ONLY in personality moments -
  * onboarding, loading, empty states, milestones. It is ABSENT from decision
  * surfaces (listings, safety, money, map decisions).
  *
@@ -44,7 +44,7 @@ export function Mascot({ variant = "idle", size = 168, caption, className }: Mas
     <div
       className={cn("inline-flex flex-col items-center gap-2", className)}
       role="img"
-      aria-label={caption ?? "Perch — the plush-chick mascot"}
+      aria-label={caption ?? "Perch - the plush-chick mascot"}
     >
       <svg
         width={size}
@@ -105,7 +105,7 @@ export function Mascot({ variant = "idle", size = 168, caption, className }: Mas
   );
 }
 
-// ─── SVG parts — colors match contract §3 recolor table (chick.body / chick.wing / accent.beak*) ───
+// ─── SVG parts - colors match contract §3 recolor table (chick.body / chick.wing / accent.beak*) ───
 
 function ChickWing() {
   return (

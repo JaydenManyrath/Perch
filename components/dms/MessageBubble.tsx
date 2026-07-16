@@ -5,7 +5,7 @@ import type { UIMessage } from "@/lib/hooks/reconcile";
 import { AlertCircle, RotateCcw } from "lucide-react";
 
 /**
- * MessageBubble — sender bubbles right-aligned in sky-400 on white; recipient
+ * MessageBubble - sender bubbles right-aligned in sky-400 on white; recipient
  * left-aligned in white on sky-100. Pending: dimmed; failed: red hairline
  * border + retry affordance.
  */
@@ -44,7 +44,7 @@ export function MessageBubble({
         )}
       >
         <span>{time}</span>
-        {message.pending ? <span>Sending…</span> : null}
+        {message.pending ? <span>Sending...</span> : null}
         {message.failed ? (
           <>
             <span className="inline-flex items-center gap-1 text-func-scam font-semibold">

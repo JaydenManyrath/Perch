@@ -6,7 +6,7 @@ import { navItems, isActive } from "./nav-items";
 import { cn } from "@/lib/utils";
 
 /**
- * BottomNav — mobile bottom tab bar (hidden on md+). Five destinations.
+ * BottomNav - mobile bottom tab bar (hidden on md+). Five destinations.
  * Fixed at the viewport bottom with a safe-area-inset padding.
  */
 export function BottomNav() {

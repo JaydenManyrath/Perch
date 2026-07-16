@@ -287,3 +287,19 @@ Decisions: the commute route uses the Mapbox Directions API (seeded/straight-lin
 ---
 
 *End of reference. Stack is locked; §8 and §12 are where the real work and decisions live.*
+
+## Agent skills
+
+This repo uses local Markdown for agent issue tracking.
+
+- Issue tracker: `.scratch/<feature-slug>/`
+- Specs: `.scratch/<feature-slug>/spec.md`
+- Tickets: `.scratch/<feature-slug>/issues/<NN>-<slug>.md`
+- Skill config docs:
+  - `docs/agents/issue-tracker.md`
+  - `docs/agents/triage-labels.md`
+  - `docs/agents/domain.md`
+
+When a skill says to publish to the issue tracker, create Markdown files under `.scratch/`.
+When a skill mentions triage labels, use the canonical labels in `docs/agents/triage-labels.md`.
+Before domain-sensitive work, follow `docs/agents/domain.md`.

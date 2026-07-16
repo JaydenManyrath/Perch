@@ -22,12 +22,37 @@ export async function GET(req: NextRequest) {
       .eq("id", g.callerId)
       .single();
 
-    let q = supabase.from("events").select("id,title,category,lat,lng,datetime,source");
+    let q = supabase
+      .from("events")
+      .select("id,title,category,lat,lng,datetime,source,venue,url,image_url,price_range");
     if (city) q = q.ilike("title", `%${city}%`);
     const { data: events } = await q.limit(200);
 
+    const eventRows = (events ?? []) as EventRow[];
+    const eventIds = eventRows.map((event) => event.id);
+    const { data: viewerRows, error: viewerRowsError } = eventIds.length
+      ? await supabase.from("event_attendance").select("event_id").in("event_id", eventIds).eq("user_id", g.callerId)
+      : { data: [], error: null };
+    if (viewerRowsError) throw viewerRowsError;
+    const viewerGoingIds = new Set((viewerRows ?? []).map((row: { event_id: string }) => row.event_id));
+    const attendanceByEventId = new Map(
+      await Promise.all(
+        eventIds.map(async (eventId) => {
+          const { data, error } = await supabase.rpc("event_attendance_count", { event: eventId });
+          if (error) throw error;
+          return [
+            eventId,
+            {
+              internsGoing: Number(data ?? 0),
+              viewerGoing: viewerGoingIds.has(eventId),
+            },
+          ] as const;
+        }),
+      ),
+    );
+
     const taste = (me?.taste_profile ?? {}) as TasteProfile;
-    const items = rankFeed(taste, (events ?? []) as EventRow[], { limit });
+    const items = rankFeed(taste, eventRows, { limit, attendanceByEventId });
     const body: FeedResponse = { items };
     return NextResponse.json(body, { headers: g.headers });
   } catch (err) {

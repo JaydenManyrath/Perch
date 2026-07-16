@@ -1,6 +1,7 @@
 "use client";
 
 import type { NegotiateStreamEvent, ScoutCheck, Verdict } from "@/lib/types/contract";
+import { LandInTray } from "@/components/motion/LandInTray";
 import { VERDICT_STYLE, CHECK_LABEL } from "./verdictStyle";
 
 export type ListingState = {
@@ -39,15 +40,14 @@ function VerdictPill({ verdict }: { verdict: Verdict }) {
 /**
  * A single listing card that fills in live as scout verdicts arrive. Numbers are
  * rendered as a clean, serious, information-first surface - no mascot here (decision
- * surface, CLAUDE.md §9). When the overall verdict is `pass`, the card gets the
- * "lands into tray" settle animation (stub CSS transition until A's motion primitive
- * merges - plan §2.2).
+ * surface, CLAUDE.md section 9). When the overall verdict is `pass`, the card gets the
+ * shared "lands into tray" motion primitive.
  */
 export function ListingVerdictCard({ state }: { state: ListingState }) {
   const overall = state.summary?.overall;
   const landed = overall === "pass";
 
-  return (
+  const card = (
     <article
       data-landed={landed ? "true" : "false"}
       style={{
@@ -56,8 +56,6 @@ export function ListingVerdictCard({ state }: { state: ListingState }) {
         borderRadius: 14,
         padding: 16,
         boxShadow: landed ? "0 8px 24px rgba(22,163,74,0.15)" : "0 1px 2px rgba(44,74,99,0.06)",
-        transform: landed ? "translateY(-2px)" : "none",
-        transition: "transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease",
       }}
     >
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
@@ -108,4 +106,6 @@ export function ListingVerdictCard({ state }: { state: ListingState }) {
       ) : null}
     </article>
   );
+
+  return landed ? <LandInTray keyId={state.listingId}>{card}</LandInTray> : card;
 }

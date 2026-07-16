@@ -9,6 +9,15 @@ export type EventRow = {
   lng: number | null;
   datetime: string; // ISO
   source: string | null;
+  venue?: string | null;
+  url?: string | null;
+  image_url?: string | null;
+  price_range?: string | null;
+};
+
+export type AttendanceSummary = {
+  internsGoing: number;
+  viewerGoing: boolean;
 };
 
 const TASTE_WEIGHT = 0.8;
@@ -31,7 +40,7 @@ function recencyScore(datetimeIso: string, nowMs: number): number {
 export function rankFeed(
   taste: TasteProfile,
   events: EventRow[],
-  opts: { now?: number; limit?: number } = {},
+  opts: { now?: number; limit?: number; attendanceByEventId?: Map<string, AttendanceSummary> } = {},
 ): FeedItem[] {
   const now = opts.now ?? Date.now();
 
@@ -58,9 +67,15 @@ export function rankFeed(
       lng: event.lng ?? 0,
       datetime: event.datetime,
       source: event.source ?? "seed",
+      venue: event.venue ?? null,
+      url: event.url ?? null,
+      imageUrl: event.image_url ?? null,
+      priceRange: event.price_range ?? null,
     },
     tasteScore,
     reason: deterministicFeedReason(taste, event.category, tasteScore),
+    internsGoing: opts.attendanceByEventId?.get(event.id)?.internsGoing ?? 0,
+    viewerGoing: opts.attendanceByEventId?.get(event.id)?.viewerGoing ?? false,
   }));
 }
 

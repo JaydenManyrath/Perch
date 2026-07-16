@@ -75,7 +75,7 @@ export default function NegotiatePage() {
               cursor: "pointer",
             }}
           >
-            Continue →
+            Continue
           </button>
         </form>
       ) : (

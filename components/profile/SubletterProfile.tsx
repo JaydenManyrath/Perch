@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import type { PublicProfile, ListingRow } from "@/lib/types/contract";
+import type { PublicProfile, ListingRow, PerchCard } from "@/lib/types/contract";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
 import { BandedBadge } from "@/components/ui/BandedBadge";
@@ -73,7 +73,7 @@ export function SubletterProfile({ profile, headerAction }: { profile: PublicPro
   );
 }
 
-function ListingTile({ listing }: { listing: ListingRow }) {
+function ListingTile({ listing }: { listing: ListingRow | PerchCard }) {
   const photo = listing.photos[0];
   return (
     <Link

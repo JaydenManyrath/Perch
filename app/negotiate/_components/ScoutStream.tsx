@@ -2,15 +2,15 @@
 
 import { useCallback, useRef, useState } from "react";
 import type { NegotiateRequest, NegotiateStreamEvent } from "@/lib/types/contract";
+import { Mascot } from "@/components/mascot/Mascot";
 import { ListingVerdictCard, type ListingState } from "./ListingVerdictCard";
 import { ResultsSummary } from "./ResultsSummary";
-import { MascotStub } from "./MascotStub";
 
 type Status = "idle" | "streaming" | "done" | "error";
 
 /**
  * Subscribes to the POST /api/negotiate NDJSON stream and renders each listing card
- * filling in live as verdicts arrive (contract §4.3 ordering). Ranking is computed
+ * filling in live as verdicts arrive (contract section 4.3 ordering). Ranking is computed
  * client-side in ResultsSummary from the collected listing_summary events.
  */
 export function ScoutStream({ request }: { request: NegotiateRequest }) {
@@ -119,19 +119,19 @@ export function ScoutStream({ request }: { request: NegotiateRequest }) {
             cursor: "pointer",
           }}
         >
-          Send the scouts →
+          Send the scouts
         </button>
       ) : null}
 
       {status === "streaming" ? (
         <div style={{ margin: "8px 0 20px" }}>
-          <MascotStub />
+          <Mascot variant="hop" size={72} caption="Scouting your perches..." />
         </div>
       ) : null}
 
       {status === "error" ? (
         <p style={{ color: "#DC2626", fontWeight: 600 }}>
-          {error} - is the backend seeded and are you signed in?
+          {error}: is the backend seeded and are you signed in?
         </p>
       ) : null}
 

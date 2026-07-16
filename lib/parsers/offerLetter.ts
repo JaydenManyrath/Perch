@@ -1,9 +1,9 @@
 import type { OfferParse } from "@/lib/types/contract";
 
 /**
- * Offer-letter parsing (B6). DETERMINISTIC extraction — regex/heuristics over the
+ * Offer-letter parsing (B6). DETERMINISTIC extraction - regex/heuristics over the
  * letter text. The LLM may only normalize ambiguous fields downstream; it must NEVER
- * invent a number (CLAUDE.md §8). `parseOfferText` is pure and fully unit-tested;
+ * invent a number (CLAUDE.md section 8). `parseOfferText` is pure and fully unit-tested;
  * `extractOfferText` is the thin PDF-to-text step used by the route.
  */
 
@@ -15,7 +15,7 @@ const MONTHS: Record<string, number> = {
   july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
 };
 
-/** Parse "June 8, 2026" | "2026-06-08" | "06/08/2026" → ISO "2026-06-08" | null. */
+/** Parse "June 8, 2026" | "2026-06-08" | "06/08/2026" to ISO "2026-06-08" | null. */
 export function parseDateToIso(raw: string): string | null {
   const s = raw.trim();
 
@@ -70,9 +70,9 @@ export function parseOfferText(text: string): OfferParse {
   const employer =
     firstMatch(flat, [
       /(?:Employer|Company)\s*:\s*(.+)/i,
-      /pleased to offer you (?:a|the) position at\s+([A-Z][\w&.,'’\- ]+?)(?:[.,\n]|\s+as\b)/,
-      /welcome to\s+([A-Z][\w&.,'’\- ]+?)[.,\n]/i,
-      /on behalf of\s+([A-Z][\w&.,'’\- ]+?)[.,\n]/i,
+      /pleased to offer you (?:a|the) position at\s+([A-Z][\w&.,'\u2019\- ]+?)(?:[.,\n]|\s+as\b)/,
+      /welcome to\s+([A-Z][\w&.,'\u2019\- ]+?)[.,\n]/i,
+      /on behalf of\s+([A-Z][\w&.,'\u2019\- ]+?)[.,\n]/i,
     ]) ?? "Unknown employer";
 
   // --- role ---
@@ -118,8 +118,16 @@ export function parseOfferText(text: string): OfferParse {
  */
 export async function extractOfferText(pdf: Buffer): Promise<string> {
   const mod = await import("pdf-parse");
-  const pdfParse = (mod as unknown as { default: (b: Buffer) => Promise<{ text: string }> }).default;
-  const parsed = await pdfParse(pdf);
+  const pdfParse = (mod as unknown as {
+    default: (b: Uint8Array, options?: { version?: string }) => Promise<{ text: string }>;
+  }).default;
+  // pdf-parse defaults to pdf.js 1.10.100, which rejects modern but valid
+  // classic-xref files produced by pdf-lib. Its bundled 2.0.550 parser handles
+  // the same real PDF fixture without weakening the end-to-end test.
+  // Copy the Buffer into an exact-length Uint8Array. Recent Node releases may
+  // back a Buffer with a larger pooled ArrayBuffer, which old pdf.js versions
+  // can misread as trailing bytes and report a bad xref entry.
+  const parsed = await pdfParse(Uint8Array.from(pdf), { version: "v2.0.550" });
   return parsed.text;
 }
 

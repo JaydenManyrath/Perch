@@ -1,17 +1,17 @@
 /**
- * FROZEN contract types — verbatim from docs/FOUNDATION-CONTRACT.md §4, §4.6, §5.
+ * FROZEN contract types - verbatim from docs/FOUNDATION-CONTRACT.md sections
+ * 4, 4.6, 5, 11, and 12.
  *
- * DO NOT DRIFT. If a shape needs to change, edit the contract doc first in a PR both
- * people review, THEN update this file in the same PR. Silent divergence is a bug.
+ * DO NOT DRIFT. If a shape needs to change, edit the contract doc first in
+ * a PR both people review, THEN update this file in the same PR.
  *
- * If while wiring you believe a seam must change, leave a
- *   // CONTRACT-CHANGE-NEEDED: <reason>
- * marker rather than editing the shape locally.
+ * Merged from person-a (UI) + person-b (schema+APIs) + person-c (integrations).
+ * Fields are kept OPTIONAL where possible so A's fixture data, B's server
+ * rows, and C's pipeline outputs all satisfy the same TypeScript shape.
+ * A shared union type is what makes the fixture -> live swap invisible.
  */
 
-// ─────────────────────────────────────────────────────────────
-// §4.1 — GET /api/feed  (FeedResponse)
-// ─────────────────────────────────────────────────────────────
+// Section 4.1 - GET /api/feed
 export type FeedItem = {
   event: {
     id: string;
@@ -21,7 +21,7 @@ export type FeedItem = {
     lng: number;
     datetime: string; // ISO 8601
     source: string;
-    // Round 2 (§11.6): Ticketmaster/seed event enrichments.
+    // Section 11.6 - Ticketmaster / seed event enrichments (nullable).
     venue?: string | null;
     url?: string | null;
     imageUrl?: string | null;
@@ -29,18 +29,14 @@ export type FeedItem = {
   };
   tasteScore: number; // 0..1, deterministic
   reason: string;     // short human-readable, LLM-generated
-  // Round 2 (§11.6, §12.2): attendance count + viewer's own going flag.
+  // Section 11.6 / 12.2 - attendance count + viewer's own going flag.
   internsGoing?: number;
   viewerGoing?: boolean;
 };
 
-export type FeedResponse = {
-  items: FeedItem[];
-};
+export type FeedResponse = { items: FeedItem[] };
 
-// ─────────────────────────────────────────────────────────────
-// §4.2 — GET /api/matches  (MatchesResponse) — connection-hero seam
-// ─────────────────────────────────────────────────────────────
+// Section 4.2 - GET /api/matches (connection hero seam)
 export type Match = {
   user: {
     id: string;
@@ -49,29 +45,21 @@ export type Match = {
     city: string;
     avatarUrl: string | null;
   };
-  company: string;   // e.g. "Stripe"
-  moveWeek: string;  // ISO date of the Monday of their move week, e.g. "2026-06-08"
-  banded: boolean;   // verified/banded flag (from users.verified)
+  company: string;
+  moveWeek: string;   // ISO Monday of the move week
+  banded: boolean;    // verified/banded flag
   tasteScore: number; // 0..1, deterministic
-  reasons: string[]; // ["Same company", "Moving the same week", "Shared taste: indie, techno"]
+  reasons: string[];
 };
 
-export type MatchesResponse = {
-  matches: Match[];
-};
+export type MatchesResponse = { matches: Match[] };
 
-// ─────────────────────────────────────────────────────────────
-// §4.3 — POST /api/negotiate  (streamed) — Person B owns; A only holds types
-// ─────────────────────────────────────────────────────────────
+// Section 4.3 - POST /api/negotiate (streamed) - Person B owns
 export type NegotiateConstraints = {
-  monthlyBudget: number; // USD
-  moveIn: string;        // ISO
-  moveOut: string;       // ISO
-  routineAnchors?: {
-    label: string;
-    lat: number;
-    lng: number;
-  }[];
+  monthlyBudget: number;
+  moveIn: string;
+  moveOut: string;
+  routineAnchors?: { label: string; lat: number; lng: number }[];
 };
 
 export type NegotiateRequest = {
@@ -79,9 +67,7 @@ export type NegotiateRequest = {
   constraints: NegotiateConstraints;
 };
 
-/** Scout check enum used by the streamed verdicts. */
 export type ScoutCheck = "budget" | "safety" | "lease_fit" | "routine_fit";
-/** Verdict enum — maps to func.pass / func.flag / func.scam. */
 export type Verdict = "pass" | "flag" | "fail";
 
 export type NegotiateStreamEvent =
@@ -89,25 +75,23 @@ export type NegotiateStreamEvent =
   | {
       type: "scout_verdict";
       listingId: string;
-      check: "budget" | "safety" | "lease_fit" | "routine_fit";
-      verdict: "pass" | "flag" | "fail";
+      check: ScoutCheck;
+      verdict: Verdict;
       value: string;
     }
   | { type: "explanation_delta"; listingId: string; textDelta: string }
   | {
       type: "listing_summary";
       listingId: string;
-      overall: "pass" | "flag" | "fail";
+      overall: Verdict;
       passedChecks: number;
       totalChecks: number;
     }
   | { type: "done" };
 
-// ─────────────────────────────────────────────────────────────
-// §4.4 — GET /api/itinerary  (ItineraryResponse) — landing
-// ─────────────────────────────────────────────────────────────
+// Section 4.4 - GET /api/itinerary
 export type ItineraryItem = {
-  time: string; // "09:00"
+  time: string;
   title: string;
   kind: "settle" | "explore" | "social" | "errand";
   lat?: number;
@@ -116,8 +100,8 @@ export type ItineraryItem = {
 };
 
 export type ItineraryDay = {
-  date: string;     // ISO date
-  dayLabel: string; // "Day 1 — Landing"
+  date: string;
+  dayLabel: string;
   items: ItineraryItem[];
 };
 
@@ -126,9 +110,7 @@ export type ItineraryResponse = {
   calendarSynced: boolean;
 };
 
-// ─────────────────────────────────────────────────────────────
-// §4.5 — GET /api/map/places  (MapPlacesResponse)
-// ─────────────────────────────────────────────────────────────
+// Section 4.5 - GET /api/map/places
 export type Place = {
   id: string;
   label: string;
@@ -139,24 +121,19 @@ export type Place = {
   nearestListingMinutes?: number;
 };
 
-export type MapPlacesResponse = {
-  places: Place[];
-};
+export type MapPlacesResponse = { places: Place[] };
 
-// ─────────────────────────────────────────────────────────────
-// §4.6 — onboarding data routes
-// ─────────────────────────────────────────────────────────────
-/** Field ids in an OfferParse — used for confidence + needsReview (§11.9). */
+// Section 4.6 - onboarding data routes
 export type OfferField = "employer" | "role" | "salary" | "startDate" | "endDate" | "city";
 
 export type OfferParse = {
   employer: string;
   role: string | null;
-  salary: number | null;   // annual USD
-  startDate: string | null; // ISO
-  endDate: string | null;   // ISO
+  salary: number | null;
+  startDate: string | null;
+  endDate: string | null;
   city: string | null;
-  // Round 2 (§11.9): per-field 0..1 confidence + list of low-confidence fields the UI must let the user correct.
+  // Section 11.9 - per-field 0..1 confidence + list of low-confidence fields.
   confidence?: Record<OfferField, number>;
   needsReview?: OfferField[];
 };
@@ -177,29 +154,24 @@ export type SpotifyStatusResponse = {
   taste: TasteProfile | null;
 };
 
-// ─────────────────────────────────────────────────────────────
-// §5 — Realtime DM row shapes (Supabase Postgres rows)
-// ─────────────────────────────────────────────────────────────
+// Section 5 - Realtime DM row shapes
 export type MessageRow = {
   id: string;
   conversation_id: string;
   sender_id: string;
   recipient_id: string;
   body: string;
-  created_at: string; // ISO 8601
+  created_at: string;
 };
 
 export type ConversationRow = {
   id: string;
-  participant_ids: string[]; // [uidA, uidB]
+  participant_ids: string[];
   last_message_at: string;
   created_at: string;
 };
 
-// ─────────────────────────────────────────────────────────────
-// §2 — Table row shapes (Postgres, snake_case) — consumed by A
-// ─────────────────────────────────────────────────────────────
-/** §11.1 — one of the two account roles for the demo. */
+// Section 2 + 11.1 - User rows
 export type UserType = "intern" | "subletter";
 
 export type UserRow = {
@@ -208,16 +180,15 @@ export type UserRow = {
   company: string;
   role: string;
   city: string;
-  move_in_date: string; // ISO date
+  move_in_date: string;
   taste_profile: TasteProfile | null;
   verified: boolean;
   avatar_url: string | null;
   created_at: string;
-  // Round 2 (§11.1).
   user_type?: UserType;
 };
 
-/** §11.2 — listing freshness state machine. */
+// Section 11.2 - listing freshness state machine
 export type ListingStatus = "available" | "pending" | "taken" | "stale";
 
 export type ListingRow = {
@@ -226,16 +197,15 @@ export type ListingRow = {
   address: string;
   lat: number;
   lng: number;
-  price: number; // USD/mo
-  lease_start: string; // ISO date
-  lease_end: string;   // ISO date
+  price: number;
+  lease_start: string;
+  lease_end: string;
   lease_type: "sublet" | "short_term" | "standard";
   source: string;
   photos: string[];
   safety_flags: { scamSignals: string[]; notes: string[] };
-  created_by: string;
+  created_by: string | null;
   created_at: string;
-  // Round 2 (§11.2): freshness + provenance.
   status?: ListingStatus;
   expires_at?: string | null;
   last_confirmed_at?: string | null;
@@ -245,7 +215,7 @@ export type ListingRow = {
   external_id?: string | null;
 };
 
-/** Positive-only enum — no avoid/unsafe categories, EVER. (contract §2, §8) */
+// Positive-only stickers (contract 2 + 8)
 export const POSITIVE_STICKER_CATEGORIES = [
   "good_coffee",
   "safe_feeling",
@@ -278,7 +248,6 @@ export type EventRow = {
   lng: number;
   datetime: string;
   source: string;
-  // Round 2 (§11.6): Ticketmaster/seed enrichments.
   external_id?: string | null;
   url?: string | null;
   venue?: string | null;
@@ -288,13 +257,13 @@ export type EventRow = {
 
 export type NoteRow = {
   id: string;
-  city: string;
+  city: string | null;
   area: string | null;
   topic: string;
   body: string;
   created_by: string;
   created_at: string;
-  // Round 2 (§12.1): when set, the note is a map comment.
+  // Section 12.1 - when set, the note is a map comment.
   lat?: number | null;
   lng?: number | null;
 };
@@ -303,13 +272,11 @@ export type ChecklistItemRow = {
   id: string;
   user_id: string;
   label: string;
-  due_offset: number; // days before move_in
+  due_offset: number;
   done: boolean;
 };
 
-// ─────────────────────────────────────────────────────────────
-// ROUND 2 (§11) — Reviews (Airbnb-style)
-// ─────────────────────────────────────────────────────────────
+// Round 2 (section 11.5) - Reviews (Airbnb-style)
 export type ReviewSubject = "listing" | "subletter";
 
 export type Review = {
@@ -319,7 +286,7 @@ export type Review = {
   reviewer: { id: string; name: string; avatarUrl: string | null };
   rating: 1 | 2 | 3 | 4 | 5;
   body: string;
-  createdAt: string; // ISO
+  createdAt: string;
 };
 
 export type ReviewSummary = { avgRating: number; count: number };
@@ -331,10 +298,25 @@ export type PostReviewInput = {
   body: string;
 };
 
-// ─────────────────────────────────────────────────────────────
-// ROUND 2 (§11.3) — Perches swipe deck
-// ─────────────────────────────────────────────────────────────
-export type PerchCard = ListingRow & {
+// Round 2 (section 11.3) - Perches swipe deck.
+// Omit the server-internal snake_case freshness fields from ListingRow
+// (Person B's API returns camelCase equivalents below); keep everything else so
+// A's fixture spread (...listing) still typechecks. `source` and `created_by`
+// are similarly omitted because Person B's PerchCard doesn't expose them
+// externally.
+export type PerchCard = Omit<
+  ListingRow,
+  | "source"
+  | "created_by"
+  | "expires_at"
+  | "last_confirmed_at"
+  | "source_name"
+  | "source_url"
+  | "external_id"
+> & {
+  /** Discriminator for map/legend rendering. Optional so client fixtures
+   * don't have to author it explicitly. */
+  kind?: "listing";
   status: ListingStatus;
   expiresAt: string | null;
   lastConfirmedAt: string | null;
@@ -347,34 +329,32 @@ export type PerchCard = ListingRow & {
 export type PerchDeckResponse = { deck: PerchCard[] };
 export type SwipeDirection = "left" | "right";
 export type SwipeInput = { listingId: string; direction: SwipeDirection };
+export type SwipeResponse = { listingId: string; direction: SwipeDirection };
+export type SavedPerchesResponse = { saved: PerchCard[] };
 
-// ─────────────────────────────────────────────────────────────
-// ROUND 2 (§11.4) — Subletter posting
-// ─────────────────────────────────────────────────────────────
+// Round 2 (section 11.4) - Subletter posting
 export type PostListingInput = {
   title: string;
   address: string;
   lat: number;
   lng: number;
-  price: number;          // USD/mo
-  leaseStart: string;     // ISO date
-  leaseEnd: string;       // ISO date
+  price: number;
+  leaseStart: string;
+  leaseEnd: string;
   leaseType: "sublet" | "short_term" | "standard";
   photos: string[];
   safetyNotes?: string[];
 };
 
-// ─────────────────────────────────────────────────────────────
-// ROUND 2 (§11.6, §12.2) — Events + attendance
-// ─────────────────────────────────────────────────────────────
+export type ListingResponse = { listing: PerchCard };
+
+// Round 2 (section 11.6 / 12.2) - Events + attendance
 export type AttendanceStatus = "going" | "interested";
-/** Batch 2 (§12.7) SUPERSEDES the earlier AttendResponse — this is the final shape. */
+/** Batch 2 (12.7) form. */
 export type AttendInput = { going: boolean };
 export type AttendResponse = { going: number; viewerGoing: boolean };
 
-// ─────────────────────────────────────────────────────────────
-// ROUND 2 (§11.8) — Public profile (tappable)
-// ─────────────────────────────────────────────────────────────
+// Round 2 (section 11.8) - Public profile (tappable)
 export type PublicProfile = {
   user: {
     id: string;
@@ -386,13 +366,11 @@ export type PublicProfile = {
   };
   userType: UserType;
   banded: boolean;
-  reviewSummary?: ReviewSummary; // present for subletters
-  listings?: ListingRow[];       // present for subletters
+  reviewSummary?: ReviewSummary;
+  listings?: (ListingRow | PerchCard)[];
 };
 
-// ─────────────────────────────────────────────────────────────
-// ROUND 2 batch 2 (§12.1) — Map comments (notes with a location)
-// ─────────────────────────────────────────────────────────────
+// Round 2 batch 2 (section 12.1) - Map comments
 export type MapComment = {
   id: string;
   author: { id: string; name: string; avatarUrl: string | null };
@@ -411,9 +389,7 @@ export type PostMapCommentInput = {
   body: string;
 };
 
-// ─────────────────────────────────────────────────────────────
-// ROUND 2 batch 2 (§12.2) — Event comments
-// ─────────────────────────────────────────────────────────────
+// Round 2 batch 2 (section 12.2) - Event comments
 export type EventComment = {
   id: string;
   eventId: string;
@@ -425,12 +401,12 @@ export type EventComment = {
 export type EventCommentsResponse = { comments: EventComment[] };
 export type PostEventCommentInput = { body: string };
 
-// ─────────────────────────────────────────────────────────────
-// ROUND 2 batch 2 (§12.3, §12.4) — Friends + friend notes
-// ─────────────────────────────────────────────────────────────
+// Round 2 batch 2 (section 12.3 / 12.4) - Friends + friend notes
 export type FriendStatus = "pending" | "accepted";
 
 export type Friend = {
+  /** Server-side friendship row id (optional; UI never invents one). */
+  friendshipId?: string;
   user: { id: string; name: string; avatarUrl: string | null; company: string };
   status: FriendStatus;
   direction?: "incoming" | "outgoing";
@@ -446,12 +422,10 @@ export type FriendNote = {
 
 export type FriendNotesResponse = { notes: FriendNote[] };
 
-// ─────────────────────────────────────────────────────────────
-// ROUND 2 batch 2 (§12.6) — Commute route + POIs + schedule
-// ─────────────────────────────────────────────────────────────
+// Round 2 batch 2 (section 12.6) - Commute route + POIs + schedule
 export type GeoJSONLineString = {
   type: "LineString";
-  coordinates: [number, number][]; // [lng, lat]
+  coordinates: [number, number][];
 };
 
 export type RouteRequest = {
@@ -460,12 +434,16 @@ export type RouteRequest = {
   apartmentLat: number;
   apartmentLng: number;
 };
+/** Alias for Person B / C code. */
+export type RouteInput = RouteRequest;
 
 export type RouteResponse = {
   geometry: GeoJSONLineString;
   distanceMeters: number;
   durationSeconds: number;
 };
+
+export type RoutePoiKind = "coffee" | "gym";
 
 export type RoutePoi = {
   place: { id: string; label: string; kind: string; lat: number; lng: number };
@@ -476,6 +454,8 @@ export type RoutePoisRequest = {
   geometry: GeoJSONLineString;
   kinds: string[];
 };
+/** Alias for Person B / C code. */
+export type RoutePoiSearchInput = { geometry: GeoJSONLineString; kinds: RoutePoiKind[] };
 
 export type RoutePoisResponse = { pois: RoutePoi[] };
 
@@ -483,6 +463,10 @@ export type CommuteScheduleRequest = {
   apartmentId: string;
   selectedPlaceIds: string[];
 };
+/** Person B's server-side variant that takes full RoutePoi.place objects. */
+export type CommuteScheduleInput = {
+  apartmentId: string;
+  selectedPlaces: RoutePoi["place"][];
+};
 
 export type CommuteScheduleResponse = { day: ItineraryDay };
-

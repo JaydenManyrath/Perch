@@ -10,7 +10,7 @@ const INK_SOFT = "#5E7E97";
 
 /**
  * Final ranked roll-up, sorted CLIENT-SIDE from the collected listing_summary events
- * (contract §4.3: `done` carries no payload, so the screen owns the sort). Uses the
+ * (contract section 4.3: `done` carries no payload, so the screen owns the sort). Uses the
  * same deterministic `rankSummaries` as the server so ordering is identical.
  */
 export function ResultsSummary({ listings }: { listings: ListingState[] }) {

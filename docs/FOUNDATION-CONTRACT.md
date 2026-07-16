@@ -598,7 +598,7 @@ The perches surface changes from a saved-shortlist tray to a swipe deck of fresh
 - B: Ticketmaster Discovery API integration (server-side, keyed, rate-limited) that upserts nearby events into `events` (de-dupe on `external_id`), with a fallback to seeded events when no key/quota; plus attendance-count aggregation.
 - API changes:
   - `GET /api/feed`: `FeedItem.event` gains nullable `venue`, `url`, `imageUrl`, `priceRange`; `FeedItem` gains `internsGoing: number` and `viewerGoing: boolean`.
-  - `POST /api/events/{id}/attend { status }` (status `'going' | 'interested' | null`) -> toggles the caller's attendance; returns `AttendResponse { internsGoing, viewerGoing }`.
+  - `POST /api/events/{id}/attend { going: boolean }` -> row presence means going; returns `AttendResponse { going, viewerGoing }`. This final batch-2 shape supersedes the earlier status-based draft.
   - `GET /api/events/nearby?lat=&lng=&radius=` -> Ticketmaster-sourced events (the feed can call this internally).
 - A: the event card shows venue + image + "N interns going" and a Going toggle (optimistic count update); map event pins (§11.7).
 
@@ -636,9 +636,13 @@ export type ReviewSummary = { avgRating: number; count: number };
 export type ReviewsResponse = { reviews: Review[]; summary: ReviewSummary };
 
 // Perches swipe deck
-export type PerchCard = ListingRow & {
+export type PerchCard = Omit<
+  ListingRow,
+  "source" | "created_by" | "expires_at" | "last_confirmed_at" | "source_name" | "source_url" | "external_id"
+> & {
+  kind: "listing";
   status: ListingStatus;
-  expiresAt: string | null;
+  expiresAt: string;
   lastConfirmedAt: string | null;
   sourced: boolean;
   sourceName: string;
@@ -648,6 +652,8 @@ export type PerchCard = ListingRow & {
 export type PerchDeckResponse = { deck: PerchCard[] };
 export type SwipeDirection = "left" | "right";
 export type SwipeInput = { listingId: string; direction: SwipeDirection };
+export type SwipeResponse = { listingId: string; direction: SwipeDirection };
+export type SavedPerchesResponse = { saved: PerchCard[] };
 
 // Subletter posting
 export type PostListingInput = {
@@ -662,10 +668,11 @@ export type PostListingInput = {
   photos: string[];
   safetyNotes?: string[];
 };
+export type ListingResponse = { listing: PerchCard };
 
-// Events + attendance
-export type AttendanceStatus = "going" | "interested";
-export type AttendResponse = { internsGoing: number; viewerGoing: boolean };
+// Events + attendance (final batch-2 shape)
+export type AttendInput = { going: boolean };
+export type AttendResponse = { going: number; viewerGoing: boolean };
 // FeedItem.event additions (nullable): venue, url, imageUrl, priceRange
 // FeedItem additions: internsGoing: number; viewerGoing: boolean
 
@@ -679,6 +686,7 @@ export type PublicProfile = {
   userType: UserType;
   banded: boolean;
   reviewSummary?: ReviewSummary; // present for subletters
+  listings?: PerchCard[]; // present for subletters under caller-sensitive freshness rules
 };
 ```
 
@@ -745,7 +753,7 @@ The Flyway feed no longer interleaves past-intern notes/comments; the feed is EV
 After selecting an apartment (a perch), the map draws the commute route from the user's office to the apartment in a color; the user picks favorite POIs (coffee shop, gym) ALONG the route; a schedule is generated from those selections.
 - Route (integration): `POST /api/route { officeLat, officeLng, apartmentLat, apartmentLng }` -> `RouteResponse { geometry (GeoJSON LineString), distanceMeters, durationSeconds }`. Mapbox Directions API; seeded/straight-line fallback with no key. C. Office coords come from the user's employer (C geocodes the employer, or seeded company coords).
 - POIs along route (deterministic): `POST /api/route/pois { geometry, kinds: ["coffee","gym"] }` -> `RoutePoi[]` (the user's places plus optional candidates near the route corridor, each with `distanceFromRouteMeters`). Deterministic point-to-polyline distance. B (candidates from C's POI search when beyond the user's existing places).
-- Schedule (from selections): `POST /api/route/schedule { apartmentId, selectedPlaceIds }` -> a day schedule anchored on the commute (extends the itinerary engine, `ItineraryDay`). B.
+- Schedule (from selections): `POST /api/route/schedule { apartmentId, selectedPlaces }` -> a day schedule anchored on the commute (extends the itinerary engine, `ItineraryDay`). `selectedPlaces` contains complete validated place objects from the Route POI response; the endpoint is stateless and does not resolve a replacement list of IDs. B.
 - Persistence (optional): a `commute_plans` table (`user_id`, `listing_id`, `office_lat/lng`, `selected_place_ids[]`, `created_at`) if the selection/schedule should persist; mark optional for the demo. B.
 - A: after apartment selection, render the colored route polyline on the map, show selectable POIs along it, and display the generated schedule.
 
@@ -762,6 +770,7 @@ export type MapComment = {
   body: string;
   createdAt: string;
 };
+export type MapCommentsResponse = { comments: MapComment[] };
 
 // Event comments
 export type EventComment = {
@@ -780,9 +789,10 @@ export type AttendResponse = { going: number; viewerGoing: boolean };
 // Friends
 export type FriendStatus = "pending" | "accepted";
 export type Friend = {
+  friendshipId: string;
   user: { id: string; name: string; avatarUrl: string | null; company: string };
   status: FriendStatus;
-  direction?: "incoming" | "outgoing";
+  direction: "incoming" | "outgoing";
 };
 export type FriendsResponse = { friends: Friend[] };
 export type FriendNote = {
@@ -793,12 +803,16 @@ export type FriendNotesResponse = { notes: FriendNote[] };
 
 // Commute route + POIs along route + schedule
 export type GeoJSONLineString = { type: "LineString"; coordinates: [number, number][] };
+export type RouteInput = { officeLat: number; officeLng: number; apartmentLat: number; apartmentLng: number };
 export type RouteResponse = { geometry: GeoJSONLineString; distanceMeters: number; durationSeconds: number };
+export type RoutePoiKind = "coffee" | "gym";
 export type RoutePoi = {
   place: { id: string; label: string; kind: string; lat: number; lng: number };
   distanceFromRouteMeters: number;
 };
+export type RoutePoiSearchInput = { geometry: GeoJSONLineString; kinds: RoutePoiKind[] };
 export type RoutePoisResponse = { pois: RoutePoi[] };
+export type CommuteScheduleInput = { apartmentId: string; selectedPlaces: RoutePoi["place"][] };
 export type CommuteScheduleResponse = { day: ItineraryDay }; // reuse ItineraryDay from §4.4
 ```
 

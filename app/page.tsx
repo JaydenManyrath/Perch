@@ -20,6 +20,12 @@ export default function RootPage() {
         </div>
         <div className="flex flex-col w-full gap-3">
           <Link
+            href="/login"
+            className="rounded-2xl bg-white border border-sky-300 text-ink-strong font-semibold py-3 text-center shadow-card hover:bg-sky-100 transition-colors"
+          >
+            Sign in as a demo user
+          </Link>
+          <Link
             href="/onboarding"
             className="rounded-2xl bg-sky-400 hover:bg-sky-500 text-white font-semibold py-3 text-center shadow-card transition-colors"
           >

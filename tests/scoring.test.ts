@@ -67,6 +67,43 @@ describe("rankFeed", () => {
     expect(a).toEqual(b);
     expect(a).toHaveLength(1);
   });
+  it("passes through event integration fields and caller-scoped attendance", () => {
+    const items = rankFeed(
+      taste(["indie"]),
+      [
+        {
+          id: "e_indie",
+          title: "Indie show",
+          category: "indie",
+          lat: 1,
+          lng: 2,
+          datetime: "2026-06-03T00:00:00Z",
+          source: "ticketmaster",
+          venue: "The Hall",
+          url: "https://example.test/event",
+          image_url: "https://example.test/image.jpg",
+          price_range: "$20-$40",
+        },
+      ],
+      {
+        now,
+        attendanceByEventId: new Map([
+          ["e_indie", { internsGoing: 3, viewerGoing: true }],
+        ]),
+      },
+    );
+
+    expect(items[0]).toMatchObject({
+      event: {
+        venue: "The Hall",
+        url: "https://example.test/event",
+        imageUrl: "https://example.test/image.jpg",
+        priceRange: "$20-$40",
+      },
+      internsGoing: 3,
+      viewerGoing: true,
+    });
+  });
 });
 
 describe("mondayOf", () => {

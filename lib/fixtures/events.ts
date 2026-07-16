@@ -144,4 +144,10 @@ export const eventsFixture: EventRow[] = [
     image_url: IMG("photo-1454391304352-2bf4678b1a7a"),
     price_range: "Gas share",
   },
-];
+].map((event) => ({
+  ...event,
+  venue: null,
+  url: null,
+  image_url: null,
+  price_range: null,
+}));

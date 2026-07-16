@@ -1,4 +1,4 @@
-import type { ItineraryDay, ItineraryItem, Place } from "@/lib/types/contract";
+import type { CommuteScheduleInput, ItineraryDay, ItineraryItem, Place } from "@/lib/types/contract";
 
 /**
  * Deterministic first-week itinerary scaffold (B8). The DAY STRUCTURE, dates, and
@@ -7,6 +7,7 @@ import type { ItineraryDay, ItineraryItem, Place } from "@/lib/types/contract";
  */
 
 const MS_PER_DAY = 86_400_000;
+const COMMUTE_BASE_DATE = Date.UTC(2026, 5, 8);
 
 type Slot = { time: string; title: string; kind: ItineraryItem["kind"]; note: string };
 
@@ -56,4 +57,63 @@ export function buildItinerary(opts: {
     }));
     return { date, dayLabel: label, items };
   });
+}
+
+export function buildCommuteItineraryDay(input: CommuteScheduleInput): ItineraryDay {
+  const items: ItineraryItem[] = [
+    {
+      time: "08:00",
+      title: "Leave your selected apartment",
+      kind: "settle",
+      note: `Start from apartment ${input.apartmentId}; keep the morning commute simple before adding stops.`,
+    },
+    ...input.selectedPlaces.map((place, index) => ({
+      time: timeForCommuteStop(index),
+      title: `Commute stop: ${place.label}`,
+      kind: itineraryKindForCommutePlace(place.kind),
+      lat: place.lat,
+      lng: place.lng,
+      note: `${place.label} is built into the commute as a ${place.kind} stop, using the place selected from the route results.`,
+    })),
+    {
+      time: timeForCommuteStop(input.selectedPlaces.length),
+      title: "Arrive near the office",
+      kind: "errand",
+      note:
+        input.selectedPlaces.length > 0
+          ? "The day keeps your selected route stops in order before work."
+          : "No route stops selected, so the schedule stays direct and commute-focused.",
+    },
+  ];
+
+  return {
+    date: stableCommuteDate(input.apartmentId),
+    dayLabel: "Commute day",
+    items,
+  };
+}
+
+function stableCommuteDate(apartmentId: string): string {
+  const offsetDays = hashString(apartmentId) % 21;
+  return new Date(COMMUTE_BASE_DATE + offsetDays * MS_PER_DAY).toISOString().slice(0, 10);
+}
+
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
+function timeForCommuteStop(index: number): string {
+  const minutes = 8 * 60 + 30 + index * 30;
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+  return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+}
+
+function itineraryKindForCommutePlace(kind: string): ItineraryItem["kind"] {
+  if (kind === "grocery" || kind === "transit" || kind === "work") return "errand";
+  return "explore";
 }

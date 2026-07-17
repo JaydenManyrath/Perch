@@ -112,7 +112,7 @@ Same three-way split. Seams: FOUNDATION-CONTRACT.md section 13. Plans: IMPLEMENT
 - [done 2026-07-17] RB36 Feed/events guard datetime >= now (upcoming only, in-query); marker payloads carry detail for the map info sheet (ListingDetail furnished/pros/status; map comments author/text; events venue/date/going)
 
 ### Integrations + AI (person-c)
-- [todo] RC31 Ticketmaster: upcoming-only filter (startDateTime >= now, sorted ascending) + capture best image_url
+- [done 2026-07-17] RC31 Ticketmaster: upcoming-only filter (startDateTime >= now, sorted ascending) + capture best image_url
 - [todo] RC32 Offer parser: extract relocationStipend + signingBonus (upfront cash) with per-field confidence
 - [todo] RC33 Cost-of-living data source (city index + median rent; seeded table + optional external lookup) feeding B's finance model
 - [todo] RC34 (optional) Map place-details lookup (Mapbox) for richer marker info

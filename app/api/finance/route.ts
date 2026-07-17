@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { guard } from "@/lib/http";
 import { buildFinanceBreakdown } from "@/lib/finance/model";
 import { resolveCostOfLiving } from "@/lib/finance/colLookup";
+import { resolveCanonicalFinance } from "@/lib/finance/canonical";
 import { createServerSupabase } from "@/lib/supabase/server";
 import type { FinanceBreakdown } from "@/lib/types/contract";
 
@@ -26,30 +27,37 @@ export async function GET(req: NextRequest) {
 
   try {
     const supabase = await createServerSupabase();
-    const { data: me, error: meError } = await supabase
-      .from("users")
-      .select("city,offer_salary,relocation_stipend,signing_bonus")
-      .eq("id", g.callerId)
-      .maybeSingle();
-    if (meError) throw meError;
-
-    const city = req.nextUrl.searchParams.get("city") ?? me?.city ?? "National";
-    const salary = numParam(req, "salary") ?? (me?.offer_salary ?? null);
-    const relocationStipend = numParam(req, "stipend") ?? me?.relocation_stipend ?? 0;
-    const signingBonus = numParam(req, "bonus") ?? me?.signing_bonus ?? 0;
     const monthlyRent = numParam(req, "rent");
+    const hasPreviewOverride = ["salary", "city", "stipend", "bonus"].some((key) =>
+      req.nextUrl.searchParams.has(key),
+    );
 
-    const col = await resolveCostOfLiving(supabase, city);
+    let body: FinanceBreakdown;
+    if (hasPreviewOverride) {
+      const { data: me, error: meError } = await supabase
+        .from("users")
+        .select("city,offer_salary,relocation_stipend,signing_bonus")
+        .eq("id", g.callerId)
+        .maybeSingle();
+      if (meError) throw meError;
 
-    const body: FinanceBreakdown = buildFinanceBreakdown({
-      salary,
-      city: col.city,
-      costOfLivingIndex: col.index,
-      medianRent: col.medianRent,
-      relocationStipend,
-      signingBonus,
-      monthlyRent,
-    });
+      const city = req.nextUrl.searchParams.get("city") ?? me?.city ?? "National";
+      const salary = numParam(req, "salary") ?? (me?.offer_salary ?? null);
+      const relocationStipend = numParam(req, "stipend") ?? me?.relocation_stipend ?? 0;
+      const signingBonus = numParam(req, "bonus") ?? me?.signing_bonus ?? 0;
+      const col = await resolveCostOfLiving(supabase, city);
+      body = buildFinanceBreakdown({
+        salary,
+        city: col.city,
+        costOfLivingIndex: col.index,
+        medianRent: col.medianRent,
+        relocationStipend,
+        signingBonus,
+        monthlyRent,
+      });
+    } else {
+      body = (await resolveCanonicalFinance(supabase, g.callerId, monthlyRent)).breakdown;
+    }
     return NextResponse.json(body, { headers: g.headers });
   } catch (err) {
     console.error("GET /api/finance failed:", err);

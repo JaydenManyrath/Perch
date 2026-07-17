@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { guard } from "@/lib/http";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { resolveCanonicalFinance } from "@/lib/finance/canonical";
 import { negotiationStream, toNdjsonStream } from "@/lib/negotiate/stream";
 import type { ScoutListing, ScoutConstraints } from "@/lib/negotiate/types";
 
@@ -34,6 +35,7 @@ export async function POST(req: Request) {
 
   try {
     const supabase = await createServerSupabase();
+    const finance = await resolveCanonicalFinance(supabase, g.callerId);
     const { data: rows } = await supabase
       .from("listings")
       .select("id,title,price,lat,lng,lease_start,lease_end,safety_flags")
@@ -56,9 +58,13 @@ export async function POST(req: Request) {
       }));
 
     const constraints: ScoutConstraints = {
-      monthlyBudget: parsed.constraints.monthlyBudget,
+      monthlyBudget: finance.hasParsedSalary
+        ? finance.breakdown.monthlyBudget
+        : parsed.constraints.monthlyBudget,
       moveIn: parsed.constraints.moveIn,
       moveOut: parsed.constraints.moveOut,
+      salary: finance.breakdown.salary,
+      costOfLivingIndex: finance.breakdown.costOfLivingIndex,
       routineAnchors: parsed.constraints.routineAnchors,
     };
 

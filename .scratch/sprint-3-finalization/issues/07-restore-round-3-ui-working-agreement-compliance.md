@@ -4,7 +4,7 @@
 
 **Blocked by:** None - can start immediately.
 
-**Status:** ready-for-agent
+**Status:** implemented
 
 - [x] New Sprint 3 user-facing strings use plain ASCII characters as required by the working agreement.
 - [x] Caption-sized status labels, progress controls, listing controls, and booking actions meet WCAG AA contrast requirements.

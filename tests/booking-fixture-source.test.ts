@@ -1,24 +1,41 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { acceptRoommateInvite, getBookings, inviteRoommate, requestBooking } from "@/lib/data/source";
+import {
+  acceptRoommateInvite,
+  getBookings,
+  getSavedPerches,
+  inviteRoommate,
+  requestBooking,
+} from "@/lib/data/source";
 import { bookingsFixture } from "@/lib/fixtures/bookings";
 import { ME_ID, meFixture, otherUsersFixture } from "@/lib/fixtures/users";
 
-const BASE_BOOKING_COUNT = bookingsFixture.length;
+const BASE_BOOKINGS = structuredClone(bookingsFixture);
 
 function resetFixtureBookings() {
-  bookingsFixture.splice(BASE_BOOKING_COUNT);
-  const alexBooking = bookingsFixture.find((b) => b.id === "book-alex-L4");
-  if (alexBooking) {
-    alexBooking.status = "requested";
-    alexBooking.pendingRoommates = [];
-    alexBooking.roommates = [];
-    alexBooking.decidedAt = null;
-  }
+  bookingsFixture.splice(0, bookingsFixture.length, ...structuredClone(BASE_BOOKINGS));
 }
 
 describe("fixture booking roommate lifecycle", () => {
   beforeEach(() => {
     resetFixtureBookings();
+  });
+
+  it("exposes a seeded pending invite for the repeatable browser acceptance flow", async () => {
+    const { mine } = await getBookings(ME_ID);
+
+    expect(mine).toContainEqual(
+      expect.objectContaining({
+        id: "book-jordan-L1",
+        listingId: "L1",
+        viewerRole: "invitee",
+        pendingRoommates: [
+          { id: ME_ID, name: meFixture.name, avatarUrl: meFixture.avatar_url },
+        ],
+      }),
+    );
+
+    const saved = await getSavedPerches();
+    expect(saved.some((listing) => listing.id === "L1")).toBe(true);
   });
 
   it("requesting with roommates creates pending invites, not confirmed roommates", async () => {

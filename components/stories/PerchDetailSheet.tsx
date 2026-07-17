@@ -37,10 +37,12 @@ export function PerchDetailSheet({
   perch,
   open,
   onOpenChange,
+  onListingBooked,
 }: {
   perch: PerchCard | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onListingBooked?: (listingId: string) => void;
 }) {
   const [detail, setDetail] = useState<ListingDetail | null>(null);
   const [finance, setFinance] = useState<FinanceBreakdown | null>(null);
@@ -228,7 +230,11 @@ export function PerchDetailSheet({
           ) : null}
 
           {/* Booking bar (RA34) - request-to-book + status */}
-          <BookingBar listing={perch} className="mt-4" />
+          <BookingBar
+            listing={perch}
+            className="mt-4"
+            onBooked={() => onListingBooked?.(perch.id)}
+          />
 
           <div className="mt-4 flex items-center gap-2">
             <Link

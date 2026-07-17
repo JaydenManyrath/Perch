@@ -4,7 +4,7 @@
 
 **Blocked by:** C0 - Reconcile Round 3 Person C seams.
 
-**Status:** ready-for-agent
+**Status:** implemented
 
 ## Acceptance criteria
 

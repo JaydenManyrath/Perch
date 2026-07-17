@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { EventComments } from "./EventComments";
 import { formatEventTime } from "@/lib/utils";
-import { MapPin, Sparkles, Check, X, Users, MessageCircle } from "lucide-react";
+import { MapPin, Sparkles, Check, X, Users, MessageCircle, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { attendEvent } from "@/lib/data/source";
 import type { FeedItem, AttendResponse } from "@/lib/types/contract";
@@ -53,6 +53,8 @@ export function EventCard({
 
   return (
     <Card className={cn("overflow-hidden", topPick ? "ring-2 ring-accent-beak/50" : "")}>
+      {/* Section 13.1 - upcoming events, image rendered prominently (16:9), with
+          a friendly placeholder when the source didn't provide one. */}
       {imageUrl ? (
         <div className="relative aspect-video w-full bg-sky-100">
           <Image
@@ -64,7 +66,17 @@ export function EventCard({
           />
         </div>
       ) : (
-        <div className="relative aspect-[4/1] w-full bg-gradient-to-br from-sky-100 to-sky-200" aria-hidden />
+        <div
+          className="relative aspect-video w-full bg-gradient-to-br from-sky-100 to-sky-200 flex items-center justify-center"
+          aria-label={`No image for ${item.event.title}`}
+        >
+          <div className="flex flex-col items-center text-ink-soft">
+            <CalendarDays className="h-10 w-10" aria-hidden strokeWidth={1.5} />
+            <span className="mt-1 text-caption font-semibold">
+              {item.event.category}
+            </span>
+          </div>
+        </div>
       )}
 
       <CardContent className="p-4 pt-4">

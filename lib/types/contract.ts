@@ -136,6 +136,9 @@ export type OfferParse = {
   // Section 11.9 - per-field 0..1 confidence + list of low-confidence fields.
   confidence: Record<OfferField, number>;
   needsReview: OfferField[];
+  // Section 13.5 - upfront cash extracted by the parser when present.
+  relocationStipend?: number | null;
+  signingBonus?: number | null;
 };
 
 export type TakeoutParse = { places: Place[] };
@@ -268,12 +271,17 @@ export type NoteRow = {
   lng?: number | null;
 };
 
+/** Section 13.6 - optional grouping for the fuller checklist. */
+export type ChecklistCategory = "travel" | "logistics" | "packing" | "admin";
+
 export type ChecklistItemRow = {
   id: string;
   user_id: string;
   label: string;
   due_offset: number;
   done: boolean;
+  /** Section 13.6 - optional grouping (travel, logistics, packing, admin). */
+  category?: ChecklistCategory | null;
 };
 
 // Round 2 (section 11.5) - Reviews (Airbnb-style)
@@ -333,6 +341,8 @@ export type SwipeResponse = { listingId: string; direction: SwipeDirection };
 export type SavedPerchesResponse = { saved: PerchCard[] };
 
 // Round 2 (section 11.4) - Subletter posting
+// Round 3 (section 13.2) - the additional detail fields (furnished, pros,
+// bed/bath/sqft, amenities, utilities). Optional so older callers keep working.
 export type PostListingInput = {
   title: string;
   address: string;
@@ -344,6 +354,14 @@ export type PostListingInput = {
   leaseType: "sublet" | "short_term" | "standard";
   photos: string[];
   safetyNotes?: string[];
+  // Round 3 additions
+  furnished?: boolean | null;
+  pros?: string[];
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  sqft?: number | null;
+  amenities?: string[];
+  utilitiesIncluded?: boolean | null;
 };
 
 export type ListingResponse = { listing: PerchCard };
@@ -470,3 +488,66 @@ export type CommuteScheduleInput = {
 };
 
 export type CommuteScheduleResponse = { day: ItineraryDay };
+
+// Round 3 (section 13.2) - Comprehensive listing detail
+export type ListingDetail = {
+  id: string;
+  title: string;
+  address: string;
+  lat: number;
+  lng: number;
+  price: number;
+  leaseStart: string;
+  leaseEnd: string;
+  leaseType: "sublet" | "short_term" | "standard";
+  furnished: boolean | null;
+  pros: string[];
+  bedrooms: number | null;
+  bathrooms: number | null;
+  sqft: number | null;
+  amenities: string[];
+  utilitiesIncluded: boolean | null;
+  photos: string[];
+  status: ListingStatus;
+  host: { id: string; name: string; avatarUrl: string | null } | null;
+  reviewSummary: ReviewSummary;
+};
+
+// Round 3 (section 13.4) - Booking + roommate grouping
+export type BookingStatus = "requested" | "approved" | "booked" | "declined" | "cancelled";
+
+export type Booking = {
+  id: string;
+  listingId: string;
+  booker: { id: string; name: string; avatarUrl: string | null };
+  roommates: { id: string; name: string; avatarUrl: string | null }[];
+  status: BookingStatus;
+  createdAt: string;
+  decidedAt: string | null;
+};
+
+export type BookRequestInput = { roommateIds?: string[] };
+
+export type BookingsResponse = {
+  /** Bookings where I'm the booker (or a roommate). */
+  mine: Booking[];
+  /** Bookings against MY listings (incoming as owner). */
+  incoming: Booking[];
+};
+
+// Round 3 (section 13.3) - Roommate invite (server-side result)
+export type RoommateInviteInput = { userId: string };
+
+// Round 3 (section 13.5) - Deterministic finance model
+export type FinanceBreakdown = {
+  salary: number | null;          // annual, gross
+  takeHome: number;               // annual, after deterministic tax model
+  monthlyTakeHome: number;
+  relocationStipend: number;      // 0 if none
+  signingBonus: number;           // upfront cash, 0 if none
+  upfrontCashNeeded: number;      // deposit + first month + moving estimate
+  costOfLivingIndex: number;      // 100 = national average
+  monthlyBudget: number;          // COL-adjusted recommended rent ceiling
+  city: string;
+};
+

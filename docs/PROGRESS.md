@@ -93,15 +93,15 @@ All UI + schema + APIs + integrations landed on `main`. Split three ways during 
 
 Same three-way split. Seams: FOUNDATION-CONTRACT.md section 13. Plans: IMPLEMENTATION-PERSON-A-ROUND3.md, IMPLEMENTATION-PERSON-B-ROUND3.md, IMPLEMENTATION-PERSON-C-ROUND3.md. Round-3 migrations start at 0011.
 
-### UI (person-a)
-- [todo] RA31 Ticketmaster event image renders on the feed card (+ placeholder fallback)
-- [todo] RA32 Comprehensive sublet detail sheet: furnished line, Pros list, bed/bath/sqft, amenities, utilities; add the fields to the post form
-- [todo] RA33 Roommate grouping UI: add-a-roommate (from friends) on a saved perch/booking + grouped view
-- [todo] RA34 Booking flow UI: Request-to-book, owner approval inbox, booked state; a booked perch leaves the deck
-- [todo] RA35 Finance UI: take-home vs salary, cost-of-living, upfront cash, relocation stipend (onboarding summary + budget/negotiation + perch affordability)
-- [todo] RA36 Checklist UI: render the fuller checklist (flights, shipping, what-to-bring, parking/car), grouped by category
-- [todo] RA37 Remove percentages from onboarding (confidence percent -> a "check this" flag; progress dots, not a percent)
-- [todo] RA38 Map marker press -> richer info sheet (place / listing / event / comment / sticker detail)
+### UI (person-a) - shipped on branch person-a 2026-07-16
+- [done] RA31 Ticketmaster event image renders on the feed card (+ placeholder fallback)
+- [done] RA32 Comprehensive sublet detail sheet: furnished line, Pros list, bed/bath/sqft, amenities, utilities; add the fields to the post form
+- [done] RA33 Roommate grouping UI: add-a-roommate (from friends) on a saved perch/booking + grouped view
+- [done] RA34 Booking flow UI: Request-to-book, owner approval inbox, booked state; a booked perch leaves the deck
+- [done] RA35 Finance UI: take-home vs salary, cost-of-living, upfront cash, relocation stipend (onboarding summary + landing readout + perch affordability)
+- [done] RA36 Checklist UI: fuller checklist grouped by category (travel, logistics, packing, admin) with per-group progress
+- [done] RA37 Onboarding percentages removed (confidence percent -> "check this" flag; step dots replace the percent bar)
+- [done] RA38 Map marker press -> richer info sheet (listing / sticker / event enriched with attendance + taste)
 
 ### Schema + core APIs (person-b)
 - [todo] RB31 listings columns (0011): furnished, pros, bedrooms, bathrooms, sqft, amenities, utilities_included + GET /api/listings/{id} (ListingDetail) + post validation
@@ -124,3 +124,4 @@ Same three-way split. Seams: FOUNDATION-CONTRACT.md section 13. Plans: IMPLEMENT
 - 2026-07-16: Round 2 batch 2 planned.
 - 2026-07-16: Round 2 fully shipped and merged to main. Implementation docs removed; keeping FOUNDATION-CONTRACT.md, PROGRESS.md, SECRETS.md, README.md, CLAUDE.md.
 - 2026-07-16: Round 3 planned (upcoming events + images, comprehensive sublet details + pros + furnished, roommate grouping, booking flow, real finance model, fuller checklist, onboarding-percentage removal, richer map info); split three ways on branches person-a/person-b/person-c.
+- 2026-07-16: Round 3 UI (person-a, RA31-RA38) shipped on branch person-a. Fixture-first: booking state machine, roommate grouping, finance breakdown, and richer marker sheets all drivable end-to-end without waiting on B/C. Extended lib/types/contract.ts with the frozen R3 shapes (ListingDetail, Booking, FinanceBreakdown, ChecklistCategory) and lib/data/source.ts with the matching getters so the live-swap stays invisible.

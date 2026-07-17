@@ -1,7 +1,8 @@
 import type { OfferParse, TasteProfile } from "@/lib/types/contract";
 
 // Canned onboarding parses so the flow is fully demoable on fixtures.
-// Round 2 (§11.9): confidence + needsReview mimic what Person C's OCR pipeline returns.
+// Round 2 (section 11.9): confidence + needsReview mimic Person C's OCR pipeline.
+// Round 3 (section 13.5): relocationStipend + signingBonus feed the finance model.
 export const offerParseFixture: OfferParse = {
   employer: "Stripe",
   role: "Software Engineer Intern",
@@ -20,6 +21,8 @@ export const offerParseFixture: OfferParse = {
     endDate: 0.83,
   },
   needsReview: ["salary", "city"],
+  relocationStipend: 3500,
+  signingBonus: 2500,
 };
 
 export const tasteProfileFixture: TasteProfile = {

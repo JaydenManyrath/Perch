@@ -58,6 +58,12 @@ import {
   type RoutePoisResponse,
   type CommuteScheduleResponse,
   type ListingStatus,
+  // Round 3 types
+  type ListingDetail,
+  type Booking,
+  type BookingsResponse,
+  type BookRequestInput,
+  type FinanceBreakdown,
 } from "@/lib/types/contract";
 import * as fx from "@/lib/fixtures";
 
@@ -334,10 +340,14 @@ export async function getPerchDeck(): Promise<PerchDeckResponse> {
     const r = await safeFetchJson<PerchDeckResponse>("/api/perches");
     if (r) return r;
   }
+  // Rebuild the deck on every call so a listing that just went to status='taken'
+  // (via a confirmed booking, RA34) drops out immediately - the pre-computed
+  // fixture only sees the initial state.
+  const freshCards = fx.listingsFixture
+    .filter((l) => (l.status ?? "available") === "available")
+    .map((l) => fx.buildPerchCard(l));
   return {
-    deck: fx.perchDeckFixture.deck.filter(
-      (c) => !swipedRight.has(c.id) && !swipedLeft.has(c.id),
-    ),
+    deck: freshCards.filter((c) => !swipedRight.has(c.id) && !swipedLeft.has(c.id)),
   };
 }
 
@@ -728,4 +738,148 @@ export async function buildCommuteSchedule(input: {
     if (r) return r;
   }
   return fx.buildScheduleFromSelections(input);
+}
+
+// Round 3 - Comprehensive listing detail (section 13.2)
+export async function getListingDetail(id: string): Promise<ListingDetail | null> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<ListingDetail>(`/api/listings/${id}`);
+    if (r) return r;
+  }
+  return fx.listingDetailFor(id);
+}
+
+// Round 3 - Booking flow (section 13.4)
+export async function getBookings(userId: string): Promise<BookingsResponse> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<BookingsResponse>("/api/bookings");
+    if (r) return r;
+  }
+  // Fixture: find my bookings + bookings against my listings.
+  const all = fx.bookingsFixture;
+  const myListingIds = new Set(
+    fx.listingsFixture.filter((l) => l.created_by === userId).map((l) => l.id),
+  );
+  const mine = all.filter(
+    (b) =>
+      b.booker.id === userId ||
+      b.roommates.some((r) => r.id === userId),
+  );
+  const incoming = all.filter((b) => myListingIds.has(b.listingId));
+  return { mine, incoming };
+}
+
+export async function requestBooking(
+  listingId: string,
+  input: BookRequestInput,
+): Promise<Booking> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<Booking>(`/api/listings/${listingId}/book`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    if (r) return r;
+  }
+  const me = fx.meFixture;
+  const roommates = (input.roommateIds ?? [])
+    .map((id) => {
+      const u = [me, ...fx.otherUsersFixture].find((x) => x.id === id);
+      return u ? { id: u.id, name: u.name, avatarUrl: u.avatar_url } : null;
+    })
+    .filter((r): r is { id: string; name: string; avatarUrl: string | null } => !!r);
+  const row: Booking = {
+    id: `book-${me.id}-${listingId}-${Date.now()}`,
+    listingId,
+    booker: { id: me.id, name: me.name, avatarUrl: me.avatar_url },
+    roommates,
+    status: "requested",
+    createdAt: new Date().toISOString(),
+    decidedAt: null,
+  };
+  fx.bookingsFixture.unshift(row);
+  return row;
+}
+
+export async function approveBooking(id: string): Promise<Booking | null> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<Booking>(`/api/bookings/${id}/approve`, {
+      method: "POST",
+    });
+    if (r) return r;
+  }
+  const b = fx.bookingsFixture.find((x) => x.id === id);
+  if (!b) return null;
+  b.status = "approved";
+  b.decidedAt = new Date().toISOString();
+  return b;
+}
+
+export async function declineBooking(id: string): Promise<Booking | null> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<Booking>(`/api/bookings/${id}/decline`, {
+      method: "POST",
+    });
+    if (r) return r;
+  }
+  const b = fx.bookingsFixture.find((x) => x.id === id);
+  if (!b) return null;
+  b.status = "declined";
+  b.decidedAt = new Date().toISOString();
+  return b;
+}
+
+/** Booker confirms an approved booking. Booked -> listing.status='taken'. */
+export async function confirmBooking(id: string): Promise<Booking | null> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<Booking>(`/api/bookings/${id}/confirm`, {
+      method: "POST",
+    });
+    if (r) return r;
+  }
+  const b = fx.bookingsFixture.find((x) => x.id === id);
+  if (!b) return null;
+  if (b.status !== "approved") return b;
+  b.status = "booked";
+  b.decidedAt = new Date().toISOString();
+  // Server-side effect mirror: mark the listing taken so the deck drops it.
+  const listing = fx.listingsFixture.find((l) => l.id === b.listingId);
+  if (listing) listing.status = "taken";
+  return b;
+}
+
+// Round 3 - Roommate invite (section 13.3)
+export async function inviteRoommate(
+  bookingId: string,
+  userId: string,
+): Promise<Booking | null> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<Booking>(`/api/bookings/${bookingId}/roommates`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    if (r) return r;
+  }
+  const b = fx.bookingsFixture.find((x) => x.id === bookingId);
+  if (!b) return null;
+  if (b.roommates.some((r) => r.id === userId)) return b;
+  const u = fx.otherUsersFixture.find((x) => x.id === userId);
+  if (!u) return b;
+  b.roommates.push({ id: u.id, name: u.name, avatarUrl: u.avatar_url });
+  return b;
+}
+
+// Round 3 - Finance model (section 13.5)
+export async function getFinance(): Promise<FinanceBreakdown> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<FinanceBreakdown>("/api/finance");
+    if (r) return r;
+  }
+  return fx.buildFinanceBreakdown(fx.offerParseFixture);
+}
+
+/** Build a FinanceBreakdown from an offer directly (used by onboarding summary). */
+export function financeFromOffer(offer: OfferParse): FinanceBreakdown {
+  return fx.buildFinanceBreakdown(offer);
 }

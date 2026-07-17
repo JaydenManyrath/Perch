@@ -151,6 +151,18 @@ describe("parseOfferText upfront-cash benefits (RC32)", () => {
     expect(p.needsReview).toContain("signingBonus");
   });
 
+  it("prefers a later exact amount over an earlier ambiguous benefit mention", () => {
+    const p = parseOfferText(
+      "Company: Acme\nRole: Intern\nSalary: $90,000 annually.\nStart date: 2026-06-01.\nLocation: Chicago, IL.\n" +
+        "Relocation assistance is available after approval. Relocation stipend: $4,500.\n" +
+        "A signing bonus may be discussed with recruiting. Signing bonus: $8,000.\n",
+    );
+    expect(p.relocationStipend).toBe(4500);
+    expect(p.signingBonus).toBe(8000);
+    expect(p.needsReview).not.toContain("relocationStipend");
+    expect(p.needsReview).not.toContain("signingBonus");
+  });
+
   it("keeps every confidence value in the valid range and remains deterministic", () => {
     const first = parseOfferText(fullOffer);
     const second = parseOfferText(fullOffer);

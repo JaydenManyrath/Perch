@@ -89,34 +89,46 @@ function parseBenefit(
   const mentioned = labels.some((label) => label.test(text));
   if (!mentioned) return { value: null, conf: 0, mentioned: false };
 
+  let sawAmbiguousMention = false;
   for (const label of labels) {
     const source = label.source;
     const flags = label.flags.includes("i") ? label.flags : `${label.flags}i`;
-    const clause = text.match(new RegExp(`${source}[^\\n.]{0,160}`, flags))?.[0] ?? "";
-    if (
-      /\$\s*[\d,]+(?:\.\d{2})?\s*(?:-|to|through|and)\s*\$?\s*[\d,]+/i.test(clause) ||
-      /\b(?:up to|as much as|estimated|estimate|depending|subject to|may be|eligible|available)\b/i.test(clause)
-    ) {
-      return { value: null, conf: 0.4, mentioned: true };
-    }
+    const clauses = [...text.matchAll(new RegExp(`${source}[^\\n.]{0,160}`, `${flags}g`))].map(
+      (match) => match[0],
+    );
 
     const single = new RegExp(
       `${source}[^\\n.]{0,80}?${MONEY}(?!\\s*(?:-|to|through|and)\\s*\\$?\\s*[\\d,])`,
       flags,
     );
-    const match = text.match(single);
-    if (!match?.[1]) continue;
+    for (const clause of clauses) {
+      if (
+        /\$\s*[\d,]+(?:\.\d{2})?\s*(?:-|to|through|and)\s*\$?\s*[\d,]+/i.test(clause) ||
+        /\b(?:up to|as much as|estimated|estimate|depending|subject to|may be|eligible|available)\b/i.test(clause)
+      ) {
+        sawAmbiguousMention = true;
+        continue;
+      }
 
-    const context = match[0];
-    if (/\b(?:up to|as much as|estimated|estimate|depending|subject to|may be|eligible|available)\b/i.test(context)) {
-      return { value: null, conf: 0.4, mentioned: true };
+      const match = clause.match(single);
+      if (!match?.[1]) {
+        sawAmbiguousMention = true;
+        continue;
+      }
+
+      const context = match[0];
+      if (/\b(?:up to|as much as|estimated|estimate|depending|subject to|may be|eligible|available)\b/i.test(context)) {
+        sawAmbiguousMention = true;
+        continue;
+      }
+
+      const value = parseMoney(match[1]);
+      if (value !== null) return { value, conf: 0.92, mentioned: true };
+      sawAmbiguousMention = true;
     }
-
-    const value = parseMoney(match[1]);
-    if (value !== null) return { value, conf: 0.92, mentioned: true };
   }
 
-  return { value: null, conf: 0.4, mentioned: true };
+  return { value: null, conf: sawAmbiguousMention ? 0.4 : 0, mentioned: true };
 }
 
 function extractLiteralPdfText(pdf: Buffer): string {

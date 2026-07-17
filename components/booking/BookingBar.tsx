@@ -26,9 +26,11 @@ import { cn } from "@/lib/utils";
 export function BookingBar({
   listing,
   className,
+  onBooked,
 }: {
   listing: PerchCard;
   className?: string;
+  onBooked?: (booking: Booking) => void;
 }) {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,7 +78,10 @@ export function BookingBar({
     setBusy(true);
     try {
       const b = await confirmBooking(booking.id);
-      if (b) setBooking(b);
+      if (b) {
+        setBooking(b);
+        if (b.status === "booked") onBooked?.(b);
+      }
     } finally {
       setBusy(false);
     }

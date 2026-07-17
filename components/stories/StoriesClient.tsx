@@ -48,6 +48,12 @@ export function StoriesClient({
     await recordSwipe({ listingId: listing.id, direction });
   }
 
+  function removeTakenListing(listingId: string) {
+    setDeck((prev) => prev.filter((c) => c.id !== listingId));
+    setSaved((prev) => prev.filter((c) => c.id !== listingId));
+    setOpenId((current) => (current === listingId ? null : current));
+  }
+
   const openListing =
     (deck.find((d) => d.id === openId) as PerchCard | undefined) ??
     (saved.find((s) => s.id === openId) as PerchCard | undefined) ??
@@ -69,7 +75,7 @@ export function StoriesClient({
       </div>
 
       {tab === "deck" ? (
-        <PerchDeck initial={deck} onSwiped={onSwiped} />
+        <PerchDeck initial={deck} onSwiped={onSwiped} onListingTaken={removeTakenListing} />
       ) : saved.length === 0 ? (
         <div className="mt-6">
           <EmptyState
@@ -100,6 +106,7 @@ export function StoriesClient({
         perch={openListing}
         open={openId !== null}
         onOpenChange={(o) => !o && setOpenId(null)}
+        onListingBooked={removeTakenListing}
       />
     </div>
   );

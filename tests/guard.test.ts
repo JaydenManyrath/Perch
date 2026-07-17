@@ -12,7 +12,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextResponse } from "next/server";
 
-const { getCallerId } = vi.hoisted(() => ({ getCallerId: vi.fn<[], Promise<string | null>>() }));
+const { getCallerId } = vi.hoisted(() => ({ getCallerId: vi.fn<() => Promise<string | null>>() }));
 vi.mock("@/lib/supabase/server", () => ({ getCallerId }));
 
 import { guard } from "@/lib/http";

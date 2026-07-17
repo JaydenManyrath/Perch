@@ -4,6 +4,7 @@ import {
   assertInternCaller,
   bookingErrorStatus,
   BOOKING_SELECT,
+  BookingConflictError,
   BookingForbiddenError,
   fetchBookingRow,
   parseUuid,
@@ -32,8 +33,13 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     if (!row.roommate_invites.includes(g.callerId)) {
       throw new BookingForbiddenError("no pending roommate invite for you on this booking");
     }
+    if (row.status !== "requested" && row.status !== "approved") {
+      throw new BookingConflictError("roommate invites can only be accepted on a live booking");
+    }
     if (row.roommate_ids.includes(g.callerId)) {
-      return NextResponse.json(await toBooking(supabase, row), { headers: g.headers });
+      const booking = await toBooking(supabase, row);
+      booking.viewerRole = "roommate";
+      return NextResponse.json(booking, { headers: g.headers });
     }
 
     const admin = createAdminClient();
@@ -44,11 +50,16 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
         roommate_invites: row.roommate_invites.filter((uid) => uid !== g.callerId),
       })
       .eq("id", bookingId)
+      .eq("status", row.status)
+      .contains("roommate_invites", [g.callerId])
       .select(BOOKING_SELECT)
-      .single();
+      .maybeSingle();
     if (error) throw error;
+    if (!updated) throw new BookingConflictError("booking changed concurrently");
 
-    return NextResponse.json(await toBooking(supabase, updated as BookingRow), { headers: g.headers });
+    const booking = await toBooking(supabase, updated as BookingRow);
+    booking.viewerRole = "roommate";
+    return NextResponse.json(booking, { headers: g.headers });
   } catch (err) {
     const mapped = bookingErrorStatus(err);
     if (mapped) return NextResponse.json({ error: mapped.message }, { status: mapped.status, headers: g.headers });

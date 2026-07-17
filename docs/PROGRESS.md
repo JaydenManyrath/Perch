@@ -2,7 +2,7 @@
 
 Single source of truth for build status. Every merge to `main` updates this file (mark items done, dated) and `README.md`. Plain ASCII only (no emojis, no em-dashes).
 
-Status keys: `[done]` merged to main | `[wip]` in progress on a branch | `[todo]` planned | `[blocked]` waiting on a dependency.
+Status keys: `[done]` merged to main | `[verified]` implemented and accepted on the release-candidate branch | `[wip]` in progress | `[todo]` planned | `[blocked]` waiting on a dependency.
 
 ## Round 1 - v1 app (shipped, merged to main)
 
@@ -89,33 +89,34 @@ All UI + schema + APIs + integrations landed on `main`. Split three ways during 
 - [done] RC7 Office geocode from employer
 - [done] RC8 POI search along the route corridor (Mapbox) for coffee/gym candidates
 
-## Round 3 (planned 2026-07-16)
+## Round 3 (release candidate verified 2026-07-17)
 
-Same three-way split. Seams: FOUNDATION-CONTRACT.md section 13. Plans: IMPLEMENTATION-PERSON-A-ROUND3.md, IMPLEMENTATION-PERSON-B-ROUND3.md, IMPLEMENTATION-PERSON-C-ROUND3.md. Round-3 migrations start at 0011.
+All three implementation streams are integrated on the release-candidate branch. Automated gates and local Supabase verification are green. Fixture-browser acceptance is green except for a real Mapbox marker-click pass, which requires `NEXT_PUBLIC_MAPBOX_TOKEN` and remains unverified. Round 3 is not yet merged to `main`; full evidence is in `docs/SPRINT-3-ACCEPTANCE.md`.
 
-### UI (person-a) - shipped on branch person-a 2026-07-16
-- [done] RA31 Ticketmaster event image renders on the feed card (+ placeholder fallback)
-- [done] RA32 Comprehensive sublet detail sheet: furnished line, Pros list, bed/bath/sqft, amenities, utilities; add the fields to the post form
-- [done] RA33 Roommate grouping UI: add-a-roommate (from friends) on a saved perch/booking + grouped view
-- [done] RA34 Booking flow UI: Request-to-book, owner approval inbox, booked state; a booked perch leaves the deck
-- [done] RA35 Finance UI: take-home vs salary, cost-of-living, upfront cash, relocation stipend (onboarding summary + landing readout + perch affordability)
-- [done] RA36 Checklist UI: fuller checklist grouped by category (travel, logistics, packing, admin) with per-group progress
-- [done] RA37 Onboarding percentages removed (confidence percent -> "check this" flag; step dots replace the percent bar)
-- [done] RA38 Map marker press -> richer info sheet (listing / sticker / event enriched with attendance + taste)
+### Experience
+- [verified 2026-07-17] RA31 Ticketmaster event image renders on the feed card (+ placeholder fallback)
+- [verified 2026-07-17] RA32 Comprehensive sublet detail sheet: furnished line, Pros list, bed/bath/sqft, amenities, utilities; add the fields to the post form
+- [verified 2026-07-17] RA33 Roommate grouping UI: pending invite, invitee acceptance, and confirmed grouped view
+- [verified 2026-07-17] RA34 Booking flow UI: Request-to-book, owner approval inbox, booked state, and immediate removal from the deck
+- [verified 2026-07-17] RA35 Finance UI: take-home vs salary, cost-of-living, upfront cash, relocation stipend (onboarding summary + landing readout + perch affordability)
+- [verified 2026-07-17] RA36 Checklist UI: fuller checklist grouped by category (travel, logistics, packing, admin) with per-group progress
+- [verified 2026-07-17] RA37 Onboarding percentages removed (confidence percent -> "check this" flag; step dots replace the percent bar)
+- [wip] RA38 Map marker press -> richer info sheet. Payload tests pass and the no-token fallback renders; a real Mapbox marker-click pass remains unverified.
 
-### Schema + core APIs (person-b)
-- [done 2026-07-17] RB31 listings columns (0011): furnished, pros, bedrooms, bathrooms, sqft, amenities, utilities_included (nullable + backfilled) + GET /api/listings/{id} (ListingDetail) + post validation for the new fields
-- [done 2026-07-17] RB32 bookings table (0011) + RLS (0012) + deterministic state machine (requested -> approved -> booked; booked sets listings.status=taken; decline/cancel release) + booking API (book/approve/decline/confirm/list)
-- [done 2026-07-17] RB33 Roommate grouping: bookings.roommate_ids + roommate_invites; invite/accept API; friend-or-invited enforced in code + RLS trigger
-- [done 2026-07-17] RB34 Finance model (deterministic): progressive federal brackets + FICA + state estimate take-home, COL-adjusted budget, upfront cash, stipend/bonus; cost_of_living table; GET /api/finance; negotiation budget scout uses take-home + COL (never raw salary)
-- [done 2026-07-17] RB35 Checklist seed: flights, shipping/movers, what-to-bring (packing), parking/car + category column (travel/logistics/packing/admin)
-- [done 2026-07-17] RB36 Feed/events guard datetime >= now (upcoming only, in-query); marker payloads carry detail for the map info sheet (ListingDetail furnished/pros/status; map comments author/text; events venue/date/going)
+### Schema + core APIs
+- [verified 2026-07-17] RB31 listings columns (0011): furnished, pros, bedrooms, bathrooms, sqft, amenities, utilities_included (nullable + backfilled) + GET /api/listings/{id} (ListingDetail) + post validation for the new fields
+- [verified 2026-07-17] RB32 bookings table (0011) + RLS (0012) + deterministic state machine (requested -> approved -> booked; booked sets listings.status=taken; decline/cancel release) + booking API (book/approve/decline/confirm/list)
+- [verified 2026-07-17] RB33 Roommate grouping: bookings.roommate_ids + roommate_invites; invite/accept API; friend-or-invited enforced in code + RLS trigger
+- [verified 2026-07-17] RB34 Finance model (deterministic): progressive federal brackets + FICA + state estimate take-home, COL-adjusted budget, upfront cash, stipend/bonus; cost_of_living table; GET /api/finance; negotiation budget scout uses take-home + COL (never raw salary)
+- [verified 2026-07-17] RB35 Checklist seed: flights, shipping/movers, what-to-bring (packing), parking/car + category column (travel/logistics/packing/admin)
+- [verified 2026-07-17] RB36 Feed/events guard datetime >= now (upcoming only, in-query); marker payloads carry detail for the map info sheet (ListingDetail furnished/pros/status; map comments author/text; events venue/date/going)
 
-### Integrations + AI (person-c)
-- [todo] RC31 Ticketmaster: upcoming-only filter (startDateTime >= now, sorted ascending) + capture best image_url
-- [todo] RC32 Offer parser: extract relocationStipend + signingBonus (upfront cash) with per-field confidence
-- [todo] RC33 Cost-of-living data source (city index + median rent; seeded table + optional external lookup) feeding B's finance model
-- [todo] RC34 (optional) Map place-details lookup (Mapbox) for richer marker info
+### Integration decisions, integrations, and parser
+- [verified 2026-07-17] C0 reconciled the integrated Person A/B seams before RC implementation: RC31/RC32 retained, RC33 reduced to the canonical integrated source, and RC34 closed as no-build unless a missing payload was demonstrated.
+- [verified 2026-07-17] RC31 Ticketmaster: upcoming-only filter (startDateTime >= now, sorted ascending) + capture best image_url
+- [verified 2026-07-17] RC32 Offer parser: extract relocationStipend + signingBonus (upfront cash) with per-field confidence, null absent values, and flag ambiguous values for review
+- [verified 2026-07-17] RC33 Cost-of-living data source: hardened the integrated lookup as the canonical seam; city/state canonicalization, deterministic DB-error/malformed-row fallback, documented bundled provenance/as-of date, no external provider or duplicate persistence path
+- [verified 2026-07-17] RC34 closed as not needed: existing payloads and routes support the accepted marker-sheet behavior; no external Mapbox place-details route, key, provider, or abstraction was added. The separate RA38 real-browser Mapbox gate remains open.
 
 ## Log
 
@@ -126,3 +127,5 @@ Same three-way split. Seams: FOUNDATION-CONTRACT.md section 13. Plans: IMPLEMENT
 - 2026-07-16: Round 3 planned (upcoming events + images, comprehensive sublet details + pros + furnished, roommate grouping, booking flow, real finance model, fuller checklist, onboarding-percentage removal, richer map info); split three ways on branches person-a/person-b/person-c.
 - 2026-07-16: Round 3 UI (person-a, RA31-RA38) shipped on branch person-a. Fixture-first: booking state machine, roommate grouping, finance breakdown, and richer marker sheets all drivable end-to-end without waiting on B/C. Extended lib/types/contract.ts with the frozen R3 shapes (ListingDetail, Booking, FinanceBreakdown, ChecklistCategory) and lib/data/source.ts with the matching getters so the live-swap stays invisible.
 - 2026-07-17: Round 3 person-b shipped (RB31-RB36): migrations 0011/0012 (listing detail columns, bookings + roommate grouping, checklist category, finance inputs, cost_of_living), deterministic finance model + GET /api/finance, booking state machine + API, comprehensive GET /api/listings/{id}, upcoming-only feed/events guard, round-3 seed. RLS adversarial cases for bookings/roommates/cost_of_living pass against Postgres (28 RLS tests green); full suite 300 passing. Decisions: roommate invites require an accepted friend (enforced in code + a DB trigger) and the invitee accepts to become a confirmed roommate; the finance take-home uses documented 2025 single-filer brackets + FICA + a flat 5% state estimate; a cost_of_living table is B-owned (Person C may back a richer lookup with it); optional users.offer_salary/relocation_stipend/signing_bonus persist the offer for /api/finance.
+- 2026-07-17: RC34 closed as a documentation-only no-build decision. Verification: Person A's RA38 sheets are present for listings, events, comments, and stickers, life-map places already show kind plus nearest-listing minutes, Person B's marker payload work is recorded as done, and neither the Person A nor Person B Round 3 plan asks for external Mapbox place details. Existing payloads and routes satisfy the accepted map-sheet behavior, so no API route, key, provider, or speculative abstraction was added.
+- 2026-07-17: Final integrated acceptance: focused suite 155 of 155 tests passing across 19 files; full suite 325 of 326 tests passing across 46 passing files with 1 live-auth test/file skipped; typecheck and lint clean; production build passed with the existing dynamic OCR dependency warning; local database reset, 28 RLS tests, and idempotent seed passed. Browser acceptance passed all fixture flows except real Mapbox marker clicks because no public Mapbox token was configured. Round 3 remains a release candidate until that browser pass and merge to `main`.

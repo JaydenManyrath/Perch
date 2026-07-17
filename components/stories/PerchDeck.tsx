@@ -21,9 +21,11 @@ import type { PerchCard as PerchCardType, SwipeDirection } from "@/lib/types/con
 export function PerchDeck({
   initial,
   onSwiped,
+  onListingTaken,
 }: {
   initial: PerchCardType[];
   onSwiped: (direction: SwipeDirection, listing: PerchCardType) => void;
+  onListingTaken?: (listingId: string) => void;
 }) {
   const [deck, setDeck] = useState<PerchCardType[]>(initial);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -52,6 +54,15 @@ export function PerchDeck({
       setDragProgress(0);
     },
     [onSwiped],
+  );
+
+  const handleListingBooked = useCallback(
+    (listingId: string) => {
+      setDeck((prev) => prev.filter((c) => c.id !== listingId));
+      setOpenId((current) => (current === listingId ? null : current));
+      onListingTaken?.(listingId);
+    },
+    [onListingTaken],
   );
 
   const initiateButtonSwipe = useCallback(
@@ -167,6 +178,7 @@ export function PerchDeck({
         perch={openListing}
         open={openId !== null}
         onOpenChange={(o) => !o && setOpenId(null)}
+        onListingBooked={handleListingBooked}
       />
     </div>
   );

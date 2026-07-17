@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MapPin, Plus, X, MessageCircle } from "lucide-react";
 import { MapCanvas, type MapClickMode } from "./MapCanvas";
 import { PlaceStickerSheet } from "./PlaceStickerSheet";
+import { PlaceInfoSheet } from "./PlaceInfoSheet";
 import { CommentSheet } from "./CommentSheet";
 import { EventPreviewSheet } from "./EventPreviewSheet";
 import { ListingInfoSheet } from "./ListingInfoSheet";
@@ -63,6 +64,7 @@ export function MapPage({
   const [pickedCommentLoc, setPickedCommentLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [commentMode, setCommentMode] = useState<"read" | "add" | null>(null);
   const [openComment, setOpenComment] = useState<MapComment | null>(null);
+  const [openPlace, setOpenPlace] = useState<Place | null>(null);
   const [openEvent, setOpenEvent] = useState<EventRow | null>(null);
   // RA38 - info sheets for listing + sticker markers.
   const [openListing, setOpenListing] = useState<ListingRow | null>(null);
@@ -250,6 +252,7 @@ export function MapPage({
           clickMode={clickMode}
           onMapClick={handleMapClick}
           onEventClick={(id) => setOpenEvent(events.find((e) => e.id === id) ?? null)}
+          onPlaceClick={(id) => setOpenPlace(places.find((p) => p.id === id) ?? null)}
           onCommentClick={(id) => {
             const c = comments.find((c) => c.id === id) ?? null;
             setOpenComment(c);
@@ -350,6 +353,11 @@ export function MapPage({
           }
         }}
         onSubmit={submitComment}
+      />
+
+      <PlaceInfoSheet
+        place={openPlace}
+        onOpenChange={(o) => !o && setOpenPlace(null)}
       />
 
       <EventPreviewSheet

@@ -37,19 +37,24 @@ export function PerchDetailSheet({
   perch,
   open,
   onOpenChange,
+  onListingBooked,
 }: {
   perch: PerchCard | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onListingBooked?: (listingId: string) => void;
 }) {
   const [detail, setDetail] = useState<ListingDetail | null>(null);
   const [finance, setFinance] = useState<FinanceBreakdown | null>(null);
   const [loading, setLoading] = useState(false);
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const photoUrl = perch?.photos[0] ?? null;
 
   // Fetch the rich detail (and finance for affordability) when the sheet opens.
   useEffect(() => {
     if (!open || !perch) {
       setDetail(null);
+      setPhotoFailed(false);
       return;
     }
     let cancelled = false;
@@ -67,6 +72,10 @@ export function PerchDetailSheet({
       cancelled = true;
     };
   }, [open, perch]);
+
+  useEffect(() => {
+    setPhotoFailed(false);
+  }, [perch?.id, photoUrl]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -88,17 +97,28 @@ export function PerchDetailSheet({
             </div>
           </SheetHeader>
 
-          {perch.photos[0] ? (
+          {photoUrl && !photoFailed ? (
             <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-sky-100">
               <Image
-                src={perch.photos[0]}
+                src={photoUrl}
                 alt=""
                 fill
                 sizes="(max-width: 640px) 100vw, 640px"
                 className="object-cover"
+                onError={() => setPhotoFailed(true)}
               />
             </div>
-          ) : null}
+          ) : (
+            <div
+              className="flex aspect-video w-full items-center justify-center rounded-2xl bg-sky-100 text-ink-strong"
+              aria-label={`No photo for ${perch.title}`}
+            >
+              <div className="flex flex-col items-center gap-1">
+                <BedDouble className="h-8 w-8" aria-hidden strokeWidth={1.75} />
+                <span className="text-caption font-semibold">Photo unavailable</span>
+              </div>
+            </div>
+          )}
 
           {/* Furnished / Unfurnished line - clear, not buried (RA32). */}
           <FurnishedLine detail={detail} loading={loading} />
@@ -210,12 +230,16 @@ export function PerchDetailSheet({
           ) : null}
 
           {/* Booking bar (RA34) - request-to-book + status */}
-          <BookingBar listing={perch} className="mt-4" />
+          <BookingBar
+            listing={perch}
+            className="mt-4"
+            onBooked={() => onListingBooked?.(perch.id)}
+          />
 
           <div className="mt-4 flex items-center gap-2">
             <Link
               href={`/map?apartmentId=${perch.id}`}
-              className="inline-flex items-center gap-1 rounded-2xl bg-accent-beak text-white text-caption font-semibold px-3 py-2 shadow-card hover:bg-accent-beakDeep transition-colors"
+              className="inline-flex items-center gap-1 rounded-2xl bg-accent-beakDeep text-white text-caption font-semibold px-3 py-2 shadow-card hover:bg-accent-beak transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
             >
               <RouteIcon className="h-3.5 w-3.5" aria-hidden /> Plan the commute
             </Link>
@@ -246,8 +270,8 @@ function FurnishedLine({
     <p
       className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-caption font-semibold ${
         detail.furnished
-          ? "bg-func-passBg text-func-pass"
-          : "bg-white text-ink-soft border border-sky-200"
+          ? "bg-func-passBg text-ink-strong border border-func-pass"
+          : "bg-white text-ink-strong border border-sky-200"
       }`}
     >
       {detail.furnished ? (
@@ -293,7 +317,7 @@ function SpecsRow({ detail }: { detail: ListingDetail | null }) {
           key={s.label}
           className="inline-flex items-center gap-1 rounded-xl bg-sky-100 text-ink-strong text-caption font-semibold px-2.5 py-1"
         >
-          <span className="text-sky-500">{s.icon}</span>
+          <span className="text-ink-strong">{s.icon}</span>
           {s.label}
         </span>
       ))}

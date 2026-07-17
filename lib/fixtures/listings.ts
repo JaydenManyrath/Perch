@@ -167,9 +167,7 @@ export const listingsFixture: ListingRow[] = [
     lease_end: "2026-08-31",
     lease_type: "short_term",
     source: "Craigslist",
-    photos: [
-      "https://images.unsplash.com/photo-1560449017-7c4a3a5b3a68?w=800",
-    ],
+    photos: [],
     safety_flags: { scamSignals: [], notes: [] },
     created_by: SUBLETTER_3_ID,
     created_at: "2026-05-26T14:00:00Z",

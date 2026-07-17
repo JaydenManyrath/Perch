@@ -199,27 +199,27 @@ function Row({
 function StatusPill({ status }: { status: Booking["status"] }) {
   if (status === "approved") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 text-sky-500 text-caption font-semibold px-2 py-0.5">
+      <span className="inline-flex items-center gap-1 rounded-full border border-sky-300 bg-sky-100 text-ink-strong text-caption font-semibold px-2 py-0.5">
         <Check className="h-3 w-3" aria-hidden strokeWidth={2.5} /> Approved
       </span>
     );
   }
   if (status === "booked") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-func-passBg text-func-pass text-caption font-semibold px-2 py-0.5">
+      <span className="inline-flex items-center gap-1 rounded-full border border-func-pass bg-func-passBg text-ink-strong text-caption font-semibold px-2 py-0.5">
         <Check className="h-3 w-3" aria-hidden strokeWidth={2.5} /> Booked
       </span>
     );
   }
   if (status === "requested") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-func-flagBg text-func-flag text-caption font-semibold px-2 py-0.5">
+      <span className="inline-flex items-center gap-1 rounded-full border border-func-flag bg-func-flagBg text-ink-strong text-caption font-semibold px-2 py-0.5">
         <Clock className="h-3 w-3" aria-hidden /> Requested
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-white border border-sky-200 text-ink-soft text-caption font-semibold px-2 py-0.5">
+    <span className="inline-flex items-center gap-1 rounded-full bg-white border border-sky-200 text-ink-strong text-caption font-semibold px-2 py-0.5">
       {status}
     </span>
   );

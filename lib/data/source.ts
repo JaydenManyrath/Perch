@@ -13,6 +13,7 @@
 
 import { env, hasSupabase } from "@/lib/env";
 import { fetchMapboxDirections } from "@/lib/directions";
+import { buildFinanceBreakdownFromOffer } from "@/lib/finance/offer";
 import {
   type FeedResponse,
   type MatchesResponse,
@@ -760,12 +761,25 @@ export async function getBookings(userId: string): Promise<BookingsResponse> {
   const myListingIds = new Set(
     fx.listingsFixture.filter((l) => l.created_by === userId).map((l) => l.id),
   );
-  const mine = all.filter(
-    (b) =>
-      b.booker.id === userId ||
-      b.roommates.some((r) => r.id === userId),
-  );
-  const incoming = all.filter((b) => myListingIds.has(b.listingId));
+  const mine = all
+    .filter(
+      (b) =>
+        b.booker.id === userId ||
+        b.pendingRoommates.some((r) => r.id === userId) ||
+        b.roommates.some((r) => r.id === userId),
+    )
+    .map((b) => ({
+      ...b,
+      viewerRole:
+        b.booker.id === userId
+          ? ("booker" as const)
+          : b.roommates.some((r) => r.id === userId)
+            ? ("roommate" as const)
+            : b.pendingRoommates.some((r) => r.id === userId)
+              ? ("invitee" as const)
+              : ("other" as const),
+    }));
+  const incoming = all.filter((b) => myListingIds.has(b.listingId)).map((b) => ({ ...b, viewerRole: "owner" as const }));
   return { mine, incoming };
 }
 
@@ -782,7 +796,9 @@ export async function requestBooking(
     if (r) return r;
   }
   const me = fx.meFixture;
-  const roommates = (input.roommateIds ?? [])
+  const acceptedFriendIds = new Set(fx.friendsFixture.filter((f) => f.status === "accepted").map((f) => f.user.id));
+  const pendingRoommates = (input.roommateIds ?? [])
+    .filter((id) => id !== me.id && acceptedFriendIds.has(id))
     .map((id) => {
       const u = [me, ...fx.otherUsersFixture].find((x) => x.id === id);
       return u ? { id: u.id, name: u.name, avatarUrl: u.avatar_url } : null;
@@ -792,10 +808,12 @@ export async function requestBooking(
     id: `book-${me.id}-${listingId}-${Date.now()}`,
     listingId,
     booker: { id: me.id, name: me.name, avatarUrl: me.avatar_url },
-    roommates,
+    pendingRoommates,
+    roommates: [],
     status: "requested",
     createdAt: new Date().toISOString(),
     decidedAt: null,
+    viewerRole: "booker",
   };
   fx.bookingsFixture.unshift(row);
   return row;
@@ -863,10 +881,33 @@ export async function inviteRoommate(
   }
   const b = fx.bookingsFixture.find((x) => x.id === bookingId);
   if (!b) return null;
+  if (b.status !== "requested" && b.status !== "approved") return b;
   if (b.roommates.some((r) => r.id === userId)) return b;
+  if (b.pendingRoommates.some((r) => r.id === userId)) return b;
+  if (!fx.friendsFixture.some((f) => f.status === "accepted" && f.user.id === userId)) return b;
   const u = fx.otherUsersFixture.find((x) => x.id === userId);
   if (!u) return b;
-  b.roommates.push({ id: u.id, name: u.name, avatarUrl: u.avatar_url });
+  b.pendingRoommates.push({ id: u.id, name: u.name, avatarUrl: u.avatar_url });
+  return b;
+}
+
+export async function acceptRoommateInvite(bookingId: string): Promise<Booking | null> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<Booking>(`/api/bookings/${bookingId}/roommates/accept`, {
+      method: "POST",
+    });
+    if (r) return r;
+  }
+  const b = fx.bookingsFixture.find((x) => x.id === bookingId);
+  if (!b) return null;
+  if (b.status !== "requested" && b.status !== "approved") return b;
+  const pending = b.pendingRoommates.find((r) => r.id === fx.meFixture.id);
+  if (!pending) return b;
+  b.pendingRoommates = b.pendingRoommates.filter((r) => r.id !== fx.meFixture.id);
+  if (!b.roommates.some((r) => r.id === pending.id)) {
+    b.roommates.push(pending);
+  }
+  b.viewerRole = "roommate";
   return b;
 }
 
@@ -879,7 +920,41 @@ export async function getFinance(): Promise<FinanceBreakdown> {
   return fx.buildFinanceBreakdown(fx.offerParseFixture);
 }
 
-/** Build a FinanceBreakdown from an offer directly (used by onboarding summary). */
+function offerFinanceUrl(offer: OfferParse): string {
+  const params = new URLSearchParams();
+  params.set("salary", String(offer.salary ?? 0));
+  params.set("city", offer.city ?? "National");
+  params.set("stipend", String(offer.relocationStipend ?? 0));
+  params.set("bonus", String(offer.signingBonus ?? 0));
+  return `/api/finance?${params.toString()}`;
+}
+
+/** Build a FinanceBreakdown from an offer directly (used by fixture fallbacks/tests). */
 export function financeFromOffer(offer: OfferParse): FinanceBreakdown {
-  return fx.buildFinanceBreakdown(offer);
+  return buildFinanceBreakdownFromOffer(offer);
+}
+
+/** Preview in-progress onboarding through the same finance route as persisted reads. */
+export async function getFinanceForOffer(offer: OfferParse): Promise<FinanceBreakdown> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<FinanceBreakdown>(offerFinanceUrl(offer));
+    if (r) return r;
+  }
+  return financeFromOffer(offer);
+}
+
+/** Persist corrected offer fields that later finance/listing surfaces read. */
+export async function saveOfferCorrections(offer: OfferParse): Promise<void> {
+  if (MODE !== "live") return;
+  const res = await fetch("/api/onboarding/offer", {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      city: offer.city,
+      salary: offer.salary,
+      relocationStipend: offer.relocationStipend,
+      signingBonus: offer.signingBonus,
+    }),
+  });
+  if (!res.ok) throw new Error("offer_persist_failed");
 }

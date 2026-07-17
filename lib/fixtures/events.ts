@@ -87,7 +87,7 @@ export const eventsFixture: EventRow[] = [
     external_id: "tm-E6",
     url: "https://www.ticketmaster.com/event/E6",
     venue: "Q Nightclub",
-    image_url: IMG("photo-1583244532610-2a234c1ff8fb"),
+    image_url: IMG("photo-1492684223066-81342ee5ff30"),
     price_range: "$40-$70",
   },
   {

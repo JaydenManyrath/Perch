@@ -11,6 +11,7 @@ import {
   requestBooking,
   confirmBooking,
   inviteRoommate,
+  acceptRoommateInvite,
   getFriends,
 } from "@/lib/data/source";
 import { ME_ID } from "@/lib/fixtures/users";
@@ -26,9 +27,11 @@ import { cn } from "@/lib/utils";
 export function BookingBar({
   listing,
   className,
+  onBooked,
 }: {
   listing: PerchCard;
   className?: string;
+  onBooked?: (booking: Booking) => void;
 }) {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,7 +79,10 @@ export function BookingBar({
     setBusy(true);
     try {
       const b = await confirmBooking(booking.id);
-      if (b) setBooking(b);
+      if (b) {
+        setBooking(b);
+        if (b.status === "booked") onBooked?.(b);
+      }
     } finally {
       setBusy(false);
     }
@@ -89,6 +95,17 @@ export function BookingBar({
       const b = await inviteRoommate(booking.id, userId);
       if (b) setBooking(b);
       setShowFriends(false);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onAcceptInvite() {
+    if (!booking) return;
+    setBusy(true);
+    try {
+      const b = await acceptRoommateInvite(booking.id);
+      if (b) setBooking(b);
     } finally {
       setBusy(false);
     }
@@ -139,6 +156,7 @@ export function BookingBar({
           </div>
           <RoommateGroup
             booking={booking}
+            canInvite={booking.viewerRole === "booker"}
             onOpenFriends={() => {
               void loadFriends();
               setShowFriends((v) => !v);
@@ -146,6 +164,7 @@ export function BookingBar({
             showFriends={showFriends}
             friends={friends}
             onPickFriend={onAddRoommate}
+            onAcceptInvite={onAcceptInvite}
             busy={busy}
           />
         </div>
@@ -158,13 +177,16 @@ export function BookingBar({
                 Host said yes - confirm to lock it in.
               </p>
             </div>
-            <Button onClick={onConfirm} disabled={busy} variant="accent">
-              <Check className="h-4 w-4" aria-hidden strokeWidth={2.5} />
-              Confirm booking
-            </Button>
+            {booking.viewerRole === "booker" ? (
+              <Button onClick={onConfirm} disabled={busy} variant="accent">
+                <Check className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+                Confirm booking
+              </Button>
+            ) : null}
           </div>
           <RoommateGroup
             booking={booking}
+            canInvite={booking.viewerRole === "booker"}
             onOpenFriends={() => {
               void loadFriends();
               setShowFriends((v) => !v);
@@ -172,6 +194,7 @@ export function BookingBar({
             showFriends={showFriends}
             friends={friends}
             onPickFriend={onAddRoommate}
+            onAcceptInvite={onAcceptInvite}
             busy={busy}
           />
         </div>
@@ -185,6 +208,7 @@ export function BookingBar({
           </div>
           <RoommateGroup
             booking={booking}
+            canInvite={false}
             onOpenFriends={() => {
               void loadFriends();
               setShowFriends((v) => !v);
@@ -192,6 +216,7 @@ export function BookingBar({
             showFriends={showFriends}
             friends={friends}
             onPickFriend={onAddRoommate}
+            onAcceptInvite={onAcceptInvite}
             busy={busy}
           />
         </div>
@@ -212,27 +237,27 @@ export function BookingBar({
 function StatusPill({ status }: { status: Booking["status"] }) {
   if (status === "requested") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-func-flagBg text-func-flag text-caption font-semibold px-2 py-0.5">
+      <span className="inline-flex items-center gap-1 rounded-full border border-func-flag bg-func-flagBg text-ink-strong text-caption font-semibold px-2 py-0.5">
         <Clock className="h-3 w-3" aria-hidden /> Requested
       </span>
     );
   }
   if (status === "approved") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 text-sky-500 text-caption font-semibold px-2 py-0.5">
+      <span className="inline-flex items-center gap-1 rounded-full border border-sky-300 bg-sky-100 text-ink-strong text-caption font-semibold px-2 py-0.5">
         <Check className="h-3 w-3" aria-hidden strokeWidth={2.5} /> Approved
       </span>
     );
   }
   if (status === "booked") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-func-passBg text-func-pass text-caption font-semibold px-2 py-0.5">
+      <span className="inline-flex items-center gap-1 rounded-full border border-func-pass bg-func-passBg text-ink-strong text-caption font-semibold px-2 py-0.5">
         <Check className="h-3 w-3" aria-hidden strokeWidth={2.5} /> Booked
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-white border border-sky-200 text-ink-soft text-caption font-semibold px-2 py-0.5">
+    <span className="inline-flex items-center gap-1 rounded-full bg-white border border-sky-200 text-ink-strong text-caption font-semibold px-2 py-0.5">
       <X className="h-3 w-3" aria-hidden /> {status}
     </span>
   );
@@ -244,6 +269,8 @@ function RoommateGroup({
   showFriends,
   friends,
   onPickFriend,
+  onAcceptInvite,
+  canInvite,
   busy,
 }: {
   booking: Booking;
@@ -251,26 +278,50 @@ function RoommateGroup({
   showFriends: boolean;
   friends: Friend[];
   onPickFriend: (userId: string) => void;
+  onAcceptInvite: () => void;
+  canInvite: boolean;
   busy: boolean;
 }) {
+  const canAcceptInvite =
+    booking.viewerRole === "invitee" &&
+    (booking.status === "requested" || booking.status === "approved");
   const remainingFriends = friends.filter(
-    (f) => !booking.roommates.some((r) => r.id === f.user.id),
+    (f) =>
+      !booking.roommates.some((r) => r.id === f.user.id) &&
+      !booking.pendingRoommates.some((r) => r.id === f.user.id),
   );
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-caption text-ink-soft font-semibold">
-          {booking.roommates.length > 0 ? "Roommates" : "Add a roommate"}
+        <p className="text-caption text-ink-strong font-semibold">
+          {booking.roommates.length > 0 || booking.pendingRoommates.length > 0
+            ? "Roommates"
+            : "Add a roommate"}
         </p>
-        <button
-          type="button"
-          onClick={onOpenFriends}
-          className="inline-flex items-center gap-1 text-caption font-semibold text-sky-500 hover:text-sky-600"
-        >
-          <UserPlus className="h-3 w-3" aria-hidden />
-          {showFriends ? "Cancel" : "Add"}
-        </button>
+        {canInvite ? (
+          <button
+            type="button"
+            onClick={onOpenFriends}
+            aria-expanded={showFriends}
+            className="inline-flex items-center gap-1 rounded-lg text-caption font-semibold text-ink-strong underline decoration-sky-300 underline-offset-2 hover:decoration-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
+          >
+            <UserPlus className="h-3 w-3" aria-hidden />
+            {showFriends ? "Cancel" : "Add"}
+          </button>
+        ) : null}
       </div>
+
+      {canAcceptInvite ? (
+        <div className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-sky-200 bg-sky-50 p-2">
+          <p className="text-caption text-ink-strong font-semibold">
+            You have a pending roommate invite for this booking.
+          </p>
+          <Button size="sm" onClick={onAcceptInvite} disabled={busy}>
+            <Check className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+            Accept
+          </Button>
+        </div>
+      ) : null}
 
       {booking.roommates.length > 0 ? (
         <ul className="mt-2 flex flex-wrap gap-2">
@@ -289,12 +340,29 @@ function RoommateGroup({
         </ul>
       ) : null}
 
-      {showFriends ? (
+      {booking.pendingRoommates.length > 0 ? (
+        <ul className="mt-2 flex flex-wrap gap-2">
+          {booking.pendingRoommates.map((r) => (
+            <li
+              key={r.id}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white border border-sky-200 px-2 py-0.5 text-caption text-ink-strong font-semibold"
+            >
+              <Avatar className="h-5 w-5">
+                {r.avatarUrl ? <AvatarImage src={r.avatarUrl} alt="" /> : null}
+                <AvatarFallback>{r.name[0]}</AvatarFallback>
+              </Avatar>
+              {r.name} pending
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {showFriends && canInvite ? (
         <div className="mt-2 rounded-xl border border-sky-200 bg-sky-50 p-2">
           {remainingFriends.length === 0 ? (
             <p className="text-caption text-ink-soft">
               No more friends to invite.{" "}
-              <Link href="/friends" className="text-sky-500 hover:text-sky-600 font-semibold">
+              <Link href="/friends" className="text-ink-strong underline decoration-sky-300 underline-offset-2 hover:decoration-sky-500 font-semibold">
                 Manage friends
               </Link>
             </p>
@@ -306,7 +374,7 @@ function RoommateGroup({
                     type="button"
                     onClick={() => onPickFriend(f.user.id)}
                     disabled={busy}
-                    className="w-full flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white text-left disabled:opacity-50"
+                    className="w-full flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white text-left disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
                   >
                     <Avatar className="h-7 w-7">
                       {f.user.avatarUrl ? <AvatarImage src={f.user.avatarUrl} alt="" /> : null}
@@ -321,7 +389,7 @@ function RoommateGroup({
                       </span>
                     </span>
                     <UserPlus
-                      className="h-4 w-4 text-sky-500 shrink-0"
+                      className="h-4 w-4 text-ink-strong shrink-0"
                       aria-hidden
                     />
                   </button>

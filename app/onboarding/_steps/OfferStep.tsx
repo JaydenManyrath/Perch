@@ -102,6 +102,8 @@ const FIELDS: { key: OfferField; label: string; type: "text" | "number" | "date"
   { key: "employer", label: "Employer", type: "text" },
   { key: "role", label: "Role", type: "text" },
   { key: "salary", label: "Salary (annual USD)", type: "number" },
+  { key: "relocationStipend", label: "Relocation stipend", type: "number" },
+  { key: "signingBonus", label: "Signing bonus", type: "number" },
   { key: "city", label: "City", type: "text" },
   { key: "startDate", label: "Start date", type: "date" },
   { key: "endDate", label: "End date", type: "date" },
@@ -118,6 +120,8 @@ function OfferCorrection({
     employer: offer.employer ?? "",
     role: offer.role ?? "",
     salary: offer.salary != null ? String(offer.salary) : "",
+    relocationStipend: offer.relocationStipend != null ? String(offer.relocationStipend) : "",
+    signingBonus: offer.signingBonus != null ? String(offer.signingBonus) : "",
     startDate: offer.startDate ?? "",
     endDate: offer.endDate ?? "",
     city: offer.city ?? "",
@@ -143,6 +147,8 @@ function OfferCorrection({
       employer: values.employer.trim() || offer.employer,
       role: values.role.trim() || null,
       salary: values.salary.trim() ? Number(values.salary) : null,
+      relocationStipend: values.relocationStipend.trim() ? Number(values.relocationStipend) : null,
+      signingBonus: values.signingBonus.trim() ? Number(values.signingBonus) : null,
       startDate: values.startDate || null,
       endDate: values.endDate || null,
       city: values.city.trim() || null,
@@ -166,7 +172,7 @@ function OfferCorrection({
       </header>
 
       {outstanding.length > 0 ? (
-        <div className="inline-flex items-center gap-2 rounded-2xl bg-func-flagBg text-func-flag px-3 py-2 border border-func-flagBg text-caption font-semibold">
+        <div className="inline-flex items-center gap-2 rounded-2xl bg-func-flagBg text-ink-strong px-3 py-2 border border-func-flag text-caption font-semibold">
           <AlertCircle className="h-4 w-4" aria-hidden strokeWidth={2.5} />
           {outstanding.length} field{outstanding.length === 1 ? "" : "s"} need a
           quick review before continuing.
@@ -181,12 +187,12 @@ function OfferCorrection({
               <label key={f.key} className="block">
                 <span className={cn(
                   "flex items-center gap-1 text-caption",
-                  flagged ? "text-func-flag font-semibold" : "text-ink-soft",
+                  flagged ? "text-ink-strong font-semibold" : "text-ink-strong",
                 )}>
                   {flagged ? <AlertCircle className="h-3 w-3" aria-hidden strokeWidth={2.5} /> : null}
                   {f.label}
                   {flagged ? (
-                    <span className="text-func-flag font-normal ml-1">
+                    <span className="text-ink-strong font-normal ml-1">
                       - check this
                     </span>
                   ) : null}

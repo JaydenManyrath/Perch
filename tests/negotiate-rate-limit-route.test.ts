@@ -29,11 +29,34 @@ describe("POST /api/negotiate route rate limit", () => {
     process.env.LLM_DISABLED = "1";
     getCallerId.mockResolvedValue("11111111-1111-5111-8111-111111111111");
     createServerSupabase.mockResolvedValue({
-      from: () => ({
-        select: () => ({
-          in: async () => ({ data: [], error: null }),
-        }),
-      }),
+      from: (table: string) => {
+        if (table === "users") {
+          return {
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({
+                  data: { city: "Seattle", offer_salary: null, relocation_stipend: 0, signing_bonus: 0 },
+                  error: null,
+                }),
+              }),
+            }),
+          };
+        }
+        if (table === "cost_of_living") {
+          return {
+            select: () => ({
+              ilike: () => ({
+                maybeSingle: async () => ({ data: { city: "Seattle", index: 152, median_rent: 2100 }, error: null }),
+              }),
+            }),
+          };
+        }
+        return {
+          select: () => ({
+            in: async () => ({ data: [], error: null }),
+          }),
+        };
+      },
     });
   });
 

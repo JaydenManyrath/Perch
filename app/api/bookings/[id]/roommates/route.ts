@@ -42,7 +42,9 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     }
     if (row.roommate_ids.includes(userId) || row.roommate_invites.includes(userId)) {
       // Idempotent: already invited or confirmed.
-      return NextResponse.json(await toBooking(supabase, row), { headers: g.headers });
+      const booking = await toBooking(supabase, row);
+      booking.viewerRole = "booker";
+      return NextResponse.json(booking, { headers: g.headers });
     }
     await assertAcceptedFriends(supabase, g.callerId, [userId]);
 
@@ -55,7 +57,9 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
       .single();
     if (error) throw error;
 
-    return NextResponse.json(await toBooking(supabase, updated as BookingRow), { headers: g.headers });
+    const booking = await toBooking(supabase, updated as BookingRow);
+    booking.viewerRole = "booker";
+    return NextResponse.json(booking, { headers: g.headers });
   } catch (err) {
     const mapped = bookingErrorStatus(err);
     if (mapped) return NextResponse.json({ error: mapped.message }, { status: mapped.status, headers: g.headers });

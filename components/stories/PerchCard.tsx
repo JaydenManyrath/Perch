@@ -5,7 +5,7 @@ import type { PerchCard as PerchCardType } from "@/lib/types/contract";
 import { Chip } from "@/components/ui/Chip";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { RatingBadge } from "@/components/ui/RatingBadge";
-import { MapPin, CalendarDays, DollarSign } from "lucide-react";
+import { MapPin, CalendarDays, DollarSign, BedDouble } from "lucide-react";
 import { formatMonthDay } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -41,7 +41,13 @@ export function PerchCard({
             priority={false}
           />
         ) : (
-          <div className="w-full h-full bg-sky-200" aria-hidden />
+          <div
+            className="flex h-full w-full flex-col items-center justify-center gap-1 bg-sky-100 text-ink-strong"
+            aria-label={`No photo for ${perch.title}`}
+          >
+            <BedDouble className="h-8 w-8" aria-hidden strokeWidth={1.75} />
+            <span className="text-caption font-semibold">Photo unavailable</span>
+          </div>
         )}
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
           <StatusBadge status={perch.status} />
@@ -109,7 +115,14 @@ export function PerchListItem({ perch, onOpen }: { perch: PerchCardType; onOpen?
       <div className="relative h-16 w-16 rounded-xl overflow-hidden bg-sky-100 shrink-0">
         {photo ? (
           <Image src={photo} alt="" fill sizes="64px" className="object-cover" />
-        ) : null}
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center bg-sky-100 text-ink-strong"
+            aria-label={`No photo for ${perch.title}`}
+          >
+            <BedDouble className="h-5 w-5" aria-hidden strokeWidth={1.75} />
+          </div>
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">

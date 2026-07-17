@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { guard } from "@/lib/http";
-import { BOOKING_SELECT, toBookings, type BookingRow } from "@/lib/bookings";
+import { BOOKING_SELECT, bookingViewerRole, toBookings, type BookingRow } from "@/lib/bookings";
 import { createServerSupabase } from "@/lib/supabase/server";
 import type { BookingsResponse } from "@/lib/types/contract";
 
@@ -51,6 +51,14 @@ export async function GET(req: Request) {
       toBookings(supabase, mineRows),
       toBookings(supabase, incomingRows),
     ]);
+    mine.forEach((booking, index) => {
+      const row = mineRows[index];
+      booking.viewerRole = bookingViewerRole(row, g.callerId, ownerByListing.get(row.listing_id) ?? null);
+    });
+    incoming.forEach((booking, index) => {
+      const row = incomingRows[index];
+      booking.viewerRole = bookingViewerRole(row, g.callerId, ownerByListing.get(row.listing_id) ?? null);
+    });
 
     const body: BookingsResponse = { mine, incoming };
     return NextResponse.json(body, { headers: g.headers });

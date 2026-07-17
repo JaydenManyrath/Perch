@@ -30,7 +30,7 @@ export function isTicketmasterEnabled(): boolean {
 }
 
 // ---- Minimal shape of a Ticketmaster Discovery event (only fields we read) ----
-type TmImage = { url: string; width?: number; ratio?: string };
+type TmImage = { url?: string; width?: number; ratio?: string; fallback?: boolean };
 type TmVenue = { name?: string; location?: { latitude?: string; longitude?: string } };
 type TmEvent = {
   id: string;
@@ -43,12 +43,57 @@ type TmEvent = {
   _embedded?: { venues?: TmVenue[] };
 };
 
+function formatTmDate(date: Date): string {
+  return date.toISOString().replace(".000Z", "Z");
+}
+
+function parseTime(datetime: string): number | null {
+  const ms = Date.parse(datetime);
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function compareEvents(a: EventUpsert, b: EventUpsert): number {
+  const at = parseTime(a.datetime) ?? Number.POSITIVE_INFINITY;
+  const bt = parseTime(b.datetime) ?? Number.POSITIVE_INFINITY;
+  if (at !== bt) return at - bt;
+  return a.external_id.localeCompare(b.external_id);
+}
+
+function upcomingSorted(rows: EventUpsert[], now: Date): EventUpsert[] {
+  const nowMs = now.getTime();
+  return rows
+    .filter((row) => {
+      const ms = parseTime(row.datetime);
+      return ms != null && ms >= nowMs;
+    })
+    .sort(compareEvents);
+}
+
+function dateInFallbackWindow(original: string, now: Date, index: number): string {
+  const base = new Date(now);
+  base.setUTCDate(base.getUTCDate() + index * 7);
+
+  const originalDate = new Date(original);
+  if (Number.isFinite(originalDate.getTime())) {
+    base.setUTCHours(
+      originalDate.getUTCHours(),
+      originalDate.getUTCMinutes(),
+      originalDate.getUTCSeconds(),
+      originalDate.getUTCMilliseconds(),
+    );
+    if (base.getTime() < now.getTime()) base.setUTCDate(base.getUTCDate() + 1);
+  }
+
+  return formatTmDate(base);
+}
+
 function pickImage(images: TmImage[] | undefined): string | null {
   if (!images || images.length === 0) return null;
-  // Prefer a wide 16_9 image, else the widest available.
-  const wide = images.filter((i) => i.ratio === "16_9");
-  const pool = wide.length ? wide : images;
-  return pool.reduce((best, i) => ((i.width ?? 0) > (best.width ?? 0) ? i : best), pool[0]).url;
+  const usable = images.filter((i) => i.url && !i.fallback);
+  // Person A has a placeholder for null images; avoid inventing a poor source image.
+  const wide = usable.filter((i) => i.ratio === "16_9");
+  if (wide.length === 0) return null;
+  return wide.reduce((best, i) => ((i.width ?? 0) > (best.width ?? 0) ? i : best), wide[0]).url ?? null;
 }
 
 function priceRange(pr: TmEvent["priceRanges"]): string | null {
@@ -90,20 +135,23 @@ export function normalizeTmEvent(ev: TmEvent): EventUpsert | null {
 }
 
 /** Deterministic seeded fallback mapped onto the extended events shape. */
-export function fallbackEvents(): EventUpsert[] {
-  return eventsFixture.map((e) => ({
-    external_id: e.id,
-    source: "seeded",
-    title: e.title,
-    category: e.category,
-    lat: e.lat,
-    lng: e.lng,
-    datetime: e.datetime,
-    url: null,
-    venue: null,
-    image_url: null,
-    price_range: null,
-  }));
+export function fallbackEvents(now: Date = new Date()): EventUpsert[] {
+  const rows = [...eventsFixture].sort((a, b) => Date.parse(a.datetime) - Date.parse(b.datetime)).map((e, index) => {
+    return {
+      external_id: e.id,
+      source: "seeded",
+      title: e.title,
+      category: e.category,
+      lat: e.lat,
+      lng: e.lng,
+      datetime: dateInFallbackWindow(e.datetime, now, index),
+      url: e.url ?? null,
+      venue: e.venue ?? null,
+      image_url: e.image_url ?? null,
+      price_range: e.price_range ?? null,
+    };
+  });
+  return upcomingSorted(dedupeEvents(rows), now);
 }
 
 /** De-dupe a batch on external_id (Ticketmaster can repeat), stable by input order. */
@@ -127,17 +175,24 @@ export async function fetchNearbyEvents(opts: {
   lng: number;
   radiusMiles?: number;
   size?: number;
+  now?: Date;
 }): Promise<{ events: EventUpsert[]; source: "ticketmaster" | "fallback" }> {
   const key = process.env.TICKETMASTER_API_KEY;
-  if (!key) return { events: dedupeEvents(fallbackEvents()), source: "fallback" };
+  const now = opts.now ?? new Date();
+  const fallback = () => ({ events: dedupeEvents(fallbackEvents(now)), source: "fallback" as const });
+  if (!key) return fallback();
 
   try {
+    const end = new Date(now);
+    end.setUTCDate(end.getUTCDate() + 90);
     const params = new URLSearchParams({
       apikey: key,
       latlong: `${opts.lat},${opts.lng}`,
       radius: String(opts.radiusMiles ?? 25),
       unit: "miles",
       size: String(opts.size ?? 40),
+      startDateTime: formatTmDate(now),
+      endDateTime: formatTmDate(end),
       sort: "date,asc",
     });
     const res = await fetch(`${DISCOVERY_URL}?${params.toString()}`, {
@@ -148,11 +203,14 @@ export async function fetchNearbyEvents(opts: {
     if (!res.ok) throw new Error(`ticketmaster ${res.status}`);
     const data = (await res.json()) as { _embedded?: { events?: TmEvent[] } };
     const raw = data._embedded?.events ?? [];
-    const normalized = raw.map(normalizeTmEvent).filter((e): e is EventUpsert => !!e);
-    if (normalized.length === 0) return { events: dedupeEvents(fallbackEvents()), source: "fallback" };
+    const normalized = upcomingSorted(
+      raw.map(normalizeTmEvent).filter((e): e is EventUpsert => !!e),
+      now,
+    );
+    if (normalized.length === 0) return fallback();
     return { events: dedupeEvents(normalized), source: "ticketmaster" };
   } catch (err) {
     console.warn("ticketmaster fetch failed, using seeded fallback:", err);
-    return { events: dedupeEvents(fallbackEvents()), source: "fallback" };
+    return fallback();
   }
 }

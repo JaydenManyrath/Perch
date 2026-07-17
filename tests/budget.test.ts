@@ -23,13 +23,20 @@ describe("affordableRent", () => {
   it("uses the stated budget when no salary is present", () => {
     expect(affordableRent(base)).toBe(2000);
   });
-  it("caps at 30% of monthly take-home when salary is lower-bound", () => {
-    // salary 60k → monthly take-home = 5000*0.75=3750 → 30% = 1125 < 2000 budget
-    expect(affordableRent({ ...base, salary: 60_000 })).toBe(1125);
+  it("caps at the COL-adjusted rent ceiling of real take-home when salary is lower-bound", () => {
+    // salary 60k -> annual take-home 47,194 (federal brackets + FICA + 5% state) ->
+    // monthly 3,932.83 -> 30% ceiling (national COL) = 1,180 < 2,000 budget.
+    expect(affordableRent({ ...base, salary: 60_000 })).toBe(1180);
   });
-  it("keeps the budget when 30%-of-take-home is higher", () => {
-    // salary 200k → 30% take-home = 3750 > 2000 budget → stays 2000
+  it("keeps the budget when the take-home ceiling is higher", () => {
+    // salary 200k -> 30% of monthly take-home far exceeds the 2,000 stated budget.
     expect(affordableRent({ ...base, salary: 200_000 })).toBe(2000);
+  });
+  it("raises the ceiling in a higher cost-of-living market (still capped)", () => {
+    // Same 60k, Seattle COL index 152 pushes the ceiling toward the 40% cap.
+    const seattle = affordableRent({ ...base, salary: 60_000, costOfLivingIndex: 152 });
+    const national = affordableRent({ ...base, salary: 60_000, costOfLivingIndex: 100 });
+    expect(seattle).toBeGreaterThan(national);
   });
 });
 

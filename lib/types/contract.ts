@@ -133,12 +133,13 @@ export type OfferParse = {
   startDate: string | null;
   endDate: string | null;
   city: string | null;
+  // Section 13.9 - upfront-cash offer components (Person C's parser extracts these;
+  // null when absent). The deterministic finance model folds them in.
+  relocationStipend: number | null;
+  signingBonus: number | null;
   // Section 11.9 - per-field 0..1 confidence + list of low-confidence fields.
   confidence: Record<OfferField, number>;
   needsReview: OfferField[];
-  // Section 13.5 - upfront cash extracted by the parser when present.
-  relocationStipend?: number | null;
-  signingBonus?: number | null;
 };
 
 export type TakeoutParse = { places: Place[] };
@@ -354,7 +355,8 @@ export type PostListingInput = {
   leaseType: "sublet" | "short_term" | "standard";
   photos: string[];
   safetyNotes?: string[];
-  // Round 3 additions
+  // Round 3 (section 13.2) - comprehensive detail. Optional on the post form;
+  // explicit null preserves the nullable schema contract.
   furnished?: boolean | null;
   pros?: string[];
   bedrooms?: number | null;
@@ -550,4 +552,3 @@ export type FinanceBreakdown = {
   monthlyBudget: number;          // COL-adjusted recommended rent ceiling
   city: string;
 };
-

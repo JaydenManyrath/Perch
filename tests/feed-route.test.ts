@@ -17,6 +17,8 @@ function chain(result: unknown) {
   q.eq = vi.fn(() => q);
   q.in = vi.fn(() => q);
   q.ilike = vi.fn(() => q);
+  q.gte = vi.fn(() => q);
+  q.order = vi.fn(() => q);
   q.single = vi.fn(async () => result);
   q.limit = vi.fn(async () => result);
   return q;

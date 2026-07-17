@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { buildDeckCards, parseSwipeInput, rankDeckRows, type PerchListingRecord } from "@/lib/perches";
+import {
+  buildDeckCards,
+  listingInsertPayload,
+  parsePostListingInput,
+  parseSwipeInput,
+  rankDeckRows,
+  type PerchListingRecord,
+} from "@/lib/perches";
 
 const base: PerchListingRecord = {
   id: "11111111-1111-5111-8111-111111111111",
@@ -126,5 +133,32 @@ describe("perches domain", () => {
     });
     expect(() => parseSwipeInput({ listingId: "listing-1", direction: "right" })).toThrow();
     expect(() => parseSwipeInput({ listingId: base.id, direction: "up" })).toThrow();
+  });
+
+  it("accepts explicit nulls from the listing form for nullable round-3 details", () => {
+    const input = parsePostListingInput({
+      title: "Summer studio",
+      address: "10 Demo St",
+      lat: 47.61,
+      lng: -122.33,
+      price: 1800,
+      leaseStart: "2026-06-01",
+      leaseEnd: "2026-08-15",
+      leaseType: "sublet",
+      photos: [],
+      furnished: true,
+      pros: [],
+      bedrooms: 0,
+      bathrooms: 1,
+      sqft: null,
+      amenities: [],
+      utilitiesIncluded: null,
+    });
+
+    expect(input).toMatchObject({ sqft: null, utilitiesIncluded: null });
+    expect(listingInsertPayload(input, "55555555-5555-5555-8555-555555555555")).toMatchObject({
+      sqft: null,
+      utilities_included: null,
+    });
   });
 });

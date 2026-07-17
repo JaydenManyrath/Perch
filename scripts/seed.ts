@@ -90,6 +90,10 @@ async function seed() {
         taste_profile: taste(i),
         verified: i % 3 === 0, // ~1/3 banded
         avatar_url: null,
+        // Round 3 (13.5) - persisted offer inputs so /api/finance is demoable.
+        offer_salary: [120000, 135000, 145000, 118000, 160000][i % 5],
+        relocation_stipend: i % 3 === 0 ? 5000 : 0,
+        signing_bonus: i % 4 === 0 ? 10000 : 0,
       },
       { onConflict: "id" },
     );
@@ -160,6 +164,22 @@ async function seed() {
       source_name: sourced ? "seed-round2-base" : "subletter",
       source_url: sourced ? `https://example.test/perch/${i}` : null,
       external_id: sourced ? `round2-seed-${i}` : null,
+      // Round 3 (13.2) comprehensive detail - deterministic variety per listing.
+      furnished: i % 3 !== 0,
+      pros: [
+        ["Short walk to transit", "Bright and airy", "Furnished and move-in ready"][i % 3],
+        ["Quiet street", "Close to coffee", "Near the office"][i % 3],
+        ["Flexible move-in", "Great for interns", "Utilities simple"][i % 3],
+      ],
+      bedrooms: 1 + (i % 3),
+      bathrooms: [1, 1, 1.5, 2][i % 4],
+      sqft: 450 + (i % 6) * 75,
+      amenities: [
+        ["wifi", "in_unit_laundry", "dishwasher"],
+        ["wifi", "gym", "rooftop"],
+        ["wifi", "parking", "ac"],
+      ][i % 3],
+      utilities_included: i % 2 === 0,
     };
   });
   if ((await db.from("listings").upsert(listings, { onConflict: "id" })).error) throw new Error("listings upsert failed");
@@ -324,18 +344,29 @@ async function seed() {
   if ((await db.from("notes").upsert(allNotes, { onConflict: "id" })).error) throw new Error("notes upsert failed");
   console.log(`seeded ${notes.length} legacy notes + ${mapComments.length} map comments`);
 
-  // ---- checklist_items ----
+  // ---- checklist_items (round 3: real relocation tasks, grouped by category) ----
+  const checklistTemplate: { label: string; due_offset: number; category: string }[] = [
+    { label: "Sign sublease + send deposit", due_offset: 28, category: "admin" },
+    { label: "Book flights to the city", due_offset: 21, category: "travel" },
+    { label: "Book movers / arrange shipping", due_offset: 18, category: "logistics" },
+    { label: "Sort out parking or a car", due_offset: 14, category: "logistics" },
+    { label: "Set up direct deposit + bank", due_offset: 12, category: "admin" },
+    { label: "Get a transit card", due_offset: 9, category: "logistics" },
+    { label: "Pack a what-to-bring list (bedding, kitchen basics)", due_offset: 6, category: "packing" },
+    { label: "Pack a first-week bag (nothing you can't buy)", due_offset: 2, category: "packing" },
+  ];
   const checklist = users.slice(0, 6).flatMap((u, i) =>
-    ["Sign sublease", "Set up bank", "Get transit card", "Buy bedding"].map((label, j) => ({
+    checklistTemplate.map((item, j) => ({
       id: uuid(`chk-${i}-${j}`),
       user_id: u.id,
-      label,
-      due_offset: (j + 1) * 7,
+      label: item.label,
+      due_offset: item.due_offset,
+      category: item.category,
       done: j === 0,
     })),
   );
   if ((await db.from("checklist_items").upsert(checklist, { onConflict: "id" })).error) throw new Error("checklist upsert failed");
-  console.log(`seeded ${checklist.length} checklist items`);
+  console.log(`seeded ${checklist.length} checklist items (travel/logistics/packing/admin)`);
 
   // ---- friendships (accepted + incoming pending, interns only) ----
   const friendships = [
@@ -362,6 +393,47 @@ async function seed() {
     throw new Error("friendships insert failed");
   }
   console.log("seeded friendships (one accepted, one incoming pending)");
+
+  // ---- bookings (round 3: across the state machine so inbox + bar aren't empty) ----
+  // listing-1/5/11 are subletter-owned and available in the seed; interns book them.
+  const bookings = [
+    {
+      id: uuid("booking-requested"),
+      listing_id: uuid("listing-1"),
+      booker_id: users[1].id,
+      roommate_ids: [] as string[],
+      roommate_invites: [] as string[],
+      status: "requested",
+      created_at: new Date(DEMO_NOW_MS - 6 * HOUR_MS).toISOString(),
+      decided_at: null as string | null,
+    },
+    {
+      id: uuid("booking-approved"),
+      listing_id: uuid("listing-5"),
+      booker_id: users[2].id,
+      roommate_ids: [],
+      roommate_invites: [],
+      status: "approved",
+      created_at: new Date(DEMO_NOW_MS - 2 * DAY_MS).toISOString(),
+      decided_at: new Date(DEMO_NOW_MS - DAY_MS).toISOString(),
+    },
+    {
+      id: uuid("booking-booked"),
+      listing_id: uuid("listing-11"),
+      booker_id: users[3].id,
+      roommate_ids: [users[1].id], // a confirmed roommate group
+      roommate_invites: [],
+      status: "booked",
+      created_at: new Date(DEMO_NOW_MS - 3 * DAY_MS).toISOString(),
+      decided_at: new Date(DEMO_NOW_MS - 2 * DAY_MS).toISOString(),
+    },
+  ];
+  if ((await db.from("bookings").upsert(bookings, { onConflict: "id" })).error) throw new Error("bookings upsert failed");
+  // A booked listing is taken so the deck drops it for everyone else (state-machine effect).
+  if ((await db.from("listings").update({ status: "taken" }).eq("id", uuid("listing-11"))).error) {
+    throw new Error("booked listing take failed");
+  }
+  console.log("seeded bookings (requested / approved / booked -> listing taken)");
 
   // ---- conversations + messages (so DMs aren't empty on open) ----
   for (let i = 1; i <= 4; i++) {

@@ -949,3 +949,75 @@ export type FinanceBreakdown = {
 
 ### 13.11 Working agreements (unchanged)
 Same as §11.12 / §12.9. Determinism note for round 3: the finance model and the booking state machine are DETERMINISTIC code (no model decides money or a booking status); the offer parser may extract stipend/bonus text but never invents a number.
+
+---
+
+## 14. Round 4 - Live backend: Supabase provisioning + go-live (2026-07-17)
+
+Rounds 1-3 are shipped and merged to `main`. The entire app has run FIXTURE-FIRST: every
+surface works on seed/fixtures with no live keys, and the schema + RLS + API routes are
+built and tested (against fixtures and a throwaway Postgres) but have NEVER run against a
+real hosted Supabase project. Round 4 makes the backend real: provision the hosted project,
+apply the 12 migrations, seed it, wire the keys, flip `NEXT_PUBLIC_DATA_SOURCE=live`, and
+verify auth, RLS, Realtime, and Storage end-to-end on the real database, then deploy.
+
+This round is a TWO-way split (no new product features). Same role convention as before:
+Person A owns the client, the auth session, and deploy; Person B owns the hosted database,
+migrations, seed, server env/secrets, and live RLS verification. Per-person plans:
+`docs/IMPLEMENTATION-PERSON-A-ROUND4.md`, `docs/IMPLEMENTATION-PERSON-B-ROUND4.md`.
+Branches: `round4-person-a`, `round4-person-b` (each restarted from `main`).
+
+Nothing here changes the frozen `lib/types/contract.ts` shapes. The "contract" for this
+round is the ENVIRONMENT + the fixture-to-live boundary, frozen below.
+
+### 14.1 The environment contract (frozen key names)
+`.env.example` is the complete, authoritative list of key names; real values live only in
+gitignored `.env.local` (and Vercel env vars). PUBLIC (safe in the browser bundle) vs SECRET
+(server-only, never `NEXT_PUBLIC_`) is fixed:
+- PUBLIC: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_MAPBOX_TOKEN`,
+  `NEXT_PUBLIC_DATA_SOURCE` (`fixture` | `live`).
+- SECRET: `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`, `COMPOSIO_API_KEY`,
+  `SPOTIFY_CLIENT_SECRET`, `GOOGLE_CLIENT_SECRET`, `TICKETMASTER_API_KEY`.
+- The service-role key is used ONLY in `lib/supabase/admin.ts`, seed scripts, and server
+  routes that legitimately need elevated writes. See `docs/SECRETS.md`.
+
+### 14.2 The fixture-to-live boundary (frozen)
+`lib/data/source.ts` reads `NEXT_PUBLIC_DATA_SOURCE`. In `live` it calls the real API routes
+/ Supabase and, on any error or missing key, FALLS BACK to the fixture so the app never
+crashes. This graceful-fallback rule is non-negotiable: flipping to `live` must never turn a
+missing key into a broken screen. Kill switches (`LLM_DISABLED`, `COMPOSIO_DISABLED`) keep
+the deterministic paths available with real keys absent.
+
+### 14.3 The session/auth contract (seam between A and B)
+- Person A owns `middleware.ts` (SSR session refresh via `@supabase/ssr`) and the
+  `/login` + sign-out + protected-route flow.
+- Person B owns that `getCallerId()` resolves `auth.uid()` from the request cookies on the
+  hosted project, so every guarded route authorizes the real caller and RLS applies.
+- The demo-account list and password scheme (`perch-demo-<email>`, seeded by B, used by A's
+  `/login`) is the shared seam - neither side changes it unilaterally.
+
+### 14.4 The provisioning/seed seam (B provides, A consumes)
+Person B links the hosted project, pushes all migrations, and seeds it FIRST; only then can
+Person A test live login (the seeded users must exist). B hands A the project URL + anon key
+(public); the service-role key stays with B / in server env only.
+
+### 14.5 Ownership map (round 4)
+| Area | Person A (client / auth-session / deploy) | Person B (hosted DB / server / secrets) |
+|---|---|---|
+| SSR session | `middleware.ts` refresh + protected routes | `getCallerId()` resolves `auth.uid()` live |
+| Login / logout | `/login`, sign-out, redirects, "who am I" | seed demo users + password scheme |
+| Data-source flip | verify every getter live + fixture fallback | server routes return correct live shapes |
+| Migrations | - | `supabase link` + push all 12 migrations |
+| Seed | - | idempotent seed against the hosted project |
+| RLS live | - | adversarial isolation verified on real DB |
+| Realtime DMs | live message subscription + reconcile | `messages`/`conversations` RLS live |
+| Storage | photo / avatar upload UI + signed URLs | buckets + access policies on hosted project |
+| Secrets | Mapbox public token wiring | server secrets present, bundle-grep clean |
+| Deploy | Vercel repo connection + preview URLs | server env vars set on Vercel (Prod + Preview) |
+
+### 14.6 Working agreements (unchanged)
+Same as 11.12 / 12.9 / 13.11: plain ASCII (no emojis, no em-dashes; `-` in prose, `->` only
+in code/spec); update `README.md` + `docs/PROGRESS.md` on every merge to `main`; secrets are
+server-only and never committed; RLS stays the row-level authorization boundary (now verified
+against the REAL database, not just the harness). Determinism note: nothing in go-live changes
+the deterministic backends - it only points them at the real data store.

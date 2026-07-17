@@ -89,9 +89,9 @@ All UI + schema + APIs + integrations landed on `main`. Split three ways during 
 - [done] RC7 Office geocode from employer
 - [done] RC8 POI search along the route corridor (Mapbox) for coffee/gym candidates
 
-## Round 3 (release candidate verified 2026-07-17)
+## Round 3 (shipped, merged to main 2026-07-17)
 
-All three implementation streams are integrated on the release-candidate branch. Automated gates and local Supabase verification are green. Fixture-browser acceptance is green except for a real Mapbox marker-click pass, which requires `NEXT_PUBLIC_MAPBOX_TOKEN` and remains unverified. Round 3 is not yet merged to `main`; full evidence is in `docs/SPRINT-3-ACCEPTANCE.md`.
+All three implementation streams (person-a UI + person-b schema/APIs + person-c integrations) are integrated and merged to `main`. Automated gates and local Supabase verification are green: full suite passing incl. 28 RLS tests on Postgres, production build clean, no client-bundle secret leak. The one remaining fixture-browser gap is a real Mapbox marker-click pass (RA38), which requires `NEXT_PUBLIC_MAPBOX_TOKEN` and is picked up in Round 4 (RA45). Full evidence is in `docs/SPRINT-3-ACCEPTANCE.md`.
 
 ### Experience
 - [verified 2026-07-17] RA31 Ticketmaster event image renders on the feed card (+ placeholder fallback)
@@ -118,6 +118,31 @@ All three implementation streams are integrated on the release-candidate branch.
 - [verified 2026-07-17] RC33 Cost-of-living data source: hardened the integrated lookup as the canonical seam; city/state canonicalization, deterministic DB-error/malformed-row fallback, documented bundled provenance/as-of date, no external provider or duplicate persistence path
 - [verified 2026-07-17] RC34 closed as not needed: existing payloads and routes support the accepted marker-sheet behavior; no external Mapbox place-details route, key, provider, or abstraction was added. The separate RA38 real-browser Mapbox gate remains open.
 
+## Round 4 - Live backend: Supabase provisioning + go-live (planned 2026-07-17)
+
+Two-way split (no new product features): take the fixture-first app to a real, logged-in,
+deployed Supabase backend. Seams: FOUNDATION-CONTRACT.md section 14. Plans:
+IMPLEMENTATION-PERSON-A-ROUND4.md, IMPLEMENTATION-PERSON-B-ROUND4.md. Branches:
+round4-person-a, round4-person-b (each restarted from main).
+
+### Client / auth session / deploy (person-a)
+- [todo] RA41 middleware.ts: SSR auth session refresh (@supabase/ssr) + matcher; keeps a live session fresh across navigation (fixture-safe no-op when unconfigured)
+- [todo] RA42 Auth flow: login persists a real session, sign-out, protected-route redirects, a current-user hook from the live session
+- [todo] RA43 Fixture-to-live flip: every lib/data/source.ts getter hits live on DATA_SOURCE=live and falls back to fixture on error (no broken screens)
+- [todo] RA44 Realtime DMs live against the hosted project (reuse the optimistic reconcile)
+- [todo] RA45 Mapbox live token wiring (map renders real tiles; placeholder fallback kept)
+- [todo] RA46 Storage upload UI: listing photos + profile avatar to the Supabase bucket, via public/signed URLs
+- [todo] RA47 Vercel deploy: repo connection + per-branch preview URLs; smoke the deployed flow
+
+### Hosted DB / server / secrets (person-b)
+- [todo] RB41 supabase link + push all 12 migrations to the hosted project (reproducible, idempotent) + verify schema/buckets; runbook
+- [todo] RB42 Seed the hosted project idempotently (demo auth users incl. the perch-demo-<email> password seam) + a seed:live guardrail
+- [todo] RB43 Server secrets + env (service-role/OpenAI/Ticketmaster/Composio server-only); .env.example current; client-bundle secret grep clean
+- [todo] RB44 Live RLS verification on the real DB: a second logged-in user is fully isolated (DMs/bookings/swipes/reviews/friendships); owner-only writes hold
+- [todo] RB45 Server routes live: getCallerId() resolves auth.uid() from cookies across the guarded API; rate limiting intact; admin writes gated
+- [todo] RB46 Storage buckets + access policies on the hosted project backing A's uploads
+- [todo] RB47 Kill-switch + fallback verification live (LLM_DISABLED/COMPOSIO_DISABLED deterministic paths; rate-limit envs applied)
+
 ## Log
 
 - 2026-07-16: Round 1 merged to main.
@@ -129,3 +154,5 @@ All three implementation streams are integrated on the release-candidate branch.
 - 2026-07-17: Round 3 person-b shipped (RB31-RB36): migrations 0011/0012 (listing detail columns, bookings + roommate grouping, checklist category, finance inputs, cost_of_living), deterministic finance model + GET /api/finance, booking state machine + API, comprehensive GET /api/listings/{id}, upcoming-only feed/events guard, round-3 seed. RLS adversarial cases for bookings/roommates/cost_of_living pass against Postgres (28 RLS tests green); full suite 300 passing. Decisions: roommate invites require an accepted friend (enforced in code + a DB trigger) and the invitee accepts to become a confirmed roommate; the finance take-home uses documented 2025 single-filer brackets + FICA + a flat 5% state estimate; a cost_of_living table is B-owned (Person C may back a richer lookup with it); optional users.offer_salary/relocation_stipend/signing_bonus persist the offer for /api/finance.
 - 2026-07-17: RC34 closed as a documentation-only no-build decision. Verification: Person A's RA38 sheets are present for listings, events, comments, and stickers, life-map places already show kind plus nearest-listing minutes, Person B's marker payload work is recorded as done, and neither the Person A nor Person B Round 3 plan asks for external Mapbox place details. Existing payloads and routes satisfy the accepted map-sheet behavior, so no API route, key, provider, or speculative abstraction was added.
 - 2026-07-17: Final integrated acceptance: focused suite 155 of 155 tests passing across 19 files; full suite 325 of 326 tests passing across 46 passing files with 1 live-auth test/file skipped; typecheck and lint clean; production build passed with the existing dynamic OCR dependency warning; local database reset, 28 RLS tests, and idempotent seed passed. Browser acceptance passed all fixture flows except real Mapbox marker clicks because no public Mapbox token was configured. Round 3 remains a release candidate until that browser pass and merge to `main`.
+- 2026-07-17: Round 3 (person-a UI + person-b schema/APIs + person-c integrations) integrated and merged to main. Full suite green incl. 28 RLS tests on Postgres; production build clean; no client-bundle secret leak.
+- 2026-07-17: Round 4 planned (live backend: Supabase provisioning + go-live). Two-way split A/B on branches round4-person-a / round4-person-b; contract section 14; per-person plans in IMPLEMENTATION-PERSON-{A,B}-ROUND4.md. No new product features - the app moves from fixture-first to a real hosted Supabase project with live auth sessions, RLS verified on the real DB, Realtime + Storage live, and a Vercel deploy.

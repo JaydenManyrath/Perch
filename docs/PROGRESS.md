@@ -114,7 +114,7 @@ Same three-way split. Seams: FOUNDATION-CONTRACT.md section 13. Plans: IMPLEMENT
 ### Integrations + AI (person-c)
 - [done 2026-07-17] RC31 Ticketmaster: upcoming-only filter (startDateTime >= now, sorted ascending) + capture best image_url
 - [todo] RC32 Offer parser: extract relocationStipend + signingBonus (upfront cash) with per-field confidence
-- [todo] RC33 Cost-of-living data source (city index + median rent; seeded table + optional external lookup) feeding B's finance model
+- [done 2026-07-17] RC33 Cost-of-living data source: hardened Person B's integrated lookup as the canonical seam; city/state canonicalization, deterministic DB-error/malformed-row fallback, documented bundled provenance/as-of date, no external provider or duplicate persistence path
 - [todo] RC34 (optional) Map place-details lookup (Mapbox) for richer marker info
 
 ## Log

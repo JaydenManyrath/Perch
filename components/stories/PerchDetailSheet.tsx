@@ -2,21 +2,36 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { PerchCard } from "@/lib/types/contract";
+import { useEffect, useState } from "react";
+import type { PerchCard, ListingDetail } from "@/lib/types/contract";
 import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetHeader } from "@/components/ui/Sheet";
 import { Chip } from "@/components/ui/Chip";
 import { Badge } from "@/components/ui/Badge";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { RatingBadge } from "@/components/ui/RatingBadge";
-import { MapPin, CalendarDays, DollarSign, Route as RouteIcon } from "lucide-react";
+import {
+  MapPin,
+  CalendarDays,
+  DollarSign,
+  Route as RouteIcon,
+  BedDouble,
+  Bath,
+  Ruler,
+  Check,
+  Zap,
+} from "lucide-react";
 import { formatMonthDay } from "@/lib/utils";
 import { ReviewsPanel } from "@/components/reviews/ReviewsPanel";
+import { BookingBar } from "@/components/booking/BookingBar";
+import { getListingDetail, getFinance } from "@/lib/data/source";
+import { AffordabilityLine } from "@/components/finance/AffordabilityLine";
+import type { FinanceBreakdown } from "@/lib/types/contract";
 
 /**
  * PerchDetailSheet - bottom-sheet detail for a perch. Decision surface -
- * no mascot. Presents money/dates/status/host up front. Reviews are the
- * bottom section (RA5). A 'Plan the commute' button opens the map with
- * this perch selected (RA19).
+ * no mascot. Round 3 (section 13.2): rich ListingDetail with furnished line,
+ * Pros bullets, bed/bath/sqft, amenities, utilities. Includes the
+ * request-to-book bar (13.4) and the affordability line (13.5).
  */
 export function PerchDetailSheet({
   perch,
@@ -27,6 +42,32 @@ export function PerchDetailSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const [detail, setDetail] = useState<ListingDetail | null>(null);
+  const [finance, setFinance] = useState<FinanceBreakdown | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch the rich detail (and finance for affordability) when the sheet opens.
+  useEffect(() => {
+    if (!open || !perch) {
+      setDetail(null);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    Promise.all([getListingDetail(perch.id), getFinance()])
+      .then(([d, f]) => {
+        if (cancelled) return;
+        setDetail(d);
+        setFinance(f);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, perch]);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       {perch ? (
@@ -59,7 +100,10 @@ export function PerchDetailSheet({
             </div>
           ) : null}
 
-          <dl className="mt-4 grid grid-cols-2 gap-3 text-body">
+          {/* Furnished / Unfurnished line - clear, not buried (RA32). */}
+          <FurnishedLine detail={detail} loading={loading} />
+
+          <dl className="mt-3 grid grid-cols-2 gap-3 text-body">
             <div className="rounded-xl bg-sky-50 p-3">
               <dt className="text-caption text-ink-soft flex items-center gap-1">
                 <DollarSign className="h-3 w-3" aria-hidden /> per month
@@ -78,8 +122,54 @@ export function PerchDetailSheet({
             </div>
           </dl>
 
+          {/* Bed / Bath / Sqft (RA32) */}
+          <SpecsRow detail={detail} />
+
+          {/* Affordability line (RA35) */}
+          {finance ? (
+            <AffordabilityLine finance={finance} rent={perch.price} className="mt-3" />
+          ) : null}
+
+          {/* Pros (RA32) */}
+          {detail && detail.pros.length > 0 ? (
+            <section className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-3">
+              <h4 className="text-caption text-ink-soft font-semibold">Pros</h4>
+              <ul className="mt-1 flex flex-col gap-1">
+                {detail.pros.map((p) => (
+                  <li key={p} className="flex items-start gap-1.5 text-body text-ink-strong">
+                    <Check
+                      className="h-4 w-4 text-func-pass mt-0.5 shrink-0"
+                      aria-hidden
+                      strokeWidth={2.5}
+                    />
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {/* Amenities (RA32) */}
+          {detail && detail.amenities.length > 0 ? (
+            <section className="mt-3">
+              <h4 className="text-caption text-ink-soft font-semibold mb-1">Amenities</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {detail.amenities.map((a) => (
+                  <Chip key={a}>{a}</Chip>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {/* Utilities (RA32) + lease + provenance + safety */}
           <div className="mt-3 flex flex-wrap gap-2">
             <Chip tone="muted">{perch.lease_type.replace("_", "-")}</Chip>
+            {detail && detail.utilitiesIncluded !== null ? (
+              <Chip tone={detail.utilitiesIncluded ? "default" : "muted"}>
+                <Zap className="h-3 w-3" aria-hidden />
+                {detail.utilitiesIncluded ? "Utilities included" : "Utilities extra"}
+              </Chip>
+            ) : null}
             {perch.sourced ? (
               <Chip tone="muted">via {perch.sourceName}</Chip>
             ) : (
@@ -98,6 +188,7 @@ export function PerchDetailSheet({
             )}
           </div>
 
+          {/* Host card */}
           {perch.host ? (
             <div className="mt-4 rounded-2xl border border-sky-200 p-3 flex items-center gap-3">
               <div className="min-w-0 flex-1">
@@ -118,6 +209,9 @@ export function PerchDetailSheet({
             </div>
           ) : null}
 
+          {/* Booking bar (RA34) - request-to-book + status */}
+          <BookingBar listing={perch} className="mt-4" />
+
           <div className="mt-4 flex items-center gap-2">
             <Link
               href={`/map?apartmentId=${perch.id}`}
@@ -136,5 +230,73 @@ export function PerchDetailSheet({
         </SheetContent>
       ) : null}
     </Sheet>
+  );
+}
+
+function FurnishedLine({
+  detail,
+  loading,
+}: {
+  detail: ListingDetail | null;
+  loading: boolean;
+}) {
+  if (loading || !detail) return null;
+  if (detail.furnished === null) return null;
+  return (
+    <p
+      className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-caption font-semibold ${
+        detail.furnished
+          ? "bg-func-passBg text-func-pass"
+          : "bg-white text-ink-soft border border-sky-200"
+      }`}
+    >
+      {detail.furnished ? (
+        <>
+          <Check className="h-3.5 w-3.5" aria-hidden strokeWidth={2.5} /> Furnished
+        </>
+      ) : (
+        "Unfurnished"
+      )}
+    </p>
+  );
+}
+
+function SpecsRow({ detail }: { detail: ListingDetail | null }) {
+  if (!detail) return null;
+  const specs: { icon: React.ReactNode; label: string; value: string }[] = [];
+  if (detail.bedrooms !== null) {
+    specs.push({
+      icon: <BedDouble className="h-4 w-4" aria-hidden />,
+      label: detail.bedrooms === 0 ? "Studio" : `${detail.bedrooms} bed`,
+      value: "",
+    });
+  }
+  if (detail.bathrooms !== null) {
+    specs.push({
+      icon: <Bath className="h-4 w-4" aria-hidden />,
+      label: `${detail.bathrooms} bath`,
+      value: "",
+    });
+  }
+  if (detail.sqft !== null) {
+    specs.push({
+      icon: <Ruler className="h-4 w-4" aria-hidden />,
+      label: `${detail.sqft.toLocaleString()} sqft`,
+      value: "",
+    });
+  }
+  if (specs.length === 0) return null;
+  return (
+    <div className="mt-3 flex items-center gap-2 flex-wrap">
+      {specs.map((s) => (
+        <span
+          key={s.label}
+          className="inline-flex items-center gap-1 rounded-xl bg-sky-100 text-ink-strong text-caption font-semibold px-2.5 py-1"
+        >
+          <span className="text-sky-500">{s.icon}</span>
+          {s.label}
+        </span>
+      ))}
+    </div>
   );
 }

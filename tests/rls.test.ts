@@ -33,6 +33,7 @@ const EVENT_1 = "dddddddd-dddd-5ddd-8ddd-dddddddddddd";
 const LEGACY_NOTE_1 = "eeeeeeee-eeee-5eee-8eee-eeeeeeeeeeee";
 const FRIENDSHIP_12 = "ffffffff-ffff-5fff-8fff-ffffffffffff";
 const FRIENDSHIP_14 = "abababab-abab-5bab-8bab-abababababab";
+const BOOKING_1 = "cdcdcdcd-cdcd-5dcd-8dcd-cdcdcdcdcdcd";
 
 const BOOTSTRAP = `
 create schema if not exists auth;
@@ -111,6 +112,16 @@ async function asUserCommitted<T>(c: Client, sub: string, fn: () => Promise<T>):
   }
 }
 
+/**
+ * Seed/cleanup as the database owner (bypasses RLS) while keeping a VALID-JSON jwt-claims
+ * GUC so triggers that call auth.uid() see a null caller and take their server path. A
+ * prior asUserCommitted leaves the session GUC as '' (empty), which would make `''::json`
+ * throw inside auth.uid(); '{}' is valid JSON with no `sub`, so auth.uid() returns null.
+ */
+function resetOwnerClaims(c: Client): Promise<unknown> {
+  return c.query("set request.jwt.claims = '{}'");
+}
+
 const suite = process.env.RUN_RLS_TESTS && DB_URL ? describe : describe.skip;
 
 suite("RLS participant-lock + ownership (requires Postgres)", () => {
@@ -176,6 +187,12 @@ suite("RLS participant-lock + ownership (requires Postgres)", () => {
       "insert into public.notes(id, city, topic, body, created_by) values ($1,'Seattle','Legacy tip','Keep the city value',$2) on conflict do nothing",
       [LEGACY_NOTE_1, U1],
     );
+
+    // Pin the session jwt-claims GUC to valid empty JSON. Superuser seed/cleanup writes
+    // fire triggers that call auth.uid(); without this, the empty-string placeholder left
+    // by a prior `set local` would make `''::json` throw. asUser/asUserCommitted still
+    // override this per-transaction with a real `sub`.
+    await resetOwnerClaims(c);
   });
 
   afterAll(async () => {
@@ -585,6 +602,170 @@ suite("RLS participant-lock + ownership (requires Postgres)", () => {
 
     const deleted = await asUser(c, U2, () => c.query("delete from public.friendships where id = $1", [FRIENDSHIP_12]));
     expect(deleted.rowCount).toBe(1);
+  });
+
+  it("bookings: only the booker, roommates, and listing owner can read a booking", async () => {
+    await c.query("delete from public.bookings where listing_id = $1", [LISTING_U3]);
+    await c.query(
+      "insert into public.bookings(id, listing_id, booker_id, status) values ($1,$2,$3,'requested')",
+      [BOOKING_1, LISTING_U3, U1],
+    );
+
+    const bookerRead = await asUser(c, U1, () => c.query("select * from public.bookings where id = $1", [BOOKING_1]));
+    expect(bookerRead.rowCount).toBe(1);
+    const ownerRead = await asUser(c, U3, () => c.query("select * from public.bookings where id = $1", [BOOKING_1]));
+    expect(ownerRead.rowCount).toBe(1);
+    const strangerRead = await asUser(c, U2, () => c.query("select * from public.bookings where id = $1", [BOOKING_1]));
+    expect(strangerRead.rowCount).toBe(0);
+
+    await c.query("delete from public.bookings where listing_id = $1", [LISTING_U3]);
+  });
+
+  it("bookings: only interns request, and booker_id cannot be forged", async () => {
+    await c.query("delete from public.bookings where listing_id = $1", [LISTING_U3]);
+
+    // An intern requests on an available listing - allowed.
+    const ok = await asUser(c, U1, () =>
+      c.query(
+        "insert into public.bookings(listing_id, booker_id, status) values ($1,$2,'requested') returning id, status",
+        [LISTING_U3, U1],
+      ),
+    );
+    expect(ok.rows[0].status).toBe("requested");
+
+    // A subletter (U3) cannot request a booking (intern-only actor + policy).
+    await expect(
+      asUser(c, U3, () => c.query("insert into public.bookings(listing_id, booker_id, status) values ($1,$2,'requested')", [LISTING_U3, U3])),
+    ).rejects.toThrow();
+
+    // U2 cannot forge a booking as U1 (booker must be the caller).
+    await expect(
+      asUser(c, U2, () => c.query("insert into public.bookings(listing_id, booker_id, status) values ($1,$2,'requested')", [LISTING_U3, U1])),
+    ).rejects.toThrow();
+
+    // A new booking cannot start already approved/booked.
+    await expect(
+      asUser(c, U1, () => c.query("insert into public.bookings(listing_id, booker_id, status) values ($1,$2,'booked')", [LISTING_U3, U1])),
+    ).rejects.toThrow();
+
+    await c.query("delete from public.bookings where listing_id = $1", [LISTING_U3]);
+  });
+
+  it("bookings: only the owner approves/declines and only the booker confirms", async () => {
+    await c.query("delete from public.bookings where listing_id = $1", [LISTING_U3]);
+    await c.query(
+      "insert into public.bookings(id, listing_id, booker_id, status) values ($1,$2,$3,'requested')",
+      [BOOKING_1, LISTING_U3, U1],
+    );
+
+    // A stranger's update simply matches no row (RLS filters it out).
+    const stranger = await asUser(c, U2, () =>
+      c.query("update public.bookings set status = 'approved' where id = $1", [BOOKING_1]),
+    );
+    expect(stranger.rowCount).toBe(0);
+
+    // The booker cannot self-approve.
+    await expect(
+      asUser(c, U1, () => c.query("update public.bookings set status = 'approved' where id = $1", [BOOKING_1])),
+    ).rejects.toThrow();
+
+    // The owner approves.
+    const approved = await asUserCommitted(c, U3, () =>
+      c.query("update public.bookings set status = 'approved' where id = $1 returning status", [BOOKING_1]),
+    );
+    expect(approved.rows[0].status).toBe("approved");
+
+    // The owner cannot confirm (booker-only).
+    await expect(
+      asUser(c, U3, () => c.query("update public.bookings set status = 'booked' where id = $1", [BOOKING_1])),
+    ).rejects.toThrow();
+
+    // The booker confirms.
+    const booked = await asUserCommitted(c, U1, () =>
+      c.query("update public.bookings set status = 'booked' where id = $1 returning status", [BOOKING_1]),
+    );
+    expect(booked.rows[0].status).toBe("booked");
+
+    await c.query("delete from public.bookings where listing_id = $1", [LISTING_U3]);
+  });
+
+  it("bookings: a stranger cannot join and only an invitee can accept its own invite", async () => {
+    await c.query("delete from public.bookings where listing_id = $1", [LISTING_U3]);
+    await c.query(
+      "insert into public.bookings(id, listing_id, booker_id, status, roommate_invites) values ($1,$2,$3,'approved',$4)",
+      [BOOKING_1, LISTING_U3, U1, [U2]],
+    );
+
+    // A stranger (U4) is not a party -> RLS filters the row out, so no join happens.
+    const stranger = await asUser(c, U4, () =>
+      c.query("update public.bookings set roommate_ids = array_append(roommate_ids, $2) where id = $1", [BOOKING_1, U4]),
+    );
+    expect(stranger.rowCount).toBe(0);
+
+    // An invitee accepting must move ONLY itself; adding a third party is rejected.
+    await expect(
+      asUser(c, U2, () =>
+        c.query(
+          "update public.bookings set roommate_ids = array_cat(roommate_ids, $2), roommate_invites = '{}' where id = $1",
+          [BOOKING_1, [U2, U4]],
+        ),
+      ),
+    ).rejects.toThrow();
+
+    // The invitee accepts itself - allowed.
+    const accepted = await asUserCommitted(c, U2, () =>
+      c.query(
+        "update public.bookings set roommate_ids = array_append(roommate_ids, $2), roommate_invites = array_remove(roommate_invites, $2) where id = $1 returning roommate_ids",
+        [BOOKING_1, U2],
+      ),
+    );
+    expect(accepted.rows[0].roommate_ids).toContain(U2);
+
+    await c.query("delete from public.bookings where listing_id = $1", [LISTING_U3]);
+  });
+
+  it("bookings: the booker may only invite accepted-friend roommates", async () => {
+    await c.query("delete from public.bookings where listing_id = $1", [LISTING_U3]);
+    await c.query("delete from public.friendships where id = $1", [FRIENDSHIP_14]);
+    // A committed accepted friendship U1<->U4 (seeded as owner, bypassing RLS).
+    await c.query(
+      "insert into public.friendships(id, requester_id, addressee_id, status) values ($1,$2,$3,'accepted')",
+      [FRIENDSHIP_14, U1, U4],
+    );
+    await c.query(
+      "insert into public.bookings(id, listing_id, booker_id, status) values ($1,$2,$3,'requested')",
+      [BOOKING_1, LISTING_U3, U1],
+    );
+
+    // Inviting an accepted friend (U4) is allowed.
+    const okInvite = await asUser(c, U1, () =>
+      c.query(
+        "update public.bookings set roommate_invites = array_append(roommate_invites, $2) where id = $1 returning roommate_invites",
+        [BOOKING_1, U4],
+      ),
+    );
+    expect(okInvite.rows[0].roommate_invites).toContain(U4);
+
+    // Inviting a non-friend (U2) is rejected by the friend rule.
+    await expect(
+      asUser(c, U1, () =>
+        c.query("update public.bookings set roommate_invites = array_append(roommate_invites, $2) where id = $1", [BOOKING_1, U2]),
+      ),
+    ).rejects.toThrow();
+
+    await c.query("delete from public.bookings where listing_id = $1", [LISTING_U3]);
+    await c.query("delete from public.friendships where id = $1", [FRIENDSHIP_14]);
+  });
+
+  it("cost_of_living: readable by any authenticated user, not writable by them", async () => {
+    const read = await asUser(c, U2, () => c.query("select * from public.cost_of_living where city = 'Seattle'"));
+    expect(read.rowCount).toBe(1);
+    await expect(
+      asUser(c, U2, () => c.query("update public.cost_of_living set index = 1 where city = 'Seattle'")),
+    ).resolves.toMatchObject({ rowCount: 0 });
+    await expect(
+      asUser(c, U2, () => c.query("insert into public.cost_of_living(city, index, median_rent) values ('Nowhere', 1, 1)")),
+    ).rejects.toThrow();
   });
 
   it("every public table has enabled and forced row-level security", async () => {

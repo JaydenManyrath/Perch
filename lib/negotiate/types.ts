@@ -18,6 +18,7 @@ export type ScoutConstraints = {
   moveIn: string; // ISO date
   moveOut: string; // ISO date
   salary?: number | null; // annual USD from parsed offer (B6); optional
+  costOfLivingIndex?: number | null; // 100 = national average; optional (section 13.5)
   routineAnchors?: { label: string; lat: number; lng: number }[];
 };
 

@@ -161,6 +161,11 @@ export function parseOfferText(text: string): OfferParse {
     startDate,
     endDate,
     city: city || null,
+    // Upfront-cash extraction (relocationStipend, signingBonus) is Person C's parser
+    // work (section 13.5); until it lands these stay null and the finance model treats
+    // them as 0 or reads persisted values.
+    relocationStipend: null,
+    signingBonus: null,
     confidence,
     needsReview,
   };
@@ -188,6 +193,8 @@ export function emptyOffer(): OfferParse {
     startDate: null,
     endDate: null,
     city: null,
+    relocationStipend: null,
+    signingBonus: null,
     confidence,
     needsReview: fields,
   };

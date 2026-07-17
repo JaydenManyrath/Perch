@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Upload, FileText, ArrowRight, AlertCircle } from "lucide-react";
 import { Mascot } from "@/components/mascot/Mascot";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Card, CardContent } from "@/components/ui/Card";
+import { FinanceBreakdownCard } from "@/components/finance/FinanceBreakdownCard";
 import { parseOffer } from "@/lib/data/source";
 import type { OfferField, OfferParse } from "@/lib/types/contract";
 import { cn } from "@/lib/utils";
@@ -123,7 +124,6 @@ function OfferCorrection({
   });
   const [reviewed, setReviewed] = useState<Set<OfferField>>(new Set());
   const needsReview = new Set(offer.needsReview ?? []);
-  const confidence = offer.confidence ?? ({} as Record<OfferField, number>);
 
   function set(key: OfferField, value: string) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -137,8 +137,8 @@ function OfferCorrection({
 
   const outstanding = Array.from(needsReview).filter((k) => !reviewed.has(k));
 
-  function submit() {
-    const corrected: OfferParse = {
+  const currentOffer: OfferParse = useMemo(
+    () => ({
       ...offer,
       employer: values.employer.trim() || offer.employer,
       role: values.role.trim() || null,
@@ -146,10 +146,13 @@ function OfferCorrection({
       startDate: values.startDate || null,
       endDate: values.endDate || null,
       city: values.city.trim() || null,
-      // Downstream code should trust the user's edits fully.
-      needsReview: outstanding.length === 0 ? [] : outstanding,
-    };
-    onContinue(corrected);
+      needsReview: outstanding,
+    }),
+    [values, offer, outstanding],
+  );
+
+  function submit() {
+    onContinue(currentOffer);
   }
 
   return (
@@ -174,7 +177,6 @@ function OfferCorrection({
         <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {FIELDS.map((f) => {
             const flagged = needsReview.has(f.key) && !reviewed.has(f.key);
-            const conf = confidence[f.key];
             return (
               <label key={f.key} className="block">
                 <span className={cn(
@@ -183,9 +185,9 @@ function OfferCorrection({
                 )}>
                   {flagged ? <AlertCircle className="h-3 w-3" aria-hidden strokeWidth={2.5} /> : null}
                   {f.label}
-                  {typeof conf === "number" ? (
-                    <span className="text-ink-muted font-normal">
-                      ({Math.round(conf * 100)}%)
+                  {flagged ? (
+                    <span className="text-func-flag font-normal ml-1">
+                      - check this
                     </span>
                   ) : null}
                 </span>
@@ -213,6 +215,10 @@ function OfferCorrection({
         <Chip tone="muted">LLM only normalizes ambiguous fields - never invents numbers</Chip>
         <Chip tone="accent">Your corrections proceed</Chip>
       </div>
+
+      {/* Finance breakdown from the (possibly-edited) offer (RA35). */}
+      <FinanceBreakdownCard offer={currentOffer} />
+
 
       <div className="mt-auto pt-4">
         <Button

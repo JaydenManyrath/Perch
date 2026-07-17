@@ -93,23 +93,23 @@ All UI + schema + APIs + integrations landed on `main`. Split three ways during 
 
 Same three-way split. Seams: FOUNDATION-CONTRACT.md section 13. Plans: IMPLEMENTATION-PERSON-A-ROUND3.md, IMPLEMENTATION-PERSON-B-ROUND3.md, IMPLEMENTATION-PERSON-C-ROUND3.md. Round-3 migrations start at 0011.
 
-### UI (person-a)
-- [todo] RA31 Ticketmaster event image renders on the feed card (+ placeholder fallback)
-- [todo] RA32 Comprehensive sublet detail sheet: furnished line, Pros list, bed/bath/sqft, amenities, utilities; add the fields to the post form
-- [todo] RA33 Roommate grouping UI: add-a-roommate (from friends) on a saved perch/booking + grouped view
-- [todo] RA34 Booking flow UI: Request-to-book, owner approval inbox, booked state; a booked perch leaves the deck
-- [todo] RA35 Finance UI: take-home vs salary, cost-of-living, upfront cash, relocation stipend (onboarding summary + budget/negotiation + perch affordability)
-- [todo] RA36 Checklist UI: render the fuller checklist (flights, shipping, what-to-bring, parking/car), grouped by category
-- [todo] RA37 Remove percentages from onboarding (confidence percent -> a "check this" flag; progress dots, not a percent)
-- [todo] RA38 Map marker press -> richer info sheet (place / listing / event / comment / sticker detail)
+### UI (person-a) - shipped on branch person-a 2026-07-16
+- [done] RA31 Ticketmaster event image renders on the feed card (+ placeholder fallback)
+- [done] RA32 Comprehensive sublet detail sheet: furnished line, Pros list, bed/bath/sqft, amenities, utilities; add the fields to the post form
+- [done] RA33 Roommate grouping UI: add-a-roommate (from friends) on a saved perch/booking + grouped view
+- [done] RA34 Booking flow UI: Request-to-book, owner approval inbox, booked state; a booked perch leaves the deck
+- [done] RA35 Finance UI: take-home vs salary, cost-of-living, upfront cash, relocation stipend (onboarding summary + landing readout + perch affordability)
+- [done] RA36 Checklist UI: fuller checklist grouped by category (travel, logistics, packing, admin) with per-group progress
+- [done] RA37 Onboarding percentages removed (confidence percent -> "check this" flag; step dots replace the percent bar)
+- [done] RA38 Map marker press -> richer info sheet (listing / sticker / event enriched with attendance + taste)
 
 ### Schema + core APIs (person-b)
-- [todo] RB31 listings columns (0011): furnished, pros, bedrooms, bathrooms, sqft, amenities, utilities_included + GET /api/listings/{id} (ListingDetail) + post validation
-- [todo] RB32 bookings table + RLS + state machine (requested -> approved -> booked; booked sets listings.status=taken) + booking API (book/approve/decline/confirm/list)
-- [todo] RB33 Roommate grouping: bookings.roommate_ids + invite/accept API
-- [todo] RB34 Finance model (deterministic): take-home tax brackets, COL-adjusted budget, upfront cash, stipend/bonus; GET /api/finance; negotiation budget scout uses it
-- [todo] RB35 Checklist seed: flights, shipping, what-to-bring, parking/car + optional category column
-- [todo] RB36 Feed/events guard datetime >= now (upcoming only); marker payloads carry enough detail for the map info sheet
+- [done 2026-07-17] RB31 listings columns (0011): furnished, pros, bedrooms, bathrooms, sqft, amenities, utilities_included (nullable + backfilled) + GET /api/listings/{id} (ListingDetail) + post validation for the new fields
+- [done 2026-07-17] RB32 bookings table (0011) + RLS (0012) + deterministic state machine (requested -> approved -> booked; booked sets listings.status=taken; decline/cancel release) + booking API (book/approve/decline/confirm/list)
+- [done 2026-07-17] RB33 Roommate grouping: bookings.roommate_ids + roommate_invites; invite/accept API; friend-or-invited enforced in code + RLS trigger
+- [done 2026-07-17] RB34 Finance model (deterministic): progressive federal brackets + FICA + state estimate take-home, COL-adjusted budget, upfront cash, stipend/bonus; cost_of_living table; GET /api/finance; negotiation budget scout uses take-home + COL (never raw salary)
+- [done 2026-07-17] RB35 Checklist seed: flights, shipping/movers, what-to-bring (packing), parking/car + category column (travel/logistics/packing/admin)
+- [done 2026-07-17] RB36 Feed/events guard datetime >= now (upcoming only, in-query); marker payloads carry detail for the map info sheet (ListingDetail furnished/pros/status; map comments author/text; events venue/date/going)
 
 ### Integrations + AI (person-c)
 - [todo] RC31 Ticketmaster: upcoming-only filter (startDateTime >= now, sorted ascending) + capture best image_url
@@ -124,3 +124,5 @@ Same three-way split. Seams: FOUNDATION-CONTRACT.md section 13. Plans: IMPLEMENT
 - 2026-07-16: Round 2 batch 2 planned.
 - 2026-07-16: Round 2 fully shipped and merged to main. Implementation docs removed; keeping FOUNDATION-CONTRACT.md, PROGRESS.md, SECRETS.md, README.md, CLAUDE.md.
 - 2026-07-16: Round 3 planned (upcoming events + images, comprehensive sublet details + pros + furnished, roommate grouping, booking flow, real finance model, fuller checklist, onboarding-percentage removal, richer map info); split three ways on branches person-a/person-b/person-c.
+- 2026-07-16: Round 3 UI (person-a, RA31-RA38) shipped on branch person-a. Fixture-first: booking state machine, roommate grouping, finance breakdown, and richer marker sheets all drivable end-to-end without waiting on B/C. Extended lib/types/contract.ts with the frozen R3 shapes (ListingDetail, Booking, FinanceBreakdown, ChecklistCategory) and lib/data/source.ts with the matching getters so the live-swap stays invisible.
+- 2026-07-17: Round 3 person-b shipped (RB31-RB36): migrations 0011/0012 (listing detail columns, bookings + roommate grouping, checklist category, finance inputs, cost_of_living), deterministic finance model + GET /api/finance, booking state machine + API, comprehensive GET /api/listings/{id}, upcoming-only feed/events guard, round-3 seed. RLS adversarial cases for bookings/roommates/cost_of_living pass against Postgres (28 RLS tests green); full suite 300 passing. Decisions: roommate invites require an accepted friend (enforced in code + a DB trigger) and the invitee accepts to become a confirmed roommate; the finance take-home uses documented 2025 single-filer brackets + FICA + a flat 5% state estimate; a cost_of_living table is B-owned (Person C may back a richer lookup with it); optional users.offer_salary/relocation_stipend/signing_bonus persist the offer for /api/finance.

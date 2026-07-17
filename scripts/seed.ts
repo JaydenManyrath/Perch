@@ -18,6 +18,15 @@ if (!url || !key) {
   console.error("seed: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required in .env.local");
   process.exit(1);
 }
+// `seed:live` guardrail (RB42): refuse to seed anything that is not clearly a hosted
+// Supabase project, so a stray localhost / fixture URL can never be seeded by accident.
+if (process.env.SEED_REQUIRE_HOSTED === "1" && !/supabase\.(co|com|net)/i.test(url)) {
+  console.error(
+    "seed:live - refusing to run: NEXT_PUBLIC_SUPABASE_URL does not look like a hosted Supabase project " +
+      `(got ${url}). Point .env.local at the real project, or use \`npm run seed:local\` for a local Postgres.`,
+  );
+  process.exit(1);
+}
 const db = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 
 /** Deterministic RFC-4122-shaped UUID from a stable name (so re-seeding is idempotent). */

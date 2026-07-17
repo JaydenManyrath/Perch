@@ -13,9 +13,14 @@
     "verify:sprint3": "npm run test:sprint3 && npm test && npm run typecheck && npm run lint && npm run build",
     "test:watch": "vitest",
     "seed": "tsx scripts/seed.ts",
+    "seed:live": "SEED_REQUIRE_HOSTED=1 tsx scripts/seed.ts",
+    "seed:local": "tsx scripts/seed-direct.ts",
     "gen:fixtures": "tsx scripts/gen-fixtures.ts",
+    "db:push": "tsx scripts/db-push.ts",
+    "db:push:live": "DB_PUSH_REQUIRE_HOSTED=1 tsx scripts/db-push.ts",
     "db:reset": "supabase db reset",
     "rls:test": "tsx scripts/rls-harness.ts",
+    "rls:acceptance": "tsx scripts/rls-acceptance.ts",
     "seed:sourcing": "tsx scripts/seed-sourcing.ts"
   },
   "dependencies": {

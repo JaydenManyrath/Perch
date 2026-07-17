@@ -6,7 +6,7 @@ import {
   resolveCostOfLiving,
 } from "@/lib/finance/colLookup";
 
-function chain(result: unknown, throws = false) {
+function mockCostOfLivingQuery(result: unknown, throws = false) {
   const q: Record<string, unknown> = {};
   q.select = vi.fn(() => q);
   q.ilike = vi.fn(() => q);
@@ -17,9 +17,9 @@ function chain(result: unknown, throws = false) {
   return q;
 }
 
-function db(result: unknown, throws = false): SupabaseClient {
+function mockSupabaseClient(result: unknown, throws = false): SupabaseClient {
   return {
-    from: vi.fn(() => chain(result, throws)),
+    from: vi.fn(() => mockCostOfLivingQuery(result, throws)),
   } as unknown as SupabaseClient;
 }
 
@@ -52,34 +52,43 @@ describe("costOfLivingFor", () => {
 describe("resolveCostOfLiving", () => {
   it("lets a valid persisted canonical row override the bundled city", async () => {
     await expect(
-      resolveCostOfLiving(db({ data: { city: "Seattle", index: 160, median_rent: 2300 }, error: null }), "Seattle, WA"),
+      resolveCostOfLiving(
+        mockSupabaseClient({ data: { city: " Seattle, WA ", index: 160, median_rent: 2300 }, error: null }),
+        "Seattle, WA",
+      ),
     ).resolves.toEqual({ city: "Seattle", index: 160, medianRent: 2300 });
   });
 
   it("uses a valid persisted canonical row even when the city is not bundled", async () => {
     await expect(
-      resolveCostOfLiving(db({ data: { city: "Boston", index: 149, median_rent: 2800 }, error: null }), " Boston, MA "),
+      resolveCostOfLiving(
+        mockSupabaseClient({ data: { city: "Boston", index: 149, median_rent: 2800 }, error: null }),
+        " Boston, MA ",
+      ),
     ).resolves.toEqual({ city: "Boston", index: 149, medianRent: 2800 });
   });
 
   it("falls back to the bundled city for missing rows, database errors, thrown failures, and malformed rows", async () => {
-    await expect(resolveCostOfLiving(db({ data: null, error: null }), "Seattle, WA")).resolves.toEqual({
+    await expect(resolveCostOfLiving(mockSupabaseClient({ data: null, error: null }), "Seattle, WA")).resolves.toEqual({
       city: "Seattle",
       index: 152,
       medianRent: 2100,
     });
-    await expect(resolveCostOfLiving(db({ data: null, error: new Error("nope") }), "Seattle")).resolves.toEqual({
+    await expect(resolveCostOfLiving(mockSupabaseClient({ data: null, error: new Error("nope") }), "Seattle")).resolves.toEqual({
       city: "Seattle",
       index: 152,
       medianRent: 2100,
     });
-    await expect(resolveCostOfLiving(db(null, true), "Seattle")).resolves.toEqual({
+    await expect(resolveCostOfLiving(mockSupabaseClient(null, true), "Seattle")).resolves.toEqual({
       city: "Seattle",
       index: 152,
       medianRent: 2100,
     });
     await expect(
-      resolveCostOfLiving(db({ data: { city: "Seattle", index: "NaN", median_rent: -1 }, error: null }), "Seattle"),
+      resolveCostOfLiving(
+        mockSupabaseClient({ data: { city: "Seattle", index: "NaN", median_rent: -1 }, error: null }),
+        "Seattle",
+      ),
     ).resolves.toEqual({ city: "Seattle", index: 152, medianRent: 2100 });
   });
 });

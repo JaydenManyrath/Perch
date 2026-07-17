@@ -69,6 +69,24 @@ function upcomingSorted(rows: EventUpsert[], now: Date): EventUpsert[] {
     .sort(compareEvents);
 }
 
+function dateInFallbackWindow(original: string, now: Date, index: number): string {
+  const base = new Date(now);
+  base.setUTCDate(base.getUTCDate() + index * 7);
+
+  const originalDate = new Date(original);
+  if (Number.isFinite(originalDate.getTime())) {
+    base.setUTCHours(
+      originalDate.getUTCHours(),
+      originalDate.getUTCMinutes(),
+      originalDate.getUTCSeconds(),
+      originalDate.getUTCMilliseconds(),
+    );
+    if (base.getTime() < now.getTime()) base.setUTCDate(base.getUTCDate() + 1);
+  }
+
+  return formatTmDate(base);
+}
+
 function pickImage(images: TmImage[] | undefined): string | null {
   if (!images || images.length === 0) return null;
   const usable = images.filter((i) => i.url && !i.fallback);
@@ -118,14 +136,7 @@ export function normalizeTmEvent(ev: TmEvent): EventUpsert | null {
 
 /** Deterministic seeded fallback mapped onto the extended events shape. */
 export function fallbackEvents(now: Date = new Date()): EventUpsert[] {
-  const rows = eventsFixture.map((e) => {
-    let datetime = e.datetime;
-    const original = new Date(datetime);
-    if (Number.isFinite(original.getTime())) {
-      const shifted = new Date(original);
-      while (shifted.getTime() < now.getTime()) shifted.setUTCFullYear(shifted.getUTCFullYear() + 1);
-      datetime = formatTmDate(shifted);
-    }
+  const rows = [...eventsFixture].sort((a, b) => Date.parse(a.datetime) - Date.parse(b.datetime)).map((e, index) => {
     return {
       external_id: e.id,
       source: "seeded",
@@ -133,7 +144,7 @@ export function fallbackEvents(now: Date = new Date()): EventUpsert[] {
       category: e.category,
       lat: e.lat,
       lng: e.lng,
-      datetime,
+      datetime: dateInFallbackWindow(e.datetime, now, index),
       url: e.url ?? null,
       venue: e.venue ?? null,
       image_url: e.image_url ?? null,

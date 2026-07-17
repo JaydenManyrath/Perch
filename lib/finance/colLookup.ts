@@ -138,6 +138,15 @@ function canonicalCityKey(city: string | null | undefined): string | null {
   return cleaned;
 }
 
+function canonicalCityName(key: string): string {
+  const bundled = DEFAULT_COST_OF_LIVING[key];
+  if (bundled) return bundled.city;
+  return key
+    .split(" ")
+    .map((word) => (word ? word[0].toUpperCase() + word.slice(1) : word))
+    .join(" ");
+}
+
 function isValidCostOfLiving(value: CostOfLiving): boolean {
   return (
     value.city.trim().length > 0 &&
@@ -171,7 +180,7 @@ export async function resolveCostOfLiving(
       .maybeSingle();
     if (error) return fallback;
     if (data) {
-      const persisted = { city: data.city, index: Number(data.index), medianRent: Number(data.median_rent) };
+      const persisted = { city: canonicalCityName(key), index: Number(data.index), medianRent: Number(data.median_rent) };
       if (isValidCostOfLiving(persisted)) return persisted;
     }
   } catch {

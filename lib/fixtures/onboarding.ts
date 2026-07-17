@@ -17,6 +17,8 @@ export const offerParseFixture: OfferParse = {
     city: 0.52,
     // The salary line was truncated by a page break; low confidence.
     salary: 0.48,
+    relocationStipend: 0.9,
+    signingBonus: 0.9,
     startDate: 0.91,
     endDate: 0.83,
   },

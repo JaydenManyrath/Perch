@@ -124,7 +124,15 @@ export type Place = {
 export type MapPlacesResponse = { places: Place[] };
 
 // Section 4.6 - onboarding data routes
-export type OfferField = "employer" | "role" | "salary" | "startDate" | "endDate" | "city";
+export type OfferField =
+  | "employer"
+  | "role"
+  | "salary"
+  | "startDate"
+  | "endDate"
+  | "city"
+  | "relocationStipend"
+  | "signingBonus";
 
 export type OfferParse = {
   employer: string;

@@ -7,31 +7,59 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { PDFDocument, StandardFonts } from "pdf-lib";
 
 const FIX = join(process.cwd(), "scripts", "fixtures");
+
+function escapePdfText(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+}
 
 async function main() {
   const text = readFileSync(join(FIX, "sample-offer-letter.txt"), "utf8");
 
-  const pdf = await PDFDocument.create();
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const page = pdf.addPage([612, 792]); // US Letter
   const fontSize = 11;
   const margin = 56;
+  const maxCharsPerLine = 48;
   let y = 792 - margin;
+  const commands = ["BT", "/F1 11 Tf"];
 
   for (const line of text.split("\n")) {
-    page.drawText(line, { x: margin, y, size: fontSize, font });
-    y -= fontSize * 1.6;
+    const wrapped = line.match(new RegExp(`.{1,${maxCharsPerLine}}(?:\\s|$)`, "g")) ?? [line];
+    for (const segment of wrapped) {
+      commands.push(`1 0 0 1 ${margin} ${y.toFixed(1)} Tm (${escapePdfText(segment.trimEnd())}) Tj`);
+      y -= fontSize * 1.6;
+    }
   }
+  commands.push("ET");
 
-  // useObjectStreams:false -> a classic xref PDF that pdf-parse (old pdfjs) reads
-  // reliably. pdf-lib's default object streams trip pdf-parse's flate decoder.
-  const bytes = await pdf.save({ useObjectStreams: false });
+  const content = `${commands.join("\n")}\n`;
+  const byteLength = (value: string) => Buffer.byteLength(value, "latin1");
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+    `<< /Length ${byteLength(content)} >>\nstream\n${content}endstream`,
+  ];
+
+  const eol = "\r\n";
+  let pdf = `%PDF-1.4${eol}%\xE2\xE3\xCF\xD3${eol}`;
+  const offsets = [0];
+  objects.forEach((obj, index) => {
+    offsets.push(byteLength(pdf));
+    pdf += `${index + 1} 0 obj${eol}${obj}${eol}endobj${eol}`;
+  });
+  const xrefOffset = byteLength(pdf);
+  pdf += `xref${eol}0 ${objects.length + 1}${eol}`;
+  pdf += `0000000000 65535 f ${eol}`;
+  for (const offset of offsets.slice(1)) {
+    pdf += `${String(offset).padStart(10, "0")} 00000 n ${eol}`;
+  }
+  pdf += `trailer${eol}<< /Size ${objects.length + 1} /Root 1 0 R >>${eol}startxref${eol}${xrefOffset}${eol}%%EOF${eol}`;
+
   const out = join(FIX, "sample-offer-letter.pdf");
-  writeFileSync(out, bytes);
-  console.log(`wrote ${out} (${bytes.length} bytes)`);
+  writeFileSync(out, pdf, "latin1");
+  console.log(`wrote ${out} (${byteLength(pdf)} bytes)`);
 }
 
 main().catch((err) => {

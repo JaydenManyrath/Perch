@@ -68,6 +68,69 @@ function matchConf(
   return null;
 }
 
+const MONEY = "\\$?\\s*([\\d,]+(?:\\.\\d{2})?)(?![\\d,])";
+
+type BenefitParse = {
+  value: number | null;
+  conf: number;
+  mentioned: boolean;
+};
+
+function parseMoney(raw: string): number | null {
+  const n = Number(raw.replace(/,/g, ""));
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return Math.round(n);
+}
+
+function parseBenefit(
+  text: string,
+  labels: RegExp[],
+): BenefitParse {
+  const mentioned = labels.some((label) => label.test(text));
+  if (!mentioned) return { value: null, conf: 0, mentioned: false };
+
+  for (const label of labels) {
+    const source = label.source;
+    const flags = label.flags.includes("i") ? label.flags : `${label.flags}i`;
+    const clause = text.match(new RegExp(`${source}[^\\n.]{0,160}`, flags))?.[0] ?? "";
+    if (
+      /\$\s*[\d,]+(?:\.\d{2})?\s*(?:-|to|through|and)\s*\$?\s*[\d,]+/i.test(clause) ||
+      /\b(?:up to|as much as|estimated|estimate|depending|subject to|may be|eligible|available)\b/i.test(clause)
+    ) {
+      return { value: null, conf: 0.4, mentioned: true };
+    }
+
+    const single = new RegExp(
+      `${source}[^\\n.]{0,80}?${MONEY}(?!\\s*(?:-|to|through|and)\\s*\\$?\\s*[\\d,])`,
+      flags,
+    );
+    const match = text.match(single);
+    if (!match?.[1]) continue;
+
+    const context = match[0];
+    if (/\b(?:up to|as much as|estimated|estimate|depending|subject to|may be|eligible|available)\b/i.test(context)) {
+      return { value: null, conf: 0.4, mentioned: true };
+    }
+
+    const value = parseMoney(match[1]);
+    if (value !== null) return { value, conf: 0.92, mentioned: true };
+  }
+
+  return { value: null, conf: 0.4, mentioned: true };
+}
+
+function extractLiteralPdfText(pdf: Buffer): string {
+  const source = pdf.toString("latin1");
+  const chunks = [...source.matchAll(/\(([^()]*(?:\\.[^()]*)*)\)\s*Tj/g)].map((match) =>
+    match[1]
+      .replace(/\\n/g, "\n")
+      .replace(/\\r/g, "\r")
+      .replace(/\\t/g, "\t")
+      .replace(/\\([\\()])/g, "$1"),
+  );
+  return chunks.join("\n");
+}
+
 /**
  * Deterministic extraction from offer-letter plain text (RC4). Broadened formats;
  * every field gets a 0..1 confidence and low-confidence fields are flagged in
@@ -142,6 +205,17 @@ export function parseOfferText(text: string): OfferParse {
     endConf = 0.5;
   }
 
+  const relocation = parseBenefit(flat, [
+    /relocation\s+(?:stipend|bonus|allowance|assistance|payment)/i,
+    /move[- ]?in\s+(?:stipend|allowance|assistance|payment)/i,
+    /moving\s+(?:stipend|allowance|assistance|payment)/i,
+  ]);
+  const signing = parseBenefit(flat, [
+    /sign(?:ing|-on| on)\s+(?:bonus|payment)/i,
+    /one[- ]time\s+sign[- ]on\s+payment/i,
+    /joining\s+bonus/i,
+  ]);
+
   const confidence: Record<OfferField, number> = {
     employer: employerConf,
     role: roleConf,
@@ -149,10 +223,14 @@ export function parseOfferText(text: string): OfferParse {
     startDate: startConf,
     endDate: endConf,
     city: cityConf,
+    relocationStipend: relocation.conf,
+    signingBonus: signing.conf,
   };
-  const needsReview = (Object.keys(confidence) as OfferField[]).filter(
+  const needsReview = (["employer", "role", "salary", "startDate", "endDate", "city"] as OfferField[]).filter(
     (f) => confidence[f] < REVIEW_THRESHOLD,
   );
+  if (relocation.mentioned && relocation.conf < REVIEW_THRESHOLD) needsReview.push("relocationStipend");
+  if (signing.mentioned && signing.conf < REVIEW_THRESHOLD) needsReview.push("signingBonus");
 
   return {
     employer,
@@ -161,11 +239,8 @@ export function parseOfferText(text: string): OfferParse {
     startDate,
     endDate,
     city: city || null,
-    // Upfront-cash extraction (relocationStipend, signingBonus) is Person C's parser
-    // work (section 13.5); until it lands these stay null and the finance model treats
-    // them as 0 or reads persisted values.
-    relocationStipend: null,
-    signingBonus: null,
+    relocationStipend: relocation.value,
+    signingBonus: signing.value,
     confidence,
     needsReview,
   };
@@ -178,14 +253,22 @@ export function parseOfferText(text: string): OfferParse {
 export async function extractOfferText(pdf: Buffer): Promise<string> {
   const mod = await import("pdf-parse");
   const pdfParse = (mod as unknown as { default: (b: Buffer) => Promise<{ text: string }> }).default;
-  const parsed = await pdfParse(pdf);
-  return parsed.text;
+  try {
+    const parsed = await pdfParse(pdf);
+    return parsed.text;
+  } catch (err) {
+    const literalText = extractLiteralPdfText(pdf);
+    if (literalText.trim().length > 0) return literalText;
+    throw err;
+  }
 }
 
 /** An all-unknown result (every field flagged) - used when nothing is extractable. */
 export function emptyOffer(): OfferParse {
   const fields: OfferField[] = ["employer", "role", "salary", "startDate", "endDate", "city"];
-  const confidence = Object.fromEntries(fields.map((f) => [f, 0])) as Record<OfferField, number>;
+  const confidence = Object.fromEntries(
+    [...fields, "relocationStipend", "signingBonus"].map((f) => [f, 0]),
+  ) as Record<OfferField, number>;
   return {
     employer: "Unknown employer",
     role: null,

@@ -7,6 +7,8 @@ import {
   upfrontCash,
   buildFinanceBreakdown,
 } from "@/lib/finance/model";
+import { buildFinanceBreakdownFromOffer } from "@/lib/finance/offer";
+import { buildFinanceBreakdown as buildFixtureFinanceBreakdown } from "@/lib/fixtures/finance";
 
 describe("federalTax (progressive brackets)", () => {
   it("is zero at or below zero taxable income", () => {
@@ -106,6 +108,74 @@ describe("buildFinanceBreakdown", () => {
     expect(b.salary).toBeNull();
     expect(b.takeHome).toBe(0);
     expect(b.monthlyBudget).toBe(0);
+    expect(b.relocationStipend).toBe(0);
+    expect(b.signingBonus).toBe(0);
+  });
+});
+
+describe("buildFinanceBreakdownFromOffer", () => {
+  it("matches the canonical model for corrected offer fields", () => {
+    const offer = {
+      employer: "Stripe",
+      role: "SWE Intern",
+      salary: 60_000,
+      startDate: "2026-06-01",
+      endDate: "2026-08-31",
+      city: "Seattle",
+      relocationStipend: 5_000,
+      signingBonus: 10_000,
+      confidence: {
+        employer: 1,
+        role: 1,
+        salary: 1,
+        startDate: 1,
+        endDate: 1,
+        city: 1,
+        relocationStipend: 1,
+        signingBonus: 1,
+      },
+      needsReview: [],
+    };
+
+    const expected = buildFinanceBreakdown({
+      salary: 60_000,
+      city: "Seattle",
+      costOfLivingIndex: 152,
+      medianRent: 2100,
+      relocationStipend: 5_000,
+      signingBonus: 10_000,
+    });
+
+    expect(buildFinanceBreakdownFromOffer(offer)).toEqual(expected);
+    expect(buildFixtureFinanceBreakdown(offer)).toEqual(expected);
+  });
+
+  it("keeps absent benefits deterministic as zeroes", () => {
+    const offer = {
+      employer: "Acme",
+      role: "Analyst",
+      salary: 90_000,
+      startDate: "2026-06-01",
+      endDate: "2026-08-31",
+      city: "Austin, TX",
+      relocationStipend: null,
+      signingBonus: null,
+      confidence: {
+        employer: 1,
+        role: 1,
+        salary: 1,
+        startDate: 1,
+        endDate: 1,
+        city: 1,
+        relocationStipend: 0,
+        signingBonus: 0,
+      },
+      needsReview: [],
+    };
+
+    const b = buildFinanceBreakdownFromOffer(offer);
+    expect(b.city).toBe("Austin");
+    expect(b.costOfLivingIndex).toBe(103);
     expect(b.relocationStipend).toBe(0);
     expect(b.signingBonus).toBe(0);
   });

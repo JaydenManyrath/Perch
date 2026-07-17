@@ -13,6 +13,7 @@
 
 import { env, hasSupabase } from "@/lib/env";
 import { fetchMapboxDirections } from "@/lib/directions";
+import { buildFinanceBreakdownFromOffer } from "@/lib/finance/offer";
 import {
   type FeedResponse,
   type MatchesResponse,
@@ -879,7 +880,41 @@ export async function getFinance(): Promise<FinanceBreakdown> {
   return fx.buildFinanceBreakdown(fx.offerParseFixture);
 }
 
-/** Build a FinanceBreakdown from an offer directly (used by onboarding summary). */
+function offerFinanceUrl(offer: OfferParse): string {
+  const params = new URLSearchParams();
+  params.set("salary", String(offer.salary ?? 0));
+  params.set("city", offer.city ?? "National");
+  params.set("stipend", String(offer.relocationStipend ?? 0));
+  params.set("bonus", String(offer.signingBonus ?? 0));
+  return `/api/finance?${params.toString()}`;
+}
+
+/** Build a FinanceBreakdown from an offer directly (used by fixture fallbacks/tests). */
 export function financeFromOffer(offer: OfferParse): FinanceBreakdown {
-  return fx.buildFinanceBreakdown(offer);
+  return buildFinanceBreakdownFromOffer(offer);
+}
+
+/** Preview in-progress onboarding through the same finance route as persisted reads. */
+export async function getFinanceForOffer(offer: OfferParse): Promise<FinanceBreakdown> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<FinanceBreakdown>(offerFinanceUrl(offer));
+    if (r) return r;
+  }
+  return financeFromOffer(offer);
+}
+
+/** Persist corrected offer fields that later finance/listing surfaces read. */
+export async function saveOfferCorrections(offer: OfferParse): Promise<void> {
+  if (MODE !== "live") return;
+  const res = await fetch("/api/onboarding/offer", {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      city: offer.city,
+      salary: offer.salary,
+      relocationStipend: offer.relocationStipend,
+      signingBonus: offer.signingBonus,
+    }),
+  });
+  if (!res.ok) throw new Error("offer_persist_failed");
 }

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Card, CardContent } from "@/components/ui/Card";
 import { FinanceBreakdownCard } from "@/components/finance/FinanceBreakdownCard";
-import { parseOffer } from "@/lib/data/source";
+import { parseOffer, saveOfferCorrections } from "@/lib/data/source";
 import type { OfferField, OfferParse } from "@/lib/types/contract";
 import { cn } from "@/lib/utils";
 
@@ -127,6 +127,8 @@ function OfferCorrection({
     city: offer.city ?? "",
   });
   const [reviewed, setReviewed] = useState<Set<OfferField>>(new Set());
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const needsReview = new Set(offer.needsReview ?? []);
 
   function set(key: OfferField, value: string) {
@@ -157,8 +159,17 @@ function OfferCorrection({
     [values, offer, outstanding],
   );
 
-  function submit() {
-    onContinue(currentOffer);
+  async function submit() {
+    setSaving(true);
+    setSaveError(false);
+    try {
+      await saveOfferCorrections(currentOffer);
+      onContinue(currentOffer);
+    } catch {
+      setSaveError(true);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -232,17 +243,23 @@ function OfferCorrection({
           className="w-full"
           onClick={submit}
           disabled={
+            saving ||
             !values.employer.trim() ||
             !values.role.trim() ||
             !values.startDate ||
             outstanding.length > 0
           }
         >
-          Continue <ArrowRight className="h-4 w-4" aria-hidden />
+          {saving ? "Saving..." : "Continue"} <ArrowRight className="h-4 w-4" aria-hidden />
         </Button>
         {outstanding.length > 0 ? (
           <p className="mt-2 text-caption text-ink-soft text-center">
             Confirm each flagged field to enable Continue.
+          </p>
+        ) : null}
+        {saveError ? (
+          <p className="mt-2 text-caption font-semibold text-ink-strong text-center">
+            We could not save those corrections. Try again.
           </p>
         ) : null}
       </div>

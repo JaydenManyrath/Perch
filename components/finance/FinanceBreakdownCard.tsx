@@ -5,7 +5,7 @@ import type { FinanceBreakdown, OfferParse } from "@/lib/types/contract";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { DollarSign, TrendingUp, Home, Gift, MapPin } from "lucide-react";
-import { financeFromOffer, getFinance } from "@/lib/data/source";
+import { financeFromOffer, getFinance, getFinanceForOffer } from "@/lib/data/source";
 
 /**
  * FinanceBreakdownCard (RA35) - the deterministic money picture:
@@ -14,7 +14,7 @@ import { financeFromOffer, getFinance } from "@/lib/data/source";
  *
  * Two ways to use it:
  *   - <FinanceBreakdownCard offer={...}> when you already have an OfferParse
- *     (e.g., mid-onboarding) - computes locally via financeFromOffer.
+ *     (e.g., mid-onboarding) - previews through the same finance route in live mode.
  *   - <FinanceBreakdownCard /> without an offer - fetches GET /api/finance.
  */
 export function FinanceBreakdownCard({
@@ -33,9 +33,15 @@ export function FinanceBreakdownCard({
 
   useEffect(() => {
     if (offer) {
+      let cancelled = false;
       setFinance(financeFromOffer(offer));
       setLoading(false);
-      return;
+      getFinanceForOffer(offer).then((f) => {
+        if (!cancelled) setFinance(f);
+      });
+      return () => {
+        cancelled = true;
+      };
     }
     let cancelled = false;
     setLoading(true);

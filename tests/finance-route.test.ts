@@ -71,15 +71,33 @@ describe("GET /api/finance", () => {
     expect(body.upfrontCashNeeded).toBeGreaterThan(2100);
   });
 
-  it("lets query params override persisted values", async () => {
+  it("lets onboarding preview query params override persisted values", async () => {
     createServerSupabase.mockResolvedValue(
-      db({ city: "Austin", offer_salary: 60000, relocation_stipend: 0, signing_bonus: 0 }, { city: "Austin", index: 103, median_rent: 1650 }),
+      db({ city: "Austin", offer_salary: 60000, relocation_stipend: 0, signing_bonus: 0 }, { city: "Seattle", index: 152, median_rent: 2100 }),
     );
     const { GET } = await import("@/app/api/finance/route");
-    const res = await GET(new NextRequest("http://localhost/api/finance?salary=200000"));
+    const res = await GET(new NextRequest("http://localhost/api/finance?salary=200000&city=Seattle&stipend=4500&bonus=12000"));
     const body = await res.json();
     expect(res.status).toBe(200);
     expect(body.salary).toBe(200000);
+    expect(body.city).toBe("Seattle");
+    expect(body.relocationStipend).toBe(4500);
+    expect(body.signingBonus).toBe(12000);
+  });
+
+  it("lets onboarding preview clear persisted salary and benefits", async () => {
+    createServerSupabase.mockResolvedValue(
+      db({ city: "Seattle", offer_salary: 60000, relocation_stipend: 5000, signing_bonus: 10000 }, { city: "National", index: 100, median_rent: 1450 }),
+    );
+    const { GET } = await import("@/app/api/finance/route");
+    const res = await GET(new NextRequest("http://localhost/api/finance?salary=0&city=National&stipend=0&bonus=0"));
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.salary).toBeNull();
+    expect(body.takeHome).toBe(0);
+    expect(body.city).toBe("National");
+    expect(body.relocationStipend).toBe(0);
+    expect(body.signingBonus).toBe(0);
   });
 
   it("falls back to the national index when the city is unknown", async () => {

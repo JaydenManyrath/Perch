@@ -25,7 +25,7 @@ export function BandedBadge({
       title={title ?? "Banded - verified intern"}
       className={cn(
         "inline-flex items-center gap-1 rounded-full border",
-        "bg-func-passBg text-func-pass border-func-passBg",
+        "bg-func-passBg text-ink-strong border-func-pass",
         sm ? "px-1.5 py-0.5 text-[0.7rem]" : "px-2 py-0.5 text-caption",
         "font-semibold whitespace-nowrap",
         className

@@ -178,7 +178,6 @@ export function PerchDeck({
         perch={openListing}
         open={openId !== null}
         onOpenChange={(o) => !o && setOpenId(null)}
-        onListingBooked={handleListingBooked}
       />
     </div>
   );

@@ -106,7 +106,6 @@ export function StoriesClient({
         perch={openListing}
         open={openId !== null}
         onOpenChange={(o) => !o && setOpenId(null)}
-        onListingBooked={removeTakenListing}
       />
     </div>
   );

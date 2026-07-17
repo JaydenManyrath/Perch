@@ -38,24 +38,24 @@ const STATUS_META: Record<ListingStatus, { label: string; hint: string; icon: ty
     label: "Available",
     hint: "Host has confirmed recently.",
     icon: CheckCircle2,
-    classes: "bg-func-passBg text-func-pass border-func-passBg",
+    classes: "bg-func-passBg text-ink-strong border-func-pass",
   },
   pending: {
     label: "Pending",
     hint: "Someone's already talking to the host.",
     icon: Clock,
-    classes: "bg-func-flagBg text-func-flag border-func-flagBg",
+    classes: "bg-func-flagBg text-ink-strong border-func-flag",
   },
   taken: {
     label: "Taken",
     hint: "This one's spoken for.",
     icon: Ban,
-    classes: "bg-white text-ink-muted border-sky-200",
+    classes: "bg-white text-ink-strong border-sky-200",
   },
   stale: {
     label: "Stale",
     hint: "Not confirmed for a while - might be gone.",
     icon: MinusCircle,
-    classes: "bg-white text-ink-muted border-sky-200",
+    classes: "bg-white text-ink-strong border-sky-200",
   },
 };

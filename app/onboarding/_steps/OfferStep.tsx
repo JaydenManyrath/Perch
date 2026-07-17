@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Card, CardContent } from "@/components/ui/Card";
 import { FinanceBreakdownCard } from "@/components/finance/FinanceBreakdownCard";
-import { parseOffer, saveOfferCorrections } from "@/lib/data/source";
+import { parseOffer } from "@/lib/data/source";
 import type { OfferField, OfferParse } from "@/lib/types/contract";
 import { cn } from "@/lib/utils";
 
@@ -127,8 +127,6 @@ function OfferCorrection({
     city: offer.city ?? "",
   });
   const [reviewed, setReviewed] = useState<Set<OfferField>>(new Set());
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState(false);
   const needsReview = new Set(offer.needsReview ?? []);
 
   function set(key: OfferField, value: string) {
@@ -159,17 +157,8 @@ function OfferCorrection({
     [values, offer, outstanding],
   );
 
-  async function submit() {
-    setSaving(true);
-    setSaveError(false);
-    try {
-      await saveOfferCorrections(currentOffer);
-      onContinue(currentOffer);
-    } catch {
-      setSaveError(true);
-    } finally {
-      setSaving(false);
-    }
+  function submit() {
+    onContinue(currentOffer);
   }
 
   return (
@@ -183,7 +172,7 @@ function OfferCorrection({
       </header>
 
       {outstanding.length > 0 ? (
-        <div className="inline-flex items-center gap-2 rounded-2xl bg-func-flagBg text-func-flag px-3 py-2 border border-func-flagBg text-caption font-semibold">
+        <div className="inline-flex items-center gap-2 rounded-2xl bg-func-flagBg text-ink-strong px-3 py-2 border border-func-flag text-caption font-semibold">
           <AlertCircle className="h-4 w-4" aria-hidden strokeWidth={2.5} />
           {outstanding.length} field{outstanding.length === 1 ? "" : "s"} need a
           quick review before continuing.
@@ -198,12 +187,12 @@ function OfferCorrection({
               <label key={f.key} className="block">
                 <span className={cn(
                   "flex items-center gap-1 text-caption",
-                  flagged ? "text-func-flag font-semibold" : "text-ink-soft",
+                  flagged ? "text-ink-strong font-semibold" : "text-ink-strong",
                 )}>
                   {flagged ? <AlertCircle className="h-3 w-3" aria-hidden strokeWidth={2.5} /> : null}
                   {f.label}
                   {flagged ? (
-                    <span className="text-func-flag font-normal ml-1">
+                    <span className="text-ink-strong font-normal ml-1">
                       - check this
                     </span>
                   ) : null}
@@ -243,23 +232,17 @@ function OfferCorrection({
           className="w-full"
           onClick={submit}
           disabled={
-            saving ||
             !values.employer.trim() ||
             !values.role.trim() ||
             !values.startDate ||
             outstanding.length > 0
           }
         >
-          {saving ? "Saving..." : "Continue"} <ArrowRight className="h-4 w-4" aria-hidden />
+          Continue <ArrowRight className="h-4 w-4" aria-hidden />
         </Button>
         {outstanding.length > 0 ? (
           <p className="mt-2 text-caption text-ink-soft text-center">
             Confirm each flagged field to enable Continue.
-          </p>
-        ) : null}
-        {saveError ? (
-          <p className="mt-2 text-caption font-semibold text-ink-strong text-center">
-            We could not save those corrections. Try again.
           </p>
         ) : null}
       </div>

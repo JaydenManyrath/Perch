@@ -59,7 +59,7 @@ export function TakeoutStep({
           <CardContent className="flex flex-wrap gap-1.5">
             {state.places.slice(0, 6).map((p) => (
               <Chip key={p.id}>
-                {p.label} · {p.frequency}×
+                {p.label} - {p.frequency} visits
               </Chip>
             ))}
           </CardContent>

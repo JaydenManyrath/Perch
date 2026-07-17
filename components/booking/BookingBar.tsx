@@ -217,27 +217,27 @@ export function BookingBar({
 function StatusPill({ status }: { status: Booking["status"] }) {
   if (status === "requested") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-func-flagBg text-func-flag text-caption font-semibold px-2 py-0.5">
+      <span className="inline-flex items-center gap-1 rounded-full border border-func-flag bg-func-flagBg text-ink-strong text-caption font-semibold px-2 py-0.5">
         <Clock className="h-3 w-3" aria-hidden /> Requested
       </span>
     );
   }
   if (status === "approved") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 text-sky-500 text-caption font-semibold px-2 py-0.5">
+      <span className="inline-flex items-center gap-1 rounded-full border border-sky-300 bg-sky-100 text-ink-strong text-caption font-semibold px-2 py-0.5">
         <Check className="h-3 w-3" aria-hidden strokeWidth={2.5} /> Approved
       </span>
     );
   }
   if (status === "booked") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-func-passBg text-func-pass text-caption font-semibold px-2 py-0.5">
+      <span className="inline-flex items-center gap-1 rounded-full border border-func-pass bg-func-passBg text-ink-strong text-caption font-semibold px-2 py-0.5">
         <Check className="h-3 w-3" aria-hidden strokeWidth={2.5} /> Booked
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-white border border-sky-200 text-ink-soft text-caption font-semibold px-2 py-0.5">
+    <span className="inline-flex items-center gap-1 rounded-full bg-white border border-sky-200 text-ink-strong text-caption font-semibold px-2 py-0.5">
       <X className="h-3 w-3" aria-hidden /> {status}
     </span>
   );
@@ -264,13 +264,14 @@ function RoommateGroup({
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-caption text-ink-soft font-semibold">
+        <p className="text-caption text-ink-strong font-semibold">
           {booking.roommates.length > 0 ? "Roommates" : "Add a roommate"}
         </p>
         <button
           type="button"
           onClick={onOpenFriends}
-          className="inline-flex items-center gap-1 text-caption font-semibold text-sky-500 hover:text-sky-600"
+          aria-expanded={showFriends}
+          className="inline-flex items-center gap-1 rounded-lg text-caption font-semibold text-ink-strong underline decoration-sky-300 underline-offset-2 hover:decoration-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
         >
           <UserPlus className="h-3 w-3" aria-hidden />
           {showFriends ? "Cancel" : "Add"}
@@ -299,7 +300,7 @@ function RoommateGroup({
           {remainingFriends.length === 0 ? (
             <p className="text-caption text-ink-soft">
               No more friends to invite.{" "}
-              <Link href="/friends" className="text-sky-500 hover:text-sky-600 font-semibold">
+              <Link href="/friends" className="text-ink-strong underline decoration-sky-300 underline-offset-2 hover:decoration-sky-500 font-semibold">
                 Manage friends
               </Link>
             </p>
@@ -311,7 +312,7 @@ function RoommateGroup({
                     type="button"
                     onClick={() => onPickFriend(f.user.id)}
                     disabled={busy}
-                    className="w-full flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white text-left disabled:opacity-50"
+                    className="w-full flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white text-left disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
                   >
                     <Avatar className="h-7 w-7">
                       {f.user.avatarUrl ? <AvatarImage src={f.user.avatarUrl} alt="" /> : null}
@@ -326,7 +327,7 @@ function RoommateGroup({
                       </span>
                     </span>
                     <UserPlus
-                      className="h-4 w-4 text-sky-500 shrink-0"
+                      className="h-4 w-4 text-ink-strong shrink-0"
                       aria-hidden
                     />
                   </button>

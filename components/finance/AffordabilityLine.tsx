@@ -24,8 +24,8 @@ export function AffordabilityLine({
       className={cn(
         "rounded-2xl border p-3 flex items-start gap-2",
         over
-          ? "bg-func-flagBg border-func-flagBg text-func-flag"
-          : "bg-func-passBg border-func-passBg text-func-pass",
+          ? "bg-func-flagBg border-func-flag text-ink-strong"
+          : "bg-func-passBg border-func-pass text-ink-strong",
         className,
       )}
     >

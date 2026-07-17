@@ -35,9 +35,9 @@ export function ProgressStepper({
               <span
                 className={cn(
                   "flex h-6 w-6 items-center justify-center rounded-full text-caption font-bold shrink-0 transition-colors",
-                  done && "bg-sky-400 text-white",
-                  current && "bg-white text-sky-500 ring-2 ring-sky-400",
-                  !done && !current && "bg-sky-100 text-ink-muted ring-1 ring-sky-200",
+                  done && "bg-sky-500 text-white",
+                  current && "bg-white text-ink-strong ring-2 ring-sky-500",
+                  !done && !current && "bg-sky-100 text-ink-strong ring-1 ring-sky-200",
                 )}
               >
                 {done ? <Check className="h-3 w-3" aria-hidden strokeWidth={3} /> : n}
@@ -66,8 +66,8 @@ export function ProgressStepper({
                 className={cn(
                   "font-semibold",
                   current && "text-ink-strong",
-                  done && "text-func-pass",
-                  !current && !done && "text-ink-muted",
+                  done && "text-ink-strong",
+                  !current && !done && "text-ink-strong",
                 )}
               >
                 {l}

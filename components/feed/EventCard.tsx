@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { EventComments } from "./EventComments";
@@ -28,9 +28,14 @@ export function EventCard({
   const [item, setItem] = useState<FeedItem>(initialItem);
   const [busy, setBusy] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
   const pct = Math.round(item.tasteScore * 100);
   const goingCount = item.internsGoing ?? 0;
   const viewerGoing = !!item.viewerGoing;
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [item.event.id, item.event.imageUrl]);
 
   async function toggle(newValue: boolean) {
     if (busy) return;
@@ -49,7 +54,7 @@ export function EventCard({
     }
   }
 
-  const imageUrl = item.event.imageUrl ?? null;
+  const imageUrl = imageFailed ? null : item.event.imageUrl ?? null;
 
   return (
     <Card className={cn("overflow-hidden", topPick ? "ring-2 ring-accent-beak/50" : "")}>
@@ -63,6 +68,7 @@ export function EventCard({
             fill
             sizes="(max-width: 640px) 100vw, 640px"
             className="object-cover"
+            onError={() => setImageFailed(true)}
           />
         </div>
       ) : (
@@ -101,7 +107,7 @@ export function EventCard({
         <div className="mt-2 flex items-center gap-2 flex-wrap">
           <Chip>{item.event.category}</Chip>
           {item.event.priceRange ? <Chip tone="muted">{item.event.priceRange}</Chip> : null}
-          <span className="text-caption text-ink-soft">match {pct}%</span>
+          <span className="text-caption font-semibold text-ink-strong">match {pct}%</span>
           <div className="h-1.5 flex-1 min-w-24 rounded-full bg-sky-100 overflow-hidden">
             <div
               className="h-full bg-sky-400 rounded-full"
@@ -150,7 +156,7 @@ export function EventCard({
         <button
           type="button"
           onClick={() => setCommentsOpen((o) => !o)}
-          className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-sky-500 hover:text-sky-600"
+          className="mt-3 inline-flex items-center gap-1 rounded-lg text-caption font-semibold text-ink-strong underline decoration-sky-300 underline-offset-2 hover:decoration-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
           aria-expanded={commentsOpen}
         >
           <MessageCircle className="h-3.5 w-3.5" aria-hidden />
@@ -167,9 +173,9 @@ export function EventCard({
               href={item.event.url}
               target="_blank"
               rel="noreferrer noopener"
-              className="text-sky-500 hover:text-sky-600 font-semibold"
+              className="text-ink-strong underline decoration-sky-300 underline-offset-2 hover:decoration-sky-500 font-semibold"
             >
-              Tickets & details
+              Tickets and details
             </a>
           </p>
         ) : null}

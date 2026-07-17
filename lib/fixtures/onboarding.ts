@@ -9,6 +9,8 @@ export const offerParseFixture: OfferParse = {
   startDate: "2026-06-08",
   endDate: "2026-08-14",
   city: "Seattle",
+  relocationStipend: 5000,
+  signingBonus: 10000,
   confidence: {
     employer: 0.98,
     role: 0.94,

@@ -133,6 +133,10 @@ export type OfferParse = {
   startDate: string | null;
   endDate: string | null;
   city: string | null;
+  // Section 13.9 - upfront-cash offer components (Person C's parser extracts these;
+  // null when absent). The deterministic finance model folds them in.
+  relocationStipend: number | null;
+  signingBonus: number | null;
   // Section 11.9 - per-field 0..1 confidence + list of low-confidence fields.
   confidence: Record<OfferField, number>;
   needsReview: OfferField[];
@@ -344,6 +348,14 @@ export type PostListingInput = {
   leaseType: "sublet" | "short_term" | "standard";
   photos: string[];
   safetyNotes?: string[];
+  // Round 3 (section 13.2) - comprehensive detail (all optional on the post form).
+  furnished?: boolean;
+  pros?: string[];
+  bedrooms?: number;
+  bathrooms?: number;
+  sqft?: number;
+  amenities?: string[];
+  utilitiesIncluded?: boolean;
 };
 
 export type ListingResponse = { listing: PerchCard };
@@ -470,3 +482,57 @@ export type CommuteScheduleInput = {
 };
 
 export type CommuteScheduleResponse = { day: ItineraryDay };
+
+// Round 3 (section 13.9) - Comprehensive listing detail.
+export type ListingDetail = {
+  id: string;
+  title: string;
+  address: string;
+  lat: number;
+  lng: number;
+  price: number;
+  leaseStart: string;
+  leaseEnd: string;
+  leaseType: "sublet" | "short_term" | "standard";
+  furnished: boolean | null;
+  pros: string[];
+  bedrooms: number | null;
+  bathrooms: number | null;
+  sqft: number | null;
+  amenities: string[];
+  utilitiesIncluded: boolean | null;
+  photos: string[];
+  status: ListingStatus;
+  host: { id: string; name: string; avatarUrl: string | null } | null;
+  reviewSummary: ReviewSummary;
+};
+
+// Round 3 (section 13.4 / 13.3) - Booking + roommate grouping.
+export type BookingStatus = "requested" | "approved" | "booked" | "declined" | "cancelled";
+
+export type Booking = {
+  id: string;
+  listingId: string;
+  booker: { id: string; name: string; avatarUrl: string | null };
+  roommates: { id: string; name: string; avatarUrl: string | null }[];
+  status: BookingStatus;
+  createdAt: string;
+  decidedAt: string | null;
+};
+
+export type BookRequestInput = { roommateIds?: string[] };
+export type BookingsResponse = { mine: Booking[]; incoming: Booking[] };
+export type RoommateInviteInput = { userId: string };
+
+// Round 3 (section 13.5) - Deterministic financial model.
+export type FinanceBreakdown = {
+  salary: number | null; // annual, gross
+  takeHome: number; // annual, after the deterministic tax model
+  monthlyTakeHome: number;
+  relocationStipend: number; // 0 if none
+  signingBonus: number; // upfront cash, 0 if none
+  upfrontCashNeeded: number; // deposit + first month + moving estimate
+  costOfLivingIndex: number; // 100 = national average
+  monthlyBudget: number; // COL-adjusted recommended rent ceiling
+  city: string;
+};

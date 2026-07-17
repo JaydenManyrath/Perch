@@ -1,4 +1,5 @@
 import type {
+  ListingDetail,
   ListingResponse,
   ListingStatus,
   PerchCard,
@@ -43,6 +44,24 @@ export type PerchListingRecord = {
   source_url: string | null;
   external_id: string | null;
   users?: { id: string; name: string; avatar_url: string | null; user_type: string | null } | null;
+};
+
+// Round 3 (section 13.2) - comprehensive listing detail columns.
+export const LISTING_DETAIL_SELECT = `
+  id,title,address,lat,lng,price,lease_start,lease_end,lease_type,source,photos,safety_flags,
+  created_by,created_at,status,expires_at,last_confirmed_at,sourced,source_name,source_url,external_id,
+  furnished,pros,bedrooms,bathrooms,sqft,amenities,utilities_included,
+  users:created_by(id,name,avatar_url,user_type)
+`;
+
+export type DetailListingRecord = PerchListingRecord & {
+  furnished: boolean | null;
+  pros: string[] | null;
+  bedrooms: number | null;
+  bathrooms: number | string | null;
+  sqft: number | null;
+  amenities: string[] | null;
+  utilities_included: boolean | null;
 };
 
 export type ReviewRow = { subject_id: string; rating: number };
@@ -96,7 +115,10 @@ export function parsePostListingInput(input: unknown): PostListingInput {
     throw new PerchInputError("listing body is required");
   }
   const body = input as Record<string, unknown>;
-  assertNoExtraKeys(body, ["title", "address", "lat", "lng", "price", "leaseStart", "leaseEnd", "leaseType", "photos", "safetyNotes"]);
+  assertNoExtraKeys(body, [
+    "title", "address", "lat", "lng", "price", "leaseStart", "leaseEnd", "leaseType", "photos", "safetyNotes",
+    "furnished", "pros", "bedrooms", "bathrooms", "sqft", "amenities", "utilitiesIncluded",
+  ]);
 
   const title = parseRequiredString(body, "title");
   const address = parseRequiredString(body, "address");
@@ -129,6 +151,8 @@ export function parsePostListingInput(input: unknown): PostListingInput {
     throw new PerchInputError("safetyNotes must be an array of strings");
   }
 
+  const detail = parseListingDetailFields(body);
+
   return {
     title,
     address,
@@ -140,6 +164,59 @@ export function parsePostListingInput(input: unknown): PostListingInput {
     leaseType: body.leaseType,
     photos: body.photos,
     safetyNotes: body.safetyNotes,
+    ...detail,
+  };
+}
+
+function parseStringArray(input: Record<string, unknown>, key: string): string[] | undefined {
+  if (input[key] === undefined) return undefined;
+  const value = input[key];
+  if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
+    throw new PerchInputError(`${key} must be an array of strings`);
+  }
+  return value.map((item) => (item as string).trim()).filter((item) => item.length > 0);
+}
+
+function parseOptionalBool(input: Record<string, unknown>, key: string): boolean | undefined {
+  if (input[key] === undefined) return undefined;
+  if (typeof input[key] !== "boolean") throw new PerchInputError(`${key} must be a boolean`);
+  return input[key] as boolean;
+}
+
+function parseOptionalNumber(
+  input: Record<string, unknown>,
+  key: string,
+  opts: { integer?: boolean; min?: number; max?: number } = {},
+): number | undefined {
+  if (input[key] === undefined) return undefined;
+  const value = input[key];
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new PerchInputError(`${key} must be a number`);
+  }
+  if (opts.integer && !Number.isInteger(value)) throw new PerchInputError(`${key} must be an integer`);
+  if (opts.min !== undefined && value < opts.min) throw new PerchInputError(`${key} must be >= ${opts.min}`);
+  if (opts.max !== undefined && value > opts.max) throw new PerchInputError(`${key} must be <= ${opts.max}`);
+  return value;
+}
+
+/** Parse the optional round-3 comprehensive detail fields on a listing post. */
+export function parseListingDetailFields(body: Record<string, unknown>): {
+  furnished?: boolean;
+  pros?: string[];
+  bedrooms?: number;
+  bathrooms?: number;
+  sqft?: number;
+  amenities?: string[];
+  utilitiesIncluded?: boolean;
+} {
+  return {
+    furnished: parseOptionalBool(body, "furnished"),
+    pros: parseStringArray(body, "pros"),
+    bedrooms: parseOptionalNumber(body, "bedrooms", { integer: true, min: 0, max: 20 }),
+    bathrooms: parseOptionalNumber(body, "bathrooms", { min: 0, max: 20 }),
+    sqft: parseOptionalNumber(body, "sqft", { integer: true, min: 1, max: 100_000 }),
+    amenities: parseStringArray(body, "amenities"),
+    utilitiesIncluded: parseOptionalBool(body, "utilitiesIncluded"),
   };
 }
 
@@ -168,6 +245,14 @@ export function listingInsertPayload(input: PostListingInput, callerId: string, 
     status: "available" as const,
     expires_at: freshnessExpiry(now),
     last_confirmed_at: null,
+    // Round 3 comprehensive detail (nullable / default-empty when omitted).
+    furnished: input.furnished ?? null,
+    pros: input.pros ?? [],
+    bedrooms: input.bedrooms ?? null,
+    bathrooms: input.bathrooms ?? null,
+    sqft: input.sqft ?? null,
+    amenities: input.amenities ?? [],
+    utilities_included: input.utilitiesIncluded ?? null,
   };
 }
 
@@ -240,4 +325,36 @@ export function buildDeckCards(rows: PerchListingRecord[], reviews: ReviewRow[],
   return rankDeckRows(rows.filter((row) => isCompleteFreshListing(row, now))).map((row) =>
     toPerchCard(row, reviews),
   );
+}
+
+/** Map a full listing row to the comprehensive ListingDetail (section 13.9). */
+export function toListingDetail(row: DetailListingRecord, reviews: ReviewRow[]): ListingDetail {
+  const host =
+    row.sourced || !row.users || row.users.user_type !== "subletter"
+      ? null
+      : { id: row.users.id, name: row.users.name, avatarUrl: row.users.avatar_url };
+  const bathrooms = row.bathrooms == null ? null : Number(row.bathrooms);
+
+  return {
+    id: row.id,
+    title: row.title,
+    address: row.address ?? "",
+    lat: row.lat ?? 0,
+    lng: row.lng ?? 0,
+    price: row.price,
+    leaseStart: row.lease_start ?? "",
+    leaseEnd: row.lease_end ?? "",
+    leaseType: row.lease_type ?? "sublet",
+    furnished: row.furnished ?? null,
+    pros: row.pros ?? [],
+    bedrooms: row.bedrooms ?? null,
+    bathrooms: Number.isFinite(bathrooms as number) ? bathrooms : null,
+    sqft: row.sqft ?? null,
+    amenities: row.amenities ?? [],
+    utilitiesIncluded: row.utilities_included ?? null,
+    photos: row.photos,
+    status: row.status,
+    host,
+    reviewSummary: summarizeReviews(reviews, row.id),
+  };
 }

@@ -1,22 +1,24 @@
 import type { ScoutListing, ScoutConstraints, ScoutResult } from "./types";
+import { annualTakeHome, recommendedMonthlyBudget } from "@/lib/finance/model";
 
 const usd = (n: number): string => `$${Math.round(n).toLocaleString("en-US")}`;
 
-const FLAT_WITHHOLDING = 0.25; // demo assumption
-const RENT_SHARE_OF_TAKEHOME = 0.3; // 30% rule
 const FLAG_TOLERANCE = 1.1; // within 10% over budget = flag, not fail
 
 /**
- * Deterministic affordable monthly rent (plan §6.1):
- *   monthlyTakeHome = (salary / 12) * (1 - 0.25)
- *   affordable      = min(monthlyBudget, 0.30 * monthlyTakeHome)
- * If there's no parsed salary, the stated monthlyBudget is used directly.
+ * Deterministic affordable monthly rent (contract section 13.5): the budget scout uses
+ * the real finance model - progressive-bracket take-home, never raw salary - and a
+ * cost-of-living-adjusted rent ceiling. When a salary is present:
+ *   monthlyTakeHome = annualTakeHome(salary) / 12   (federal brackets + FICA + state)
+ *   affordable      = min(monthlyBudget, recommendedMonthlyBudget(monthlyTakeHome, COL))
+ * With no parsed salary, the stated monthlyBudget is used directly.
  */
 export function affordableRent(constraints: ScoutConstraints): number {
   const { monthlyBudget, salary } = constraints;
   if (salary == null || salary <= 0) return monthlyBudget;
-  const monthlyTakeHome = (salary / 12) * (1 - FLAT_WITHHOLDING);
-  return Math.min(monthlyBudget, RENT_SHARE_OF_TAKEHOME * monthlyTakeHome);
+  const monthlyTakeHome = annualTakeHome(salary) / 12;
+  const colIndex = constraints.costOfLivingIndex ?? 100;
+  return Math.min(monthlyBudget, recommendedMonthlyBudget(monthlyTakeHome, colIndex));
 }
 
 /** Budget scout — pure arithmetic; the model never decides this verdict. */

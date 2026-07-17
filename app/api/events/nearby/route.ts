@@ -31,7 +31,14 @@ export async function GET(req: NextRequest) {
       console.warn("events upsert skipped:", dbErr);
     }
 
-    return NextResponse.json({ events, source }, { headers: g.headers });
+    // RB36 - upcoming only (contract 13.1): guard datetime >= now as defense in depth
+    // and sort soonest-first, regardless of what the source returned.
+    const nowMs = Date.now();
+    const upcoming = events
+      .filter((e) => Date.parse(e.datetime) >= nowMs)
+      .sort((a, b) => Date.parse(a.datetime) - Date.parse(b.datetime));
+
+    return NextResponse.json({ events: upcoming, source }, { headers: g.headers });
   } catch (err) {
     console.error("GET /api/events/nearby failed:", err);
     return NextResponse.json({ error: "events_failed" }, { status: 500, headers: g.headers });

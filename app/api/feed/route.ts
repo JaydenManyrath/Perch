@@ -22,9 +22,13 @@ export async function GET(req: NextRequest) {
       .eq("id", g.callerId)
       .single();
 
+    // RB36 - upcoming events only (contract 13.1): guard datetime >= now in-query,
+    // ordered soonest-first, even though Person C also filters at the Ticketmaster source.
     let q = supabase
       .from("events")
-      .select("id,title,category,lat,lng,datetime,source,venue,url,image_url,price_range");
+      .select("id,title,category,lat,lng,datetime,source,venue,url,image_url,price_range")
+      .gte("datetime", new Date().toISOString())
+      .order("datetime", { ascending: true });
     if (city) q = q.ilike("title", `%${city}%`);
     const { data: events } = await q.limit(200);
 

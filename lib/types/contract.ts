@@ -530,10 +530,12 @@ export type Booking = {
   id: string;
   listingId: string;
   booker: { id: string; name: string; avatarUrl: string | null };
+  pendingRoommates: { id: string; name: string; avatarUrl: string | null }[];
   roommates: { id: string; name: string; avatarUrl: string | null }[];
   status: BookingStatus;
   createdAt: string;
   decidedAt: string | null;
+  viewerRole?: "owner" | "booker" | "roommate" | "invitee" | "other";
 };
 
 export type BookRequestInput = { roommateIds?: string[] };

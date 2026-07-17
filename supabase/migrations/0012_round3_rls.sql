@@ -145,6 +145,9 @@ begin
 
   -- Invitee accepts: moves only itself from invites to confirmed roommates.
   if caller = any (old.roommate_invites) then
+    if old.status not in ('requested', 'approved') then
+      raise exception 'roommate invites can only be accepted on a live booking';
+    end if;
     if new.status is distinct from old.status then
       raise exception 'accepting a roommate invite does not change the booking status';
     end if;

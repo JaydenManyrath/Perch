@@ -11,6 +11,7 @@ import {
   requestBooking,
   confirmBooking,
   inviteRoommate,
+  acceptRoommateInvite,
   getFriends,
 } from "@/lib/data/source";
 import { ME_ID } from "@/lib/fixtures/users";
@@ -99,6 +100,17 @@ export function BookingBar({
     }
   }
 
+  async function onAcceptInvite() {
+    if (!booking) return;
+    setBusy(true);
+    try {
+      const b = await acceptRoommateInvite(booking.id);
+      if (b) setBooking(b);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const takenByOther = listing.status === "taken" && !booking;
 
   return (
@@ -144,6 +156,7 @@ export function BookingBar({
           </div>
           <RoommateGroup
             booking={booking}
+            canInvite={booking.viewerRole === "booker"}
             onOpenFriends={() => {
               void loadFriends();
               setShowFriends((v) => !v);
@@ -151,6 +164,7 @@ export function BookingBar({
             showFriends={showFriends}
             friends={friends}
             onPickFriend={onAddRoommate}
+            onAcceptInvite={onAcceptInvite}
             busy={busy}
           />
         </div>
@@ -163,13 +177,16 @@ export function BookingBar({
                 Host said yes - confirm to lock it in.
               </p>
             </div>
-            <Button onClick={onConfirm} disabled={busy} variant="accent">
-              <Check className="h-4 w-4" aria-hidden strokeWidth={2.5} />
-              Confirm booking
-            </Button>
+            {booking.viewerRole === "booker" ? (
+              <Button onClick={onConfirm} disabled={busy} variant="accent">
+                <Check className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+                Confirm booking
+              </Button>
+            ) : null}
           </div>
           <RoommateGroup
             booking={booking}
+            canInvite={booking.viewerRole === "booker"}
             onOpenFriends={() => {
               void loadFriends();
               setShowFriends((v) => !v);
@@ -177,6 +194,7 @@ export function BookingBar({
             showFriends={showFriends}
             friends={friends}
             onPickFriend={onAddRoommate}
+            onAcceptInvite={onAcceptInvite}
             busy={busy}
           />
         </div>
@@ -190,6 +208,7 @@ export function BookingBar({
           </div>
           <RoommateGroup
             booking={booking}
+            canInvite={false}
             onOpenFriends={() => {
               void loadFriends();
               setShowFriends((v) => !v);
@@ -197,6 +216,7 @@ export function BookingBar({
             showFriends={showFriends}
             friends={friends}
             onPickFriend={onAddRoommate}
+            onAcceptInvite={onAcceptInvite}
             busy={busy}
           />
         </div>
@@ -249,6 +269,8 @@ function RoommateGroup({
   showFriends,
   friends,
   onPickFriend,
+  onAcceptInvite,
+  canInvite,
   busy,
 }: {
   booking: Booking;
@@ -256,27 +278,50 @@ function RoommateGroup({
   showFriends: boolean;
   friends: Friend[];
   onPickFriend: (userId: string) => void;
+  onAcceptInvite: () => void;
+  canInvite: boolean;
   busy: boolean;
 }) {
+  const canAcceptInvite =
+    booking.viewerRole === "invitee" &&
+    (booking.status === "requested" || booking.status === "approved");
   const remainingFriends = friends.filter(
-    (f) => !booking.roommates.some((r) => r.id === f.user.id),
+    (f) =>
+      !booking.roommates.some((r) => r.id === f.user.id) &&
+      !booking.pendingRoommates.some((r) => r.id === f.user.id),
   );
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between gap-2">
         <p className="text-caption text-ink-strong font-semibold">
-          {booking.roommates.length > 0 ? "Roommates" : "Add a roommate"}
+          {booking.roommates.length > 0 || booking.pendingRoommates.length > 0
+            ? "Roommates"
+            : "Add a roommate"}
         </p>
-        <button
-          type="button"
-          onClick={onOpenFriends}
-          aria-expanded={showFriends}
-          className="inline-flex items-center gap-1 rounded-lg text-caption font-semibold text-ink-strong underline decoration-sky-300 underline-offset-2 hover:decoration-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-        >
-          <UserPlus className="h-3 w-3" aria-hidden />
-          {showFriends ? "Cancel" : "Add"}
-        </button>
+        {canInvite ? (
+          <button
+            type="button"
+            onClick={onOpenFriends}
+            aria-expanded={showFriends}
+            className="inline-flex items-center gap-1 rounded-lg text-caption font-semibold text-ink-strong underline decoration-sky-300 underline-offset-2 hover:decoration-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
+          >
+            <UserPlus className="h-3 w-3" aria-hidden />
+            {showFriends ? "Cancel" : "Add"}
+          </button>
+        ) : null}
       </div>
+
+      {canAcceptInvite ? (
+        <div className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-sky-200 bg-sky-50 p-2">
+          <p className="text-caption text-ink-strong font-semibold">
+            You have a pending roommate invite for this booking.
+          </p>
+          <Button size="sm" onClick={onAcceptInvite} disabled={busy}>
+            <Check className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+            Accept
+          </Button>
+        </div>
+      ) : null}
 
       {booking.roommates.length > 0 ? (
         <ul className="mt-2 flex flex-wrap gap-2">
@@ -295,7 +340,24 @@ function RoommateGroup({
         </ul>
       ) : null}
 
-      {showFriends ? (
+      {booking.pendingRoommates.length > 0 ? (
+        <ul className="mt-2 flex flex-wrap gap-2">
+          {booking.pendingRoommates.map((r) => (
+            <li
+              key={r.id}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white border border-sky-200 px-2 py-0.5 text-caption text-ink-strong font-semibold"
+            >
+              <Avatar className="h-5 w-5">
+                {r.avatarUrl ? <AvatarImage src={r.avatarUrl} alt="" /> : null}
+                <AvatarFallback>{r.name[0]}</AvatarFallback>
+              </Avatar>
+              {r.name} pending
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {showFriends && canInvite ? (
         <div className="mt-2 rounded-xl border border-sky-200 bg-sky-50 p-2">
           {remainingFriends.length === 0 ? (
             <p className="text-caption text-ink-soft">

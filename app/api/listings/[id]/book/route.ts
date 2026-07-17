@@ -77,6 +77,7 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     if (insertError) throw insertError;
 
     const booking = await toBooking(supabase, inserted as BookingRow);
+    booking.viewerRole = "booker";
     return NextResponse.json(booking, { status: 201, headers: g.headers });
   } catch (err) {
     if (err instanceof PerchInputError || err instanceof BookingInputError) {

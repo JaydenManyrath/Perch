@@ -74,13 +74,14 @@ async function usersByIds(db: SupabaseClient, ids: string[]): Promise<Map<string
 
 const unknownUser = (id: string): UserMini => ({ id, name: "Unknown", avatarUrl: null });
 
-/** Map a booking row to the frozen Booking shape (confirmed roommates only). */
+/** Map a booking row to the frozen Booking shape (pending and confirmed roommates stay separate). */
 export async function toBooking(db: SupabaseClient, row: BookingRow): Promise<Booking> {
-  const map = await usersByIds(db, [row.booker_id, ...row.roommate_ids]);
+  const map = await usersByIds(db, [row.booker_id, ...row.roommate_ids, ...row.roommate_invites]);
   return {
     id: row.id,
     listingId: row.listing_id,
     booker: map.get(row.booker_id) ?? unknownUser(row.booker_id),
+    pendingRoommates: row.roommate_invites.map((id) => map.get(id) ?? unknownUser(id)),
     roommates: row.roommate_ids.map((id) => map.get(id) ?? unknownUser(id)),
     status: row.status,
     createdAt: row.created_at,
@@ -90,12 +91,13 @@ export async function toBooking(db: SupabaseClient, row: BookingRow): Promise<Bo
 
 /** Batch mapping that avoids N+1 user lookups across many bookings. */
 export async function toBookings(db: SupabaseClient, rows: BookingRow[]): Promise<Booking[]> {
-  const ids = rows.flatMap((r) => [r.booker_id, ...r.roommate_ids]);
+  const ids = rows.flatMap((r) => [r.booker_id, ...r.roommate_ids, ...r.roommate_invites]);
   const map = await usersByIds(db, ids);
   return rows.map((row) => ({
     id: row.id,
     listingId: row.listing_id,
     booker: map.get(row.booker_id) ?? unknownUser(row.booker_id),
+    pendingRoommates: row.roommate_invites.map((id) => map.get(id) ?? unknownUser(id)),
     roommates: row.roommate_ids.map((id) => map.get(id) ?? unknownUser(id)),
     status: row.status,
     createdAt: row.created_at,
@@ -107,6 +109,14 @@ export const LIVE_HOLD_STATUSES: BookingStatus[] = ["requested", "approved", "bo
 
 export type BookingAction = "approve" | "decline" | "confirm" | "cancel";
 export type ActorRole = "owner" | "booker" | "roommate" | "invitee" | "other";
+
+export function bookingViewerRole(row: BookingRow, viewerId: string, ownerId: string | null): ActorRole {
+  if (viewerId === ownerId) return "owner";
+  if (viewerId === row.booker_id) return "booker";
+  if (row.roommate_ids.includes(viewerId)) return "roommate";
+  if (row.roommate_invites.includes(viewerId)) return "invitee";
+  return "other";
+}
 
 export type TransitionResult = {
   status: BookingStatus;

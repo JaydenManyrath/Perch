@@ -3,14 +3,18 @@ import {
   transitionBooking,
   parseBookRequest,
   parseRoommateInvite,
+  toBooking,
+  bookingViewerRole,
   BookingInputError,
   BookingForbiddenError,
   BookingConflictError,
   bookingErrorStatus,
+  type BookingRow,
 } from "@/lib/bookings";
 
 const U = "11111111-1111-5111-8111-111111111111";
 const V = "22222222-2222-5222-8222-222222222222";
+const W = "33333333-3333-5333-8333-333333333333";
 
 describe("transitionBooking - deterministic state machine", () => {
   it("owner approves a requested booking", () => {
@@ -89,6 +93,63 @@ describe("parseRoommateInvite", () => {
     expect(parseRoommateInvite({ userId: U })).toEqual({ userId: U });
     expect(() => parseRoommateInvite({ userId: "x" })).toThrow(BookingInputError);
     expect(() => parseRoommateInvite({})).toThrow(BookingInputError);
+  });
+});
+
+describe("toBooking", () => {
+  it("keeps pending roommate invites separate from confirmed roommates", async () => {
+    const db = {
+      from: () => ({
+        select: () => ({
+          in: () =>
+            Promise.resolve({
+              data: [
+                { id: U, name: "Booker", avatar_url: null },
+                { id: V, name: "Confirmed", avatar_url: "confirmed.png" },
+                { id: W, name: "Pending", avatar_url: "pending.png" },
+              ],
+              error: null,
+            }),
+        }),
+      }),
+    };
+    const row: BookingRow = {
+      id: "book-1",
+      listing_id: "listing-1",
+      booker_id: U,
+      roommate_ids: [V],
+      roommate_invites: [W],
+      status: "requested",
+      created_at: "2026-07-17T00:00:00.000Z",
+      decided_at: null,
+    };
+
+    await expect(toBooking(db as never, row)).resolves.toMatchObject({
+      booker: { id: U, name: "Booker" },
+      roommates: [{ id: V, name: "Confirmed", avatarUrl: "confirmed.png" }],
+      pendingRoommates: [{ id: W, name: "Pending", avatarUrl: "pending.png" }],
+    });
+  });
+});
+
+describe("bookingViewerRole", () => {
+  const row: BookingRow = {
+    id: "book-1",
+    listing_id: "listing-1",
+    booker_id: U,
+    roommate_ids: [V],
+    roommate_invites: [W],
+    status: "requested",
+    created_at: "2026-07-17T00:00:00.000Z",
+    decided_at: null,
+  };
+
+  it("classifies owner, booker, roommate, invitee, and other viewers", () => {
+    expect(bookingViewerRole(row, "owner", "owner")).toBe("owner");
+    expect(bookingViewerRole(row, U, "owner")).toBe("booker");
+    expect(bookingViewerRole(row, V, "owner")).toBe("roommate");
+    expect(bookingViewerRole(row, W, "owner")).toBe("invitee");
+    expect(bookingViewerRole(row, "55555555-5555-5555-8555-555555555555", "owner")).toBe("other");
   });
 });
 

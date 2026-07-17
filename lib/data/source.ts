@@ -761,12 +761,25 @@ export async function getBookings(userId: string): Promise<BookingsResponse> {
   const myListingIds = new Set(
     fx.listingsFixture.filter((l) => l.created_by === userId).map((l) => l.id),
   );
-  const mine = all.filter(
-    (b) =>
-      b.booker.id === userId ||
-      b.roommates.some((r) => r.id === userId),
-  );
-  const incoming = all.filter((b) => myListingIds.has(b.listingId));
+  const mine = all
+    .filter(
+      (b) =>
+        b.booker.id === userId ||
+        b.pendingRoommates.some((r) => r.id === userId) ||
+        b.roommates.some((r) => r.id === userId),
+    )
+    .map((b) => ({
+      ...b,
+      viewerRole:
+        b.booker.id === userId
+          ? ("booker" as const)
+          : b.roommates.some((r) => r.id === userId)
+            ? ("roommate" as const)
+            : b.pendingRoommates.some((r) => r.id === userId)
+              ? ("invitee" as const)
+              : ("other" as const),
+    }));
+  const incoming = all.filter((b) => myListingIds.has(b.listingId)).map((b) => ({ ...b, viewerRole: "owner" as const }));
   return { mine, incoming };
 }
 
@@ -783,7 +796,9 @@ export async function requestBooking(
     if (r) return r;
   }
   const me = fx.meFixture;
-  const roommates = (input.roommateIds ?? [])
+  const acceptedFriendIds = new Set(fx.friendsFixture.filter((f) => f.status === "accepted").map((f) => f.user.id));
+  const pendingRoommates = (input.roommateIds ?? [])
+    .filter((id) => id !== me.id && acceptedFriendIds.has(id))
     .map((id) => {
       const u = [me, ...fx.otherUsersFixture].find((x) => x.id === id);
       return u ? { id: u.id, name: u.name, avatarUrl: u.avatar_url } : null;
@@ -793,10 +808,12 @@ export async function requestBooking(
     id: `book-${me.id}-${listingId}-${Date.now()}`,
     listingId,
     booker: { id: me.id, name: me.name, avatarUrl: me.avatar_url },
-    roommates,
+    pendingRoommates,
+    roommates: [],
     status: "requested",
     createdAt: new Date().toISOString(),
     decidedAt: null,
+    viewerRole: "booker",
   };
   fx.bookingsFixture.unshift(row);
   return row;
@@ -864,10 +881,33 @@ export async function inviteRoommate(
   }
   const b = fx.bookingsFixture.find((x) => x.id === bookingId);
   if (!b) return null;
+  if (b.status !== "requested" && b.status !== "approved") return b;
   if (b.roommates.some((r) => r.id === userId)) return b;
+  if (b.pendingRoommates.some((r) => r.id === userId)) return b;
+  if (!fx.friendsFixture.some((f) => f.status === "accepted" && f.user.id === userId)) return b;
   const u = fx.otherUsersFixture.find((x) => x.id === userId);
   if (!u) return b;
-  b.roommates.push({ id: u.id, name: u.name, avatarUrl: u.avatar_url });
+  b.pendingRoommates.push({ id: u.id, name: u.name, avatarUrl: u.avatar_url });
+  return b;
+}
+
+export async function acceptRoommateInvite(bookingId: string): Promise<Booking | null> {
+  if (MODE === "live") {
+    const r = await safeFetchJson<Booking>(`/api/bookings/${bookingId}/roommates/accept`, {
+      method: "POST",
+    });
+    if (r) return r;
+  }
+  const b = fx.bookingsFixture.find((x) => x.id === bookingId);
+  if (!b) return null;
+  if (b.status !== "requested" && b.status !== "approved") return b;
+  const pending = b.pendingRoommates.find((r) => r.id === fx.meFixture.id);
+  if (!pending) return b;
+  b.pendingRoommates = b.pendingRoommates.filter((r) => r.id !== fx.meFixture.id);
+  if (!b.roommates.some((r) => r.id === pending.id)) {
+    b.roommates.push(pending);
+  }
+  b.viewerRole = "roommate";
   return b;
 }
 

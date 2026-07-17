@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/Sheet";
 import { Chip } from "@/components/ui/Chip";
-import { formatEventTime } from "@/lib/utils";
 import { MapPin, ArrowRight, Users, Check, Sparkles } from "lucide-react";
 import type { EventRow, FeedItem } from "@/lib/types/contract";
 import { getFeed } from "@/lib/data/source";
+import { eventAttendanceLabel, eventVenueLine } from "./marker-sheet-content";
 
 /**
  * EventPreviewSheet (RA7 + RA38) - opens when an event pin is tapped on the map.
@@ -53,10 +53,7 @@ export function EventPreviewSheet({
               <SheetTitle>{event.title}</SheetTitle>
               <SheetDescription className="flex items-center gap-1">
                 <MapPin className="h-3 w-3" aria-hidden />
-                <span>
-                  {event.venue ? `${event.venue} - ` : ""}
-                  {formatEventTime(event.datetime)}
-                </span>
+                <span>{eventVenueLine(event)}</span>
               </SheetDescription>
             </SheetHeader>
 
@@ -84,9 +81,11 @@ export function EventPreviewSheet({
               {typeof feedItem?.internsGoing === "number" && feedItem.internsGoing > 0 ? (
                 <Chip tone="muted">
                   <Users className="h-3 w-3" aria-hidden />
-                  {feedItem.internsGoing} intern{feedItem.internsGoing === 1 ? "" : "s"} going
+                  {eventAttendanceLabel(feedItem.internsGoing)}
                 </Chip>
-              ) : null}
+              ) : (
+                <Chip tone="muted">{eventAttendanceLabel(null)}</Chip>
+              )}
               {feedItem?.viewerGoing ? (
                 <Chip tone="accent">
                   <Check className="h-3 w-3" aria-hidden strokeWidth={2.5} />

@@ -13,10 +13,16 @@ import {
 } from "@/components/ui/Sheet";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import type { ListingRow, ListingDetail } from "@/lib/types/contract";
 import { getListingDetail, conversationIdFor } from "@/lib/data/source";
 import { ME_ID } from "@/lib/fixtures/users";
+import {
+  listingDetailHref,
+  listingFurnishedLabel,
+  listingPros,
+} from "./marker-sheet-content";
 
 /**
  * ListingInfoSheet (RA38) - opens when a listing marker is tapped.
@@ -63,11 +69,16 @@ export function ListingInfoSheet({
         {listing ? (
           <>
             <SheetHeader>
-              <SheetTitle>{listing.title}</SheetTitle>
-              <SheetDescription className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" aria-hidden />
-                {listing.address}
-              </SheetDescription>
+              <div className="flex items-start justify-between gap-3 pr-8">
+                <div className="min-w-0">
+                  <SheetTitle>{listing.title}</SheetTitle>
+                  <SheetDescription className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" aria-hidden />
+                    {listing.address}
+                  </SheetDescription>
+                </div>
+                <StatusBadge status={listing.status ?? "available"} />
+              </div>
             </SheetHeader>
 
             {listing.photos[0] ? (
@@ -116,11 +127,9 @@ export function ListingInfoSheet({
                         {detail.sqft} sqft
                       </Chip>
                     ) : null}
-                    {detail.furnished === true ? (
-                      <Chip tone="accent">Furnished</Chip>
-                    ) : detail.furnished === false ? (
-                      <Chip tone="muted">Unfurnished</Chip>
-                    ) : null}
+                    <Chip tone={detail.furnished === true ? "accent" : "muted"}>
+                      {listingFurnishedLabel(detail)}
+                    </Chip>
                     {detail.utilitiesIncluded ? (
                       <Chip tone="accent">Utilities included</Chip>
                     ) : null}
@@ -155,6 +164,23 @@ export function ListingInfoSheet({
               </>
             ) : null}
 
+            {!loading && (
+              <section className="mt-3 rounded-2xl border border-sky-200 bg-sky-50 p-3">
+                <h4 className="text-caption font-semibold text-ink-soft">Pros</h4>
+                {listingPros(detail).length > 0 ? (
+                  <ul className="mt-1 flex flex-col gap-1">
+                    {listingPros(detail).map((pro) => (
+                      <li key={pro} className="text-body text-ink-strong">
+                        {pro}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-1 text-caption text-ink-soft">Pros unavailable</p>
+                )}
+              </section>
+            )}
+
             <p className="mt-3 text-caption text-ink-soft">
               Lease {formatDate(listing.lease_start)} - {formatDate(listing.lease_end)}
               {" · "}
@@ -174,7 +200,7 @@ export function ListingInfoSheet({
                 {isCommuteAnchor ? "Commute anchor" : "Set as commute anchor"}
               </Button>
               <Link
-                href="/discovery"
+                href={listingDetailHref(listing.id)}
                 className="inline-flex items-center gap-1 rounded-2xl bg-sky-400 text-white text-caption font-semibold px-3 py-2 shadow-card hover:bg-sky-500"
               >
                 Open full details <ArrowRight className="h-3.5 w-3.5" aria-hidden />

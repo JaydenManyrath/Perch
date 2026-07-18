@@ -32,9 +32,28 @@ export function useRealtimeMessages(conversationId: string, meId: string) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    getConversationMessages(conversationId)
+    async function loadInitialMessages() {
+      if (isLiveSupabase()) {
+        const supabase = getSupabaseBrowser();
+        if (supabase) {
+          const { data, error } = await supabase
+            .from("messages")
+            .select("*")
+            .eq("conversation_id", conversationId)
+            .order("created_at", { ascending: true });
+          if (!error && data) return data as MessageRow[];
+        }
+      }
+      return getConversationMessages(conversationId);
+    }
+
+    loadInitialMessages()
       .then((rows) => {
-        if (!cancelled) setMessages(rows);
+        if (!cancelled) {
+          // The subscription starts independently. Reconcile rather than
+          // replace so an INSERT received during this read is never lost.
+          setMessages((current) => rows.reduce(reconcile, current));
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -93,14 +112,22 @@ export function useRealtimeMessages(conversationId: string, meId: string) {
         if (isLiveSupabase()) {
           const supa = getSupabaseBrowser();
           if (supa) {
-            const { error } = await supa.from("messages").insert({
-              conversation_id: conversationId,
-              sender_id: meId,
-              recipient_id: input.recipientId,
-              body,
-            });
+            // Select the inserted canonical row as a safety net. The sender is
+            // normally subscribed to their own INSERT, but this makes a
+            // delayed Realtime delivery harmless and lets reconcile dedupe its
+            // eventual echo by id.
+            const { data, error } = await supa
+              .from("messages")
+              .insert({
+                conversation_id: conversationId,
+                sender_id: meId,
+                recipient_id: input.recipientId,
+                body,
+              })
+              .select()
+              .single();
             if (error) throw error;
-            // The Realtime echo will reconcile the pending row.
+            if (data) setMessages((prev) => reconcile(prev, data as MessageRow));
             pendingBodies.current.delete(tempId);
             return;
           }

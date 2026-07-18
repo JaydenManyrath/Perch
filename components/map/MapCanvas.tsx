@@ -73,6 +73,7 @@ export function MapCanvas({
   const clickModeRef = useRef(clickMode);
   const onMapClickRef = useRef(onMapClick);
   const [ready, setReady] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     clickModeRef.current = clickMode;
@@ -90,8 +91,12 @@ export function MapCanvas({
   useEffect(() => {
     if (!hasMapbox() || !containerRef.current) return;
     let cancelled = false;
+    const loadTimeout = window.setTimeout(() => {
+      if (!cancelled) setLoadFailed(true);
+    }, 8_000);
 
     (async () => {
+      try {
       const mbgl = (await import("mapbox-gl")).default;
       if (cancelled) return;
 
@@ -114,6 +119,7 @@ export function MapCanvas({
 
       map.on("load", () => {
         if (cancelled) return;
+        window.clearTimeout(loadTimeout);
         applyBabyBlueTheme(map as unknown as MapLike);
         setReady(true);
       });
@@ -122,10 +128,15 @@ export function MapCanvas({
         if (clickModeRef.current === "none" || !onMapClickRef.current) return;
         onMapClickRef.current({ lat: e.lngLat.lat, lng: e.lngLat.lng });
       });
+      } catch {
+        window.clearTimeout(loadTimeout);
+        if (!cancelled) setLoadFailed(true);
+      }
     })();
 
     return () => {
       cancelled = true;
+      window.clearTimeout(loadTimeout);
       const m = mapRef.current as { remove?: () => void } | null;
       m?.remove?.();
       mapRef.current = null;
@@ -312,13 +323,17 @@ export function MapCanvas({
     onPoiClick,
   ]);
 
-  if (!hasMapbox()) {
+  if (!hasMapbox() || loadFailed) {
     return (
       <div className="h-full w-full rounded-2xl bg-sky-100 border border-sky-200 flex items-center justify-center p-6 text-center">
         <div>
-          <p className="text-body text-ink-strong font-semibold">Map needs a Mapbox token</p>
+          <p className="text-body text-ink-strong font-semibold">
+            {loadFailed ? "Mapbox could not load" : "Map needs a Mapbox token"}
+          </p>
           <p className="text-caption text-ink-soft mt-1">
-            Set <code>NEXT_PUBLIC_MAPBOX_TOKEN</code> in <code>.env.local</code>.
+            {loadFailed
+              ? "Check the public token or network connection, then try again."
+              : <>Set <code>NEXT_PUBLIC_MAPBOX_TOKEN</code> in <code>.env.local</code>.</>}
           </p>
         </div>
       </div>

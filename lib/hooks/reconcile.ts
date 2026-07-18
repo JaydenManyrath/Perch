@@ -55,7 +55,24 @@ export function reconcile(existing: UIMessage[], echo: MessageRow): UIMessage[] 
   }
 
   // Rule 3: fresh message from the peer (or a resend we didn't optimistically add).
-  return [...existing, echo];
+  return orderMessages([...existing, echo]);
+}
+
+/**
+ * Keep canonical messages in their database order even when the initial read
+ * and a Realtime INSERT overlap. `id` makes equal timestamps deterministic.
+ * Pending rows keep their optimistic placement until their canonical echo
+ * arrives, avoiding a jarring re-order while a send is in flight.
+ */
+function orderMessages(messages: UIMessage[]): UIMessage[] {
+  // Do not jump a pending/failed bubble around while the user is reading it.
+  // Once all rows are canonical, order by the server fields deterministically.
+  if (messages.some((message) => message.pending || message.failed)) return messages;
+  return messages
+    .sort(
+      (a, b) =>
+        a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id),
+    );
 }
 
 /** Add an optimistic pending row for a locally-sent message. */

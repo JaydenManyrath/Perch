@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navItems, isActive } from "./nav-items";
 import { cn } from "@/lib/utils";
+import { useCurrentUser } from "@/lib/auth/session";
 
 /**
  * BottomNav - mobile bottom tab bar (hidden on md+). Five destinations.
@@ -11,6 +12,8 @@ import { cn } from "@/lib/utils";
  */
 export function BottomNav() {
   const pathname = usePathname();
+  const { currentUser } = useCurrentUser();
+  const items = navItems(currentUser?.id);
   return (
     <nav
       aria-label="Primary"
@@ -18,7 +21,7 @@ export function BottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="grid grid-cols-5 max-w-md mx-auto">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const active = isActive(item, pathname);
           const Icon = item.icon;
           return (

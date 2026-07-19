@@ -14,8 +14,14 @@ if (!process.env.RLS_TEST_DATABASE_URL) {
   process.exit(1);
 }
 
-const res = spawnSync("npx", ["vitest", "run", "tests/rls.test.ts"], {
-  stdio: "inherit",
-  env: { ...process.env, RUN_RLS_TESTS: "1" },
-});
+// Both gated suites self-bootstrap the same database, so run them sequentially
+// (--no-file-parallelism) to avoid two workers racing to apply the migrations.
+const res = spawnSync(
+  "npx",
+  ["vitest", "run", "--no-file-parallelism", "tests/rls.test.ts", "tests/storage-buckets.test.ts"],
+  {
+    stdio: "inherit",
+    env: { ...process.env, RUN_RLS_TESTS: "1" },
+  },
+);
 process.exit(res.status ?? 1);

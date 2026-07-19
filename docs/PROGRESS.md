@@ -135,13 +135,25 @@ round4-person-a, round4-person-b (each restarted from main).
 - [todo] RA47 Vercel deploy: repo connection + per-branch preview URLs; smoke the deployed flow
 
 ### Hosted DB / server / secrets (person-b)
-- [todo] RB41 supabase link + push all 12 migrations to the hosted project (reproducible, idempotent) + verify schema/buckets; runbook
-- [todo] RB42 Seed the hosted project idempotently (demo auth users incl. the perch-demo-<email> password seam) + a seed:live guardrail
-- [todo] RB43 Server secrets + env (service-role/OpenAI/Ticketmaster/Composio server-only); .env.example current; client-bundle secret grep clean
-- [todo] RB44 Live RLS verification on the real DB: a second logged-in user is fully isolated (DMs/bookings/swipes/reviews/friendships); owner-only writes hold
-- [todo] RB45 Server routes live: getCallerId() resolves auth.uid() from cookies across the guarded API; rate limiting intact; admin writes gated
-- [todo] RB46 Storage buckets + access policies on the hosted project backing A's uploads
-- [todo] RB47 Kill-switch + fallback verification live (LLM_DISABLED/COMPOSIO_DISABLED deterministic paths; rate-limit envs applied)
+
+Mode note: no hosted Supabase credentials were provided, so Person B ran in LOCAL
+mode - a throwaway Postgres on :54322 - to prove the migrate/seed/RLS/storage path
+end to end. The same scripts run unchanged against a hosted project once its keys
+are in `.env.local`; the hosted push is a one-command step (`npm run db:push:live`
+then `npm run seed:live`). Full steps: `docs/RUNBOOK-LIVE-BACKEND.md`.
+
+- [verified 2026-07-17] RB41 `scripts/db-push.ts` (`db:push` / `db:push:live`) applies all 12 migrations in order over `SUPABASE_DB_URL`, tracked in `perch_meta.applied_migrations` (re-run is a no-op); verifies 15 tables / 52 functions / 10 triggers, forced RLS on every public table, and the three storage buckets. `db:push:live` refuses a non-hosted URL. Verified against fresh local Postgres (apply -> 12 applied; re-run -> 0 applied).
+- [verified 2026-07-17] RB42 Seed is idempotent. `scripts/seed.ts` (`seed:live`) is the hosted seeder (GoTrue users with the `perch-demo-<email>` password seam, service-role upserts) with a `SEED_REQUIRE_HOSTED` guardrail. `scripts/seed-direct.ts` (`seed:local`) is the LOCAL equivalent over `pg` (deterministic ids, no GoTrue passwords). Verified: re-running seed:local leaves identical row counts.
+- [verified 2026-07-17] RB43 `.env.example` current incl. server-only `SUPABASE_DB_URL` / `SUPABASE_ACCESS_TOKEN`; no `NEXT_PUBLIC_` secret in source; production build clean and `.next/static` secret grep clean.
+- [verified 2026-07-17] RB44 Live RLS on a real DB: 28 adversarial cases (`tests/rls.test.ts`) + a human-readable two-user isolation demo (`scripts/rls-acceptance.ts`, `rls:acceptance`) - a stranger reads zero of another user's DMs/bookings, cannot inject a message, and anon reads zero users. All pass on local Postgres; the same suite points at `SUPABASE_DB_URL` for the hosted run.
+- [verified 2026-07-17] RB45 `getCallerId()` resolves `auth.uid()` from the request cookies (session-only, never the body). `tests/guard.test.ts`: guard() 401s an unauthenticated/errored request, returns the caller id + rate headers when authenticated, and 429s once the per-caller window is exhausted.
+- [verified 2026-07-17] RB46 Storage buckets + policies (migration 0005). `tests/storage-buckets.test.ts`: the three buckets exist with the right public flags, the four named object policies are declared, and the `{uid}/` prefix rule gates offer-letter/takeout writes and reads under enforced RLS.
+- [verified 2026-07-17] RB47 Kill switches deterministic by default. `tests/kill-switches.test.ts`: `isLlmEnabled()`/`isComposioEnabled()` are false unless a key is present and the switch is off; the fixture taste fallback loads with no key (no crash). Rate-limit envs covered by `tests/ratelimit.test.ts`.
+
+Remaining for the hosted project (needs the owner's Supabase keys in `.env.local`):
+run `npm run db:push:live` then `npm run seed:live`, hand Person A the URL + anon key,
+then `RUN_RLS_TESTS=1 RLS_TEST_DATABASE_URL="$SUPABASE_DB_URL" npm run rls:test` and the
+`tests/auth-live.test.ts` login smoke. See the runbook.
 
 ## Log
 
@@ -150,6 +162,7 @@ round4-person-a, round4-person-b (each restarted from main).
 - 2026-07-16: Round 2 batch 2 planned.
 - 2026-07-16: Round 2 fully shipped and merged to main. Implementation docs removed; keeping FOUNDATION-CONTRACT.md, PROGRESS.md, SECRETS.md, README.md, CLAUDE.md.
 - 2026-07-16: Round 3 planned (upcoming events + images, comprehensive sublet details + pros + furnished, roommate grouping, booking flow, real finance model, fuller checklist, onboarding-percentage removal, richer map info); split three ways on branches person-a/person-b/person-c.
+- 2026-07-17: Round 4 Person B (RB41-RB47) built on branch round4-person-b, verified in LOCAL mode (throwaway Postgres): idempotent migrate (db:push) + seed (seed:local/seed:live guardrail), 28 RLS + 5 storage-policy tests green on real Postgres, guard 401/429 + kill-switch tests green, build clean with no client-bundle secret leak. Runbook added (docs/RUNBOOK-LIVE-BACKEND.md). Hosted push pending the owner's Supabase keys.
 - 2026-07-16: Round 3 UI (person-a, RA31-RA38) shipped on branch person-a. Fixture-first: booking state machine, roommate grouping, finance breakdown, and richer marker sheets all drivable end-to-end without waiting on B/C. Extended lib/types/contract.ts with the frozen R3 shapes (ListingDetail, Booking, FinanceBreakdown, ChecklistCategory) and lib/data/source.ts with the matching getters so the live-swap stays invisible.
 - 2026-07-17: Round 3 person-b shipped (RB31-RB36): migrations 0011/0012 (listing detail columns, bookings + roommate grouping, checklist category, finance inputs, cost_of_living), deterministic finance model + GET /api/finance, booking state machine + API, comprehensive GET /api/listings/{id}, upcoming-only feed/events guard, round-3 seed. RLS adversarial cases for bookings/roommates/cost_of_living pass against Postgres (28 RLS tests green); full suite 300 passing. Decisions: roommate invites require an accepted friend (enforced in code + a DB trigger) and the invitee accepts to become a confirmed roommate; the finance take-home uses documented 2025 single-filer brackets + FICA + a flat 5% state estimate; a cost_of_living table is B-owned (Person C may back a richer lookup with it); optional users.offer_salary/relocation_stipend/signing_bonus persist the offer for /api/finance.
 - 2026-07-17: RC34 closed as a documentation-only no-build decision. Verification: Person A's RA38 sheets are present for listings, events, comments, and stickers, life-map places already show kind plus nearest-listing minutes, Person B's marker payload work is recorded as done, and neither the Person A nor Person B Round 3 plan asks for external Mapbox place details. Existing payloads and routes satisfy the accepted map-sheet behavior, so no API route, key, provider, or speculative abstraction was added.

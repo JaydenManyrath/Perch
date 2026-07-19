@@ -19,7 +19,8 @@ Docs style: plain ASCII only (no emojis, no em-dashes).
   - Data and APIs: migrations 0011/0012, booking and roommate state machines with RLS, cost-of-living and persisted offer inputs, comprehensive listing and finance routes, upcoming-only event/feed guards, and canonical affordability in negotiation.
   - Integrations and parser: upcoming Ticketmaster events with usable images, relocation stipend/signing bonus extraction with confidence and review behavior, canonical cost-of-living lookup with deterministic fallback, and RC34 closed as no external place-details integration required.
 - Round 4: IN PROGRESS (live backend: Supabase provisioning + go-live). No new product features - the app moves from fixture-first to a real hosted Supabase project: SSR auth sessions, RLS verified on the real DB, live Realtime + Storage, and a Vercel deploy. Two-way split A/B on branches `round4-person-a` / `round4-person-b`; plans in `docs/IMPLEMENTATION-PERSON-{A,B}-ROUND4.md`.
-  - Person B (hosted DB / server / secrets, RB41-RB47) landed on `round4-person-b`: a CLI-free idempotent migration applier (`npm run db:push` / `db:push:live`) tracked in `perch_meta.applied_migrations`; an idempotent seed (`seed:live` for the hosted project incl. the `perch-demo-<email>` login seam, `seed:local` for a throwaway Postgres); live RLS proof (28 adversarial cases + a two-user isolation demo) and storage-bucket policy checks against a real Postgres; a session-only `guard()` (401/429) and default-deterministic kill switches; a clean client-bundle secret grep. Reproduce or take it to a hosted project with [RUNBOOK-LIVE-BACKEND.md](docs/RUNBOOK-LIVE-BACKEND.md). Verified in LOCAL mode; the hosted push awaits the project's keys.
+  - Person A (client / auth session / deploy, RA41-RA47) on `round4-person-a`: SSR session refresh in `middleware.ts` + login / sign-out / protected routes, the fixture-to-live data-source flip with graceful fallback, live Realtime DMs and Mapbox verification, and shared Storage image uploads.
+  - Person B (hosted DB / server / secrets, RB41-RB47) on `round4-person-b`: a CLI-free idempotent migration applier (`npm run db:push` / `db:push:live`) tracked in `perch_meta.applied_migrations`; an idempotent seed (`seed:live` for the hosted project incl. the `perch-demo-<email>` login seam, `seed:local` for a throwaway Postgres); live RLS proof (28 adversarial cases + a two-user isolation demo) and storage-bucket policy checks against a real Postgres; a session-only `guard()` (401/429) and default-deterministic kill switches; a clean client-bundle secret grep. See [RUNBOOK-LIVE-BACKEND.md](docs/RUNBOOK-LIVE-BACKEND.md).
 
 Seams are documented in [FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md): sections 11 (round-2 batch 1), 12 (round-2 batch 2), 13 (round 3), and 14 (round 4 - live backend). The `lib/types/contract.ts` file mirrors those shapes verbatim.
 
@@ -52,6 +53,14 @@ Next.js + TypeScript, Tailwind + shadcn/ui, Framer Motion, Supabase (DB / Auth /
 ## Data source
 
 `lib/data/source.ts` reads `NEXT_PUBLIC_DATA_SOURCE=fixture|live` (default `fixture`). When `live` is set but a route errors or a key is missing, it falls back to the fixture rather than crashing. That means the whole app runs cold with zero live keys, and you flip surfaces to `live` one at a time as Supabase + the API routes come online.
+
+## Round 4 hosted deployment status
+
+No Round 4 Vercel preview has been created or smoke-tested as of 2026-07-18. The local Vercel CLI is authenticated, but the active `seo23` scope has no Vercel project and this checkout is not linked. Create or link the Perch project before deploying the branch preview.
+
+Hosted smoke testing is also intentionally pending Person B's handoff: a migrated and seeded Supabase project, the public project URL and anon key, Preview server environment values set by Person B, hosted Storage buckets and policies, and live RLS and kill-switch evidence. The service-role key must not be provided to or handled by the browser/deploy owner.
+
+Once those dependencies are available, deploy the `round4-person-a` branch as a Vercel Preview with only the public values (`NEXT_PUBLIC_DATA_SOURCE=live`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_MAPBOX_TOKEN`). Person B sets server-only values directly in Vercel. Exercise the resulting preview URL before reporting success: seeded-user login, protected navigation, sign-out, feed, map tiles, booking, two-user Realtime DM reconciliation, listing-photo and avatar Storage round trips, guarded-route caller identity, RLS isolation evidence from Person B, and the deterministic fallback paths with optional integrations unavailable.
 
 ## Start here
 

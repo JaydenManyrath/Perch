@@ -16,7 +16,7 @@ import { Chip } from "@/components/ui/Chip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import type { ListingRow, ListingDetail } from "@/lib/types/contract";
 import { getListingDetail, conversationIdFor } from "@/lib/data/source";
-import { ME_ID } from "@/lib/fixtures/users";
+import { useCurrentUser } from "@/lib/auth/session";
 
 /**
  * ListingInfoSheet (RA38) - opens when a listing marker is tapped.
@@ -203,8 +203,9 @@ export function ListingInfoSheet({
 }
 
 function MessageHostLink({ hostId }: { hostId: string }) {
-  if (hostId === ME_ID) return null;
-  const cid = conversationIdFor(ME_ID, hostId);
+  const { currentUser } = useCurrentUser();
+  if (!currentUser || hostId === currentUser.id) return null;
+  const cid = conversationIdFor(currentUser.id, hostId);
   return (
     <Link
       href={`/dms/${cid}`}

@@ -8,8 +8,8 @@ import { FriendActionButton } from "@/components/friends/FriendActionButton";
 import { MessageActionButton } from "@/components/dms/MessageActionButton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
-import { getUserById, getMe, getChecklist, getPublicProfile } from "@/lib/data/source";
-import { ME_ID } from "@/lib/fixtures/users";
+import { getUserById, getMe, getChecklist, getPublicProfile } from "@/lib/data/server-source";
+import { getInitialSession } from "@/lib/auth/server-session";
 
 /**
  * /profile/[id] - RA6 tappable profiles.
@@ -17,10 +17,13 @@ import { ME_ID } from "@/lib/fixtures/users";
  * For subletters: the SubletterProfile view (listings + reviews + summary).
  */
 export default async function ProfilePage({ params }: { params: { id: string } }) {
-  const user = params.id === "me" ? await getMe() : await getUserById(params.id);
+  const session = await getInitialSession();
+  const viewerId = session.currentUser?.id ?? null;
+  const user =
+    params.id === "me" || params.id === viewerId ? await getMe() : await getUserById(params.id);
   if (!user) return notFound();
 
-  const isMe = user.id === ME_ID;
+  const isMe = user.id === viewerId;
 
   // Subletter view (listings + reviews + summary) with Message host at the top.
   if (user.user_type === "subletter") {

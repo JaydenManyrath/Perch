@@ -1,4 +1,4 @@
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { BandedBadge } from "@/components/ui/BandedBadge";
 import { Chip } from "@/components/ui/Chip";
 import type { UserRow } from "@/lib/types/contract";
@@ -10,10 +10,7 @@ import { formatMonthDay } from "@/lib/utils";
 export function ProfileHeader({ user }: { user: UserRow }) {
   return (
     <header className="flex flex-col sm:flex-row items-start gap-4 sm:items-center">
-      <Avatar className="h-20 w-20 sm:h-24 sm:w-24 shrink-0">
-        {user.avatar_url ? <AvatarImage src={user.avatar_url} alt="" /> : null}
-        <AvatarFallback className="text-h1">{user.name[0]}</AvatarFallback>
-      </Avatar>
+      <ProfileAvatar userId={user.id} name={user.name} initialUrl={user.avatar_url} />
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-h1 text-ink-strong">{user.name}</h1>

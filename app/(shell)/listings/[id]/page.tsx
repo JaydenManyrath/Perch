@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Bath, BedDouble, Check, MapPin, Ruler, Zap } from "lucide-react";
-import { getListingDetail } from "@/lib/data/source";
+import { getListingDetail } from "@/lib/data/server-source";
 import { Chip } from "@/components/ui/Chip";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { RatingBadge } from "@/components/ui/RatingBadge";

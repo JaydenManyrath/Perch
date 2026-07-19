@@ -132,7 +132,7 @@ round4-person-a, round4-person-b (each restarted from main).
 - [todo] RA44 Realtime DMs live against the hosted project (reuse the optimistic reconcile)
 - [todo] RA45 Mapbox live token wiring (map renders real tiles; placeholder fallback kept)
 - [todo] RA46 Storage upload UI: listing photos + profile avatar to the Supabase bucket, via public/signed URLs
-- [todo] RA47 Vercel deploy: repo connection + per-branch preview URLs; smoke the deployed flow
+- [blocked 2026-07-18] RA47 Vercel deploy: no preview URL or hosted smoke evidence yet. The local Vercel CLI is authenticated, but the active seo23 scope has no Vercel project and this checkout is not linked. Hosted acceptance also waits for Person B's provisioned/migrated/seeded project, Preview server env, Storage policy handoff, live RLS evidence, and RB47 fallback evidence. Fixture mode remains the working fallback.
 
 ### Hosted DB / server / secrets (person-b)
 
@@ -169,3 +169,4 @@ then `RUN_RLS_TESTS=1 RLS_TEST_DATABASE_URL="$SUPABASE_DB_URL" npm run rls:test`
 - 2026-07-17: Final integrated acceptance: focused suite 155 of 155 tests passing across 19 files; full suite 325 of 326 tests passing across 46 passing files with 1 live-auth test/file skipped; typecheck and lint clean; production build passed with the existing dynamic OCR dependency warning; local database reset, 28 RLS tests, and idempotent seed passed. Browser acceptance passed all fixture flows except real Mapbox marker clicks because no public Mapbox token was configured. Round 3 remains a release candidate until that browser pass and merge to `main`.
 - 2026-07-17: Round 3 (person-a UI + person-b schema/APIs + person-c integrations) integrated and merged to main. Full suite green incl. 28 RLS tests on Postgres; production build clean; no client-bundle secret leak.
 - 2026-07-17: Round 4 planned (live backend: Supabase provisioning + go-live). Two-way split A/B on branches round4-person-a / round4-person-b; contract section 14; per-person plans in IMPLEMENTATION-PERSON-{A,B}-ROUND4.md. No new product features - the app moves from fixture-first to a real hosted Supabase project with live auth sessions, RLS verified on the real DB, Realtime + Storage live, and a Vercel deploy.
+- 2026-07-18: RA47 deployment handoff checked. Vercel CLI is authenticated, but the active seo23 scope has no Vercel project and this checkout is not linked, so no Preview URL or hosted smoke test was performed. Hosted acceptance remains blocked on project creation or linking and Person B's RB41-RB47 handoff. README records the exact public-env and smoke-test sequence; no secrets, migrations, seed paths, Storage policies, or product shapes were changed.

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { postListing } from "@/lib/data/source";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +10,9 @@ import { Chip } from "@/components/ui/Chip";
 import { CheckCircle2, Plus, X } from "lucide-react";
 import type { PostListingInput } from "@/lib/types/contract";
 import { cn } from "@/lib/utils";
+import { useCurrentUser } from "@/lib/auth/session";
+import { ImageUploadField } from "@/components/storage/ImageUploadField";
+import { appendListingPhoto } from "@/lib/storage/image-upload";
 
 /**
  * PostListingForm (RA3 + RA32) - subletter posts a sublease.
@@ -17,6 +21,7 @@ import { cn } from "@/lib/utils";
  */
 export function PostListingForm() {
   const router = useRouter();
+  const { currentUser } = useCurrentUser();
   const [state, setState] = useState<PostListingInput>({
     title: "",
     address: "",
@@ -38,6 +43,7 @@ export function PostListingForm() {
     utilitiesIncluded: null,
   });
   const [photoUrl, setPhotoUrl] = useState("");
+  const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
   const [prosDraft, setProsDraft] = useState("");
   const [amenityDraft, setAmenityDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -51,6 +57,14 @@ export function PostListingForm() {
     if (!photoUrl.trim()) return;
     setState((s) => ({ ...s, photos: [...s.photos, photoUrl.trim()] }));
     setPhotoUrl("");
+  }
+
+  function addUploadedPhoto(url: string) {
+    setState((s) => ({
+      ...s,
+      photos: appendListingPhoto(s.photos, url),
+    }));
+    setUploadedPreviewUrl(url);
   }
 
   function addPro() {
@@ -331,7 +345,29 @@ export function PostListingForm() {
             />
           </Field>
 
-          <Field label="Photo URL" className="sm:col-span-2">
+          <Field label="Listing photo" className="sm:col-span-2">
+            <div className="mb-3 flex flex-col items-start gap-2">
+              <ImageUploadField
+                kind="listing"
+                label="Upload listing photo"
+                userId={currentUser?.id}
+                onUploaded={addUploadedPhoto}
+              />
+              {uploadedPreviewUrl ? (
+                <div className="relative aspect-video w-full max-w-xs overflow-hidden rounded-2xl bg-sky-100">
+                  <Image
+                    src={uploadedPreviewUrl}
+                    alt="Uploaded listing preview"
+                    fill
+                    sizes="320px"
+                    className="object-cover"
+                  />
+                </div>
+              ) : null}
+            </div>
+            <span className="mb-1 block text-caption text-ink-soft">
+              Or add an existing photo URL
+            </span>
             <div className="flex gap-2">
               <input
                 type="url"

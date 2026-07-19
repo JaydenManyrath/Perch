@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Users } from "lucide-react";
 import { getConversationsForUser, getFriendNotes } from "@/lib/data/source";
-import { ME_ID } from "@/lib/fixtures/users";
+import { useCurrentUser } from "@/lib/auth/session";
 import { ConversationListItem } from "@/components/dms/ConversationListItem";
 import { NotesStrip } from "@/components/dms/NotesStrip";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -22,6 +22,7 @@ import type { ConversationRow, FriendNote, MessageRow, UserRow } from "@/lib/typ
  * the client's createOrOpen mutated.
  */
 export default function DMsPage() {
+  const { currentUser } = useCurrentUser();
   const [rows, setRows] = useState<
     Array<ConversationRow & { peer: UserRow; lastMessage?: MessageRow }>
   >([]);
@@ -29,11 +30,15 @@ export default function DMsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
-    Promise.all([getConversationsForUser(ME_ID), getFriendNotes()])
-      .then(([r, n]) => {
+    Promise.all([getConversationsForUser(currentUser.id), getFriendNotes()])
+      .then(([conversationRows, n]) => {
         if (cancelled) return;
-        setRows(r);
+        setRows(conversationRows);
         setNotes(n.notes);
       })
       .finally(() => {
@@ -42,7 +47,7 @@ export default function DMsPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [currentUser]);
 
   return (
     <div className="px-4 pt-4 md:pt-8 pb-8">
@@ -83,7 +88,7 @@ export default function DMsPage() {
                   conversationId={r.id}
                   peer={r.peer}
                   lastMessage={r.lastMessage}
-                  mineId={ME_ID}
+                  mineId={currentUser?.id ?? ""}
                 />
               </li>
             ))}

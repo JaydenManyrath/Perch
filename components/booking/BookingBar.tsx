@@ -14,7 +14,7 @@ import {
   acceptRoommateInvite,
   getFriends,
 } from "@/lib/data/source";
-import { ME_ID } from "@/lib/fixtures/users";
+import { useCurrentUser } from "@/lib/auth/session";
 import type { Booking, Friend, PerchCard } from "@/lib/types/contract";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +33,7 @@ export function BookingBar({
   className?: string;
   onBooked?: (booking: Booking) => void;
 }) {
+  const { currentUser } = useCurrentUser();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -40,9 +41,13 @@ export function BookingBar({
   const [friends, setFriends] = useState<Friend[]>([]);
 
   useEffect(() => {
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
-    getBookings(ME_ID)
+    getBookings(currentUser.id)
       .then(({ mine }) => {
         if (cancelled) return;
         const b = mine.find(
@@ -56,7 +61,7 @@ export function BookingBar({
     return () => {
       cancelled = true;
     };
-  }, [listing.id]);
+  }, [currentUser, listing.id]);
 
   async function loadFriends() {
     if (friends.length > 0) return;

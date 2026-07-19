@@ -12,8 +12,10 @@
  */
 
 import { env, hasSupabase } from "@/lib/env";
+import { getSupabaseBrowser } from "@/lib/supabase/client";
 import { fetchMapboxDirections } from "@/lib/directions";
 import { buildFinanceBreakdownFromOffer } from "@/lib/finance/offer";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   type FeedResponse,
   type MatchesResponse,
@@ -35,6 +37,7 @@ import {
   // Round 2 types
   type PerchDeckResponse,
   type PerchCard,
+  type ListingResponse,
   type SwipeInput,
   type PostListingInput,
   type ReviewsResponse,
@@ -70,47 +73,246 @@ import * as fx from "@/lib/fixtures";
 
 const MODE = env.dataSource;
 
-async function safeFetchJson<T>(url: string, init?: RequestInit): Promise<T | null> {
+export type LiveDataContext = {
+  supabase: SupabaseClient;
+  fetch: typeof fetch;
+};
+
+type Usable<T> = (value: unknown) => value is T;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function hasArray<T>(key: keyof T & string): Usable<T> {
+  return (value): value is T => isRecord(value) && Array.isArray(value[key]);
+}
+
+function hasString<T>(key: keyof T & string): Usable<T> {
+  return (value): value is T => isRecord(value) && typeof value[key] === "string";
+}
+
+function isUserRow(value: unknown): value is UserRow {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.name === "string" &&
+    typeof value.company === "string" &&
+    typeof value.role === "string" &&
+    typeof value.city === "string" &&
+    typeof value.move_in_date === "string" &&
+    typeof value.verified === "boolean" &&
+    (value.avatar_url === null || typeof value.avatar_url === "string") &&
+    typeof value.created_at === "string"
+  );
+}
+
+function isListingRow(value: unknown): value is ListingRow {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.title === "string" &&
+    typeof value.address === "string" &&
+    typeof value.lat === "number" &&
+    typeof value.lng === "number" &&
+    typeof value.price === "number" &&
+    Array.isArray(value.photos)
+  );
+}
+
+function isStickerRow(value: unknown): value is StickerRow {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.lat === "number" &&
+    typeof value.lng === "number" &&
+    typeof value.category === "string" &&
+    typeof value.note === "string" &&
+    typeof value.created_by === "string"
+  );
+}
+
+function isEventRow(value: unknown): value is EventRow {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.title === "string" &&
+    typeof value.category === "string" &&
+    typeof value.lat === "number" &&
+    typeof value.lng === "number" &&
+    typeof value.datetime === "string"
+  );
+}
+
+function isNoteRow(value: unknown): value is NoteRow {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    (value.city === null || typeof value.city === "string") &&
+    typeof value.topic === "string" &&
+    typeof value.body === "string" &&
+    typeof value.created_by === "string"
+  );
+}
+
+function isChecklistItemRow(value: unknown): value is ChecklistItemRow {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.user_id === "string" &&
+    typeof value.label === "string" &&
+    typeof value.due_offset === "number" &&
+    typeof value.done === "boolean"
+  );
+}
+
+function isConversationRow(value: unknown): value is ConversationRow {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    Array.isArray(value.participant_ids) &&
+    value.participant_ids.every((id) => typeof id === "string") &&
+    typeof value.last_message_at === "string" &&
+    typeof value.created_at === "string"
+  );
+}
+
+function isMessageRow(value: unknown): value is MessageRow {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.conversation_id === "string" &&
+    typeof value.sender_id === "string" &&
+    typeof value.recipient_id === "string" &&
+    typeof value.body === "string" &&
+    typeof value.created_at === "string"
+  );
+}
+
+function hasId(value: unknown): value is Record<string, unknown> & { id: string } {
+  return isRecord(value) && typeof value.id === "string";
+}
+
+function isBooking(value: unknown): value is Booking {
+  return (
+    hasId(value) &&
+    typeof value.listingId === "string" &&
+    isRecord(value.booker) &&
+    Array.isArray(value.pendingRoommates) &&
+    Array.isArray(value.roommates) &&
+    typeof value.status === "string"
+  );
+}
+
+function isFinanceBreakdown(value: unknown): value is FinanceBreakdown {
+  return (
+    isRecord(value) &&
+    typeof value.takeHome === "number" &&
+    typeof value.monthlyTakeHome === "number" &&
+    typeof value.monthlyBudget === "number" &&
+    typeof value.city === "string"
+  );
+}
+
+function isRouteResponse(value: unknown): value is RouteResponse {
+  return (
+    isRecord(value) &&
+    isRecord(value.geometry) &&
+    value.geometry.type === "LineString" &&
+    Array.isArray(value.geometry.coordinates) &&
+    typeof value.distanceMeters === "number" &&
+    typeof value.durationSeconds === "number"
+  );
+}
+
+function canUseLiveData(): boolean {
+  return MODE === "live" && hasSupabase();
+}
+
+function liveSupabase(context?: LiveDataContext): SupabaseClient | null {
+  if (!canUseLiveData()) return null;
+  return context?.supabase ?? getSupabaseBrowser();
+}
+
+async function authenticatedUserId(supabase: SupabaseClient): Promise<string | null> {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  return error ? null : (user?.id ?? null);
+}
+
+async function safeFetchJson<T>(
+  url: string,
+  init?: RequestInit,
+  usable?: Usable<T>,
+  context?: LiveDataContext,
+): Promise<T | null> {
   try {
-    const res = await fetch(url, init);
+    const res = await (context?.fetch ?? fetch)(url, init);
     if (!res.ok) return null;
-    return (await res.json()) as T;
+    const value: unknown = await res.json();
+    if (usable && !usable(value)) return null;
+    return value as T;
   } catch {
     return null;
   }
 }
 
 // FEED (section 4.1)
-export async function getFeed(): Promise<FeedResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<FeedResponse>("/api/feed?limit=20");
+export async function getFeed(context?: LiveDataContext): Promise<FeedResponse> {
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<FeedResponse>(
+      "/api/feed?limit=20",
+      undefined,
+      hasArray<FeedResponse>("items"),
+      context,
+    );
     if (r) return r;
   }
   return fx.feedFixture;
 }
 
 // MATCHES (section 4.2) - connection hero
-export async function getMatches(): Promise<MatchesResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<MatchesResponse>("/api/matches?limit=20");
+export async function getMatches(context?: LiveDataContext): Promise<MatchesResponse> {
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<MatchesResponse>(
+      "/api/matches?limit=20",
+      undefined,
+      hasArray<MatchesResponse>("matches"),
+      context,
+    );
     if (r) return r;
   }
   return fx.matchesFixture;
 }
 
 // MAP PLACES (section 4.5)
-export async function getMapPlaces(): Promise<MapPlacesResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<MapPlacesResponse>("/api/map/places");
+export async function getMapPlaces(context?: LiveDataContext): Promise<MapPlacesResponse> {
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<MapPlacesResponse>(
+      "/api/map/places",
+      undefined,
+      hasArray<MapPlacesResponse>("places"),
+      context,
+    );
     if (r) return r;
   }
   return fx.mapPlacesFixture;
 }
 
 // ITINERARY (section 4.4)
-export async function getItinerary(days = 7): Promise<ItineraryResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<ItineraryResponse>(`/api/itinerary?days=${days}`);
+export async function getItinerary(days = 7, context?: LiveDataContext): Promise<ItineraryResponse> {
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<ItineraryResponse>(
+      `/api/itinerary?days=${days}`,
+      undefined,
+      (value): value is ItineraryResponse =>
+        isRecord(value) &&
+        Array.isArray(value.landingWeek) &&
+        typeof value.calendarSynced === "boolean",
+      context,
+    );
     if (r) return r;
   }
   return fx.itineraryFixture;
@@ -118,44 +320,57 @@ export async function getItinerary(days = 7): Promise<ItineraryResponse> {
 
 // ONBOARDING (section 4.6)
 export async function parseOffer(file?: File): Promise<OfferParse> {
-  if (MODE === "live" && file) {
+  if (canUseLiveData() && file) {
     const fd = new FormData();
     fd.append("file", file);
-    const r = await safeFetchJson<OfferParse>("/api/parse/offer", {
-      method: "POST",
-      body: fd,
-    });
+    const r = await safeFetchJson<OfferParse>(
+      "/api/parse/offer",
+      { method: "POST", body: fd },
+      (value): value is OfferParse =>
+        isRecord(value) &&
+        typeof value.employer === "string" &&
+        isRecord(value.confidence) &&
+        Array.isArray(value.needsReview),
+    );
     if (r) return r;
   }
   return fx.offerParseFixture;
 }
 
 export async function parseTakeout(file?: File): Promise<TakeoutParse> {
-  if (MODE === "live" && file) {
+  if (canUseLiveData() && file) {
     const fd = new FormData();
     fd.append("file", file);
-    const r = await safeFetchJson<TakeoutParse>("/api/parse/takeout", {
-      method: "POST",
-      body: fd,
-    });
+    const r = await safeFetchJson<TakeoutParse>(
+      "/api/parse/takeout",
+      { method: "POST", body: fd },
+      hasArray<TakeoutParse>("places"),
+    );
     if (r) return r;
   }
   return { places: fx.mapPlacesFixture.places };
 }
 
 export async function spotifyConnect(): Promise<SpotifyConnectResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<SpotifyConnectResponse>("/api/composio/spotify/connect", {
-      method: "POST",
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<SpotifyConnectResponse>(
+      "/api/composio/spotify/connect",
+      { method: "POST" },
+      hasString<SpotifyConnectResponse>("redirectUrl"),
+    );
     if (r) return r;
   }
   return { redirectUrl: "/onboarding?spotify=connected" };
 }
 
 export async function spotifyStatus(): Promise<SpotifyStatusResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<SpotifyStatusResponse>("/api/composio/spotify/status");
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<SpotifyStatusResponse>(
+      "/api/composio/spotify/status",
+      undefined,
+      (value): value is SpotifyStatusResponse =>
+        isRecord(value) && typeof value.connected === "boolean" && "taste" in value,
+    );
     if (r) return r;
   }
   return {
@@ -165,20 +380,81 @@ export async function spotifyStatus(): Promise<SpotifyStatusResponse> {
 }
 
 // SUPABASE TABLES (section 2)
-export async function getMe(): Promise<UserRow> {
+const USER_SELECT =
+  "id,name,company,role,city,move_in_date,taste_profile,verified,avatar_url,created_at,user_type";
+const LISTING_SELECT =
+  "id,title,address,lat,lng,price,lease_start,lease_end,lease_type,source,photos,safety_flags,created_by,created_at,status,expires_at,last_confirmed_at,sourced,source_name,source_url,external_id";
+
+export async function getMe(context?: LiveDataContext): Promise<UserRow> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const userId = await authenticatedUserId(supabase);
+      if (userId) {
+        const { data, error } = await supabase
+          .from("users")
+          .select(USER_SELECT)
+          .eq("id", userId)
+          .maybeSingle();
+        if (!error && isUserRow(data)) return data;
+      }
+    } catch {
+      // Fall through to the complete fixture experience.
+    }
+  }
   return fx.meFixture;
 }
 
-export async function getUserById(id: string): Promise<UserRow | null> {
+export async function getUserById(id: string, context?: LiveDataContext): Promise<UserRow | null> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select(USER_SELECT)
+        .eq("id", id)
+        .maybeSingle();
+      if (!error) {
+        if (data === null) return null;
+        if (isUserRow(data)) return data;
+      }
+    } catch {
+      // Fall through to fixture data.
+    }
+  }
   const all = [fx.meFixture, ...fx.otherUsersFixture, ...fx.sublettersFixture];
   return all.find((u) => u.id === id) ?? null;
 }
 
-export async function getListings(): Promise<ListingRow[]> {
+export async function getListings(context?: LiveDataContext): Promise<ListingRow[]> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("listings")
+        .select(LISTING_SELECT)
+        .order("created_at", { ascending: false });
+      if (!error && Array.isArray(data) && data.every(isListingRow)) return data;
+    } catch {
+      // Fall through to fixture data.
+    }
+  }
   return fx.listingsFixture;
 }
 
-export async function getStickers(): Promise<StickerRow[]> {
+export async function getStickers(context?: LiveDataContext): Promise<StickerRow[]> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("stickers")
+        .select("id,lat,lng,category,note,created_by,created_at")
+        .order("created_at", { ascending: false });
+      if (!error && Array.isArray(data) && data.every(isStickerRow)) return data;
+    } catch {
+      // Fall through to fixture data.
+    }
+  }
   return fx.stickersFixture;
 }
 
@@ -187,7 +463,23 @@ export async function insertSticker(input: {
   lng: number;
   category: import("@/lib/types/contract").StickerCategory;
   note: string;
-}): Promise<StickerRow> {
+}, context?: LiveDataContext): Promise<StickerRow> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const userId = await authenticatedUserId(supabase);
+      if (userId) {
+        const { data, error } = await supabase
+          .from("stickers")
+          .insert({ ...input, created_by: userId })
+          .select("id,lat,lng,category,note,created_by,created_at")
+          .single();
+        if (!error && isStickerRow(data)) return data;
+      }
+    } catch {
+      // Fall through to the fixture mutation.
+    }
+  }
   const row: StickerRow = {
     id: `sticker-${Date.now()}`,
     lat: input.lat,
@@ -201,33 +493,154 @@ export async function insertSticker(input: {
   return row;
 }
 
-export async function getEvents(): Promise<EventRow[]> {
+export async function getEvents(context?: LiveDataContext): Promise<EventRow[]> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("events")
+        .select("id,title,category,lat,lng,datetime,source,venue,url,image_url,price_range")
+        .gte("datetime", new Date().toISOString())
+        .order("datetime", { ascending: true });
+      if (!error && Array.isArray(data) && data.every(isEventRow)) return data;
+    } catch {
+      // Fall through to fixture data.
+    }
+  }
   return fx.eventsFixture;
 }
 
-export async function getNotes(): Promise<NoteRow[]> {
+export async function getNotes(context?: LiveDataContext): Promise<NoteRow[]> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("notes")
+        .select("id,city,area,topic,body,created_by,created_at,lat,lng")
+        .order("created_at", { ascending: false });
+      if (!error && Array.isArray(data) && data.every(isNoteRow)) return data;
+    } catch {
+      // Fall through to fixture data.
+    }
+  }
   return fx.notesFixture;
 }
 
-export async function getChecklist(userId: string): Promise<ChecklistItemRow[]> {
-  return fx.checklistFixture.filter((c) => c.user_id === userId);
+export async function getChecklist(
+  userId: string,
+  context?: LiveDataContext,
+): Promise<ChecklistItemRow[]> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const callerId = await authenticatedUserId(supabase);
+      if (callerId) {
+        const { data, error } = await supabase
+          .from("checklist_items")
+          .select("id,user_id,label,due_offset,done,category")
+          .eq("user_id", callerId)
+          .order("due_offset", { ascending: false });
+        if (!error && Array.isArray(data) && data.every(isChecklistItemRow)) return data;
+      }
+    } catch {
+      // Fall through to fixture data.
+    }
+  }
+  const fixtureUserId = canUseLiveData() ? fx.meFixture.id : userId;
+  return fx.checklistFixture.filter((c) => c.user_id === fixtureUserId);
 }
 
-export async function toggleChecklistItem(id: string, done: boolean): Promise<void> {
+export async function toggleChecklistItem(
+  id: string,
+  done: boolean,
+  context?: LiveDataContext,
+): Promise<void> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const { error } = await supabase.from("checklist_items").update({ done }).eq("id", id);
+      if (!error) return;
+    } catch {
+      // Fall through to the fixture mutation.
+    }
+  }
   const it = fx.checklistFixture.find((c) => c.id === id);
   if (it) it.done = done;
 }
 
-export async function getConversationsForUser(userId: string): Promise<
-  Array<ConversationRow & { peer: UserRow; lastMessage?: MessageRow }>
-> {
+export async function getConversationsForUser(
+  userId: string,
+  context?: LiveDataContext,
+): Promise<Array<ConversationRow & { peer: UserRow; lastMessage?: MessageRow }>> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const callerId = await authenticatedUserId(supabase);
+      if (callerId) {
+        const { data: conversations, error: conversationError } = await supabase
+          .from("conversations")
+          .select("id,participant_ids,last_message_at,created_at")
+          .contains("participant_ids", [callerId])
+          .order("last_message_at", { ascending: false });
+        if (conversationError || !Array.isArray(conversations) || !conversations.every(isConversationRow)) {
+          throw conversationError ?? new Error("unusable_conversations");
+        }
+
+        const peerIds = conversations.flatMap((conversation) =>
+          conversation.participant_ids.filter((id) => id !== callerId),
+        );
+        const conversationIds = conversations.map((conversation) => conversation.id);
+        const [{ data: peers, error: peerError }, { data: messages, error: messageError }] =
+          await Promise.all([
+            peerIds.length
+              ? supabase.from("users").select(USER_SELECT).in("id", peerIds)
+              : Promise.resolve({ data: [], error: null }),
+            conversationIds.length
+              ? supabase
+                  .from("messages")
+                  .select("id,conversation_id,sender_id,recipient_id,body,created_at")
+                  .in("conversation_id", conversationIds)
+                  .order("created_at", { ascending: false })
+              : Promise.resolve({ data: [], error: null }),
+          ]);
+        if (
+          peerError ||
+          messageError ||
+          !Array.isArray(peers) ||
+          !peers.every(isUserRow) ||
+          !Array.isArray(messages) ||
+          !messages.every(isMessageRow)
+        ) {
+          throw peerError ?? messageError ?? new Error("unusable_conversation_relations");
+        }
+
+        const peerById = new Map(peers.map((peer) => [peer.id, peer]));
+        const lastByConversation = new Map<string, MessageRow>();
+        for (const message of messages) {
+          if (!lastByConversation.has(message.conversation_id)) {
+            lastByConversation.set(message.conversation_id, message);
+          }
+        }
+        return conversations.flatMap((conversation) => {
+          const peerId = conversation.participant_ids.find((id) => id !== callerId);
+          const peer = peerId ? peerById.get(peerId) : undefined;
+          return peer
+            ? [{ ...conversation, peer, lastMessage: lastByConversation.get(conversation.id) }]
+            : [];
+        });
+      }
+    } catch {
+      // Fall through to the complete fixture conversation list.
+    }
+  }
   // Include subletters in the lookup so messaging a host from a subletter
   // profile doesn't leave the DM list with peer=undefined.
+  const fixtureUserId = canUseLiveData() ? fx.meFixture.id : userId;
   const allUsers = [fx.meFixture, ...fx.otherUsersFixture, ...fx.sublettersFixture];
-  const rows = fx.conversationsFixture.filter((c) => c.participant_ids.includes(userId));
+  const rows = fx.conversationsFixture.filter((c) => c.participant_ids.includes(fixtureUserId));
   return rows
     .map((c) => {
-      const peerId = c.participant_ids.find((p) => p !== userId);
+      const peerId = c.participant_ids.find((p) => p !== fixtureUserId);
       const peer = peerId ? allUsers.find((u) => u.id === peerId) : undefined;
       const lastMessage = [...fx.messagesFixture]
         .filter((m) => m.conversation_id === c.id)
@@ -250,7 +663,23 @@ export async function getConversationsForUser(userId: string): Promise<
     .sort((a, b) => (b.last_message_at || "").localeCompare(a.last_message_at || ""));
 }
 
-export async function getConversationMessages(conversationId: string): Promise<MessageRow[]> {
+export async function getConversationMessages(
+  conversationId: string,
+  context?: LiveDataContext,
+): Promise<MessageRow[]> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("id,conversation_id,sender_id,recipient_id,body,created_at")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
+      if (!error && Array.isArray(data) && data.every(isMessageRow)) return data;
+    } catch {
+      // Fall through to fixture messages.
+    }
+  }
   return [...fx.messagesFixture]
     .filter((m) => m.conversation_id === conversationId)
     .sort((a, b) => a.created_at.localeCompare(b.created_at));
@@ -271,7 +700,38 @@ export function conversationIdFor(a: string, b: string): string {
 export async function findOrCreateConversation(
   meId: string,
   otherId: string,
+  context?: LiveDataContext,
 ): Promise<ConversationRow> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const callerId = await authenticatedUserId(supabase);
+      if (callerId && callerId !== otherId) {
+        const { data: found, error: findError } = await supabase
+          .from("conversations")
+          .select("id,participant_ids,last_message_at,created_at")
+          .contains("participant_ids", [callerId, otherId])
+          .limit(1)
+          .maybeSingle();
+        if (findError) throw findError;
+        if (found && isConversationRow(found)) return found;
+
+        const now = new Date().toISOString();
+        const { data: created, error: createError } = await supabase
+          .from("conversations")
+          .insert({
+            participant_ids: [callerId, otherId],
+            last_message_at: now,
+            created_at: now,
+          })
+          .select("id,participant_ids,last_message_at,created_at")
+          .single();
+        if (!createError && isConversationRow(created)) return created;
+      }
+    } catch {
+      // Fall through to fixture behavior.
+    }
+  }
   // Reuse an existing conv (legacy seed or previously created).
   const existing = fx.conversationsFixture.find((c) => {
     const p = c.participant_ids;
@@ -305,7 +765,34 @@ export async function insertMessage(input: {
   sender_id: string;
   recipient_id: string;
   body: string;
-}): Promise<MessageRow> {
+}, context?: LiveDataContext): Promise<MessageRow> {
+  const supabase = liveSupabase(context);
+  if (supabase) {
+    try {
+      const callerId = await authenticatedUserId(supabase);
+      if (callerId) {
+        const { data, error } = await supabase
+          .from("messages")
+          .insert({
+            conversation_id: input.conversation_id,
+            sender_id: callerId,
+            recipient_id: input.recipient_id,
+            body: input.body,
+          })
+          .select("id,conversation_id,sender_id,recipient_id,body,created_at")
+          .single();
+        if (!error && isMessageRow(data)) {
+          await supabase
+            .from("conversations")
+            .update({ last_message_at: data.created_at })
+            .eq("id", input.conversation_id);
+          return data;
+        }
+      }
+    } catch {
+      // Fall through to fixture behavior.
+    }
+  }
   const row: MessageRow = {
     id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     conversation_id: input.conversation_id,
@@ -321,12 +808,47 @@ export async function insertMessage(input: {
 }
 
 export function isLiveSupabase(): boolean {
-  return MODE === "live" && hasSupabase();
+  return canUseLiveData();
 }
 
 export function currentMode(): "fixture" | "live" {
-  return MODE;
+  return canUseLiveData() ? "live" : "fixture";
 }
+
+/**
+ * Reviewable inventory for RA43. The accompanying test requires every exported
+ * get* function to declare its live seam here, so new getters cannot silently
+ * become fixture-only.
+ */
+export const DATA_SOURCE_GETTER_AUDIT = {
+  getFeed: "route:/api/feed",
+  getMatches: "route:/api/matches",
+  getMapPlaces: "route:/api/map/places",
+  getItinerary: "route:/api/itinerary",
+  getMe: "supabase:users+session",
+  getUserById: "supabase:users",
+  getListings: "supabase:listings",
+  getStickers: "supabase:stickers",
+  getEvents: "supabase:events",
+  getNotes: "supabase:notes",
+  getChecklist: "supabase:checklist_items+session",
+  getConversationsForUser: "supabase:conversations+messages+users+session",
+  getConversationMessages: "supabase:messages",
+  getPerchDeck: "route:/api/perches",
+  getSavedPerches: "route:/api/perches/saved",
+  getReviews: "route:/api/reviews",
+  getEventComments: "route:/api/events/[id]/comments",
+  getPublicProfile: "route:/api/users/[id]",
+  getMapComments: "route:/api/map/comments",
+  getFriends: "route:/api/friends",
+  getFriendRequests: "route:/api/friends/requests",
+  getFriendNotes: "route:/api/friends/notes",
+  getRoutePois: "route:/api/route/pois",
+  getListingDetail: "route:/api/listings/[id]",
+  getBookings: "route:/api/bookings+session",
+  getFinance: "route:/api/finance+session",
+  getFinanceForOffer: "route:/api/finance+session",
+} as const;
 
 export type { TasteProfile };
 
@@ -336,9 +858,14 @@ export type { TasteProfile };
 const swipedRight = new Set<string>(fx.savedPerchesFixture.map((p) => p.id));
 const swipedLeft = new Set<string>();
 
-export async function getPerchDeck(): Promise<PerchDeckResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<PerchDeckResponse>("/api/perches");
+export async function getPerchDeck(context?: LiveDataContext): Promise<PerchDeckResponse> {
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<PerchDeckResponse>(
+      "/api/perches",
+      undefined,
+      hasArray<PerchDeckResponse>("deck"),
+      context,
+    );
     if (r) return r;
   }
   // Rebuild the deck on every call so a listing that just went to status='taken'
@@ -353,7 +880,7 @@ export async function getPerchDeck(): Promise<PerchDeckResponse> {
 }
 
 export async function recordSwipe(input: SwipeInput): Promise<void> {
-  if (MODE === "live") {
+  if (canUseLiveData()) {
     await safeFetchJson("/api/perches/swipe", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -375,23 +902,60 @@ export async function recordSwipe(input: SwipeInput): Promise<void> {
   }
 }
 
-export async function getSavedPerches(): Promise<PerchCard[]> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<{ deck: PerchCard[] } | PerchCard[]>("/api/perches/saved");
-    if (r) return Array.isArray(r) ? r : r.deck;
+export async function getSavedPerches(context?: LiveDataContext): Promise<PerchCard[]> {
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<{ saved: PerchCard[] } | { deck: PerchCard[] } | PerchCard[]>(
+      "/api/perches/saved",
+      undefined,
+      (value): value is { saved: PerchCard[] } | { deck: PerchCard[] } | PerchCard[] =>
+        Array.isArray(value) ||
+        (isRecord(value) && (Array.isArray(value.saved) || Array.isArray(value.deck))),
+      context,
+    );
+    if (r) return Array.isArray(r) ? r : "saved" in r ? r.saved : r.deck;
   }
   return fx.savedPerchesFixture.slice();
 }
 
 // ROUND 2 - Subletter posting + freshness (section 11.4, 11.2)
 export async function postListing(input: PostListingInput): Promise<ListingRow> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<ListingRow>("/api/listings", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    });
-    if (r) return r;
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<ListingResponse>(
+      "/api/listings",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+      (value): value is ListingResponse =>
+        isRecord(value) && isRecord(value.listing) && isListingRow(value.listing),
+    );
+    if (r) {
+      const card = r.listing;
+      return {
+        id: card.id,
+        title: card.title,
+        address: card.address,
+        lat: card.lat,
+        lng: card.lng,
+        price: card.price,
+        lease_start: card.lease_start,
+        lease_end: card.lease_end,
+        lease_type: card.lease_type,
+        source: card.sourceName,
+        photos: card.photos,
+        safety_flags: card.safety_flags,
+        created_by: card.host?.id ?? null,
+        created_at: card.created_at,
+        status: card.status,
+        expires_at: card.expiresAt,
+        last_confirmed_at: card.lastConfirmedAt,
+        sourced: card.sourced,
+        source_name: card.sourceName,
+        source_url: null,
+        external_id: null,
+      };
+    }
   }
   const row: ListingRow = {
     id: `L-new-${Date.now()}`,
@@ -421,10 +985,12 @@ export async function postListing(input: PostListingInput): Promise<ListingRow> 
 }
 
 export async function confirmListing(id: string): Promise<{ status: ListingStatus }> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<{ status: ListingStatus }>(`/api/listings/${id}/confirm`, {
-      method: "POST",
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<{ status: ListingStatus }>(
+      `/api/listings/${id}/confirm`,
+      { method: "POST" },
+      hasString<{ status: ListingStatus }>("status"),
+    );
     if (r) return r;
   }
   const l = fx.listingsFixture.find((x) => x.id === id);
@@ -438,9 +1004,12 @@ export async function confirmListing(id: string): Promise<{ status: ListingStatu
 
 // ROUND 2 - Reviews (section 11.5)
 export async function getReviews(subjectType: "listing" | "subletter", subjectId: string): Promise<ReviewsResponse> {
-  if (MODE === "live") {
+  if (canUseLiveData()) {
     const r = await safeFetchJson<ReviewsResponse>(
       `/api/reviews?subjectType=${encodeURIComponent(subjectType)}&subjectId=${encodeURIComponent(subjectId)}`,
+      undefined,
+      (value): value is ReviewsResponse =>
+        isRecord(value) && Array.isArray(value.reviews) && isRecord(value.summary),
     );
     if (r) return r;
   }
@@ -453,12 +1022,16 @@ export async function getReviews(subjectType: "listing" | "subletter", subjectId
 }
 
 export async function postReview(input: PostReviewInput): Promise<Review> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<Review>("/api/reviews", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<Review>(
+      "/api/reviews",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+      (value): value is Review => hasId(value) && typeof value.rating === "number",
+    );
     if (r) return r;
   }
   const me = fx.meFixture;
@@ -492,12 +1065,17 @@ export async function postReview(input: PostReviewInput): Promise<Review> {
 const attendance = new Map<string, boolean>();
 
 export async function attendEvent(eventId: string, input: AttendInput): Promise<AttendResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<AttendResponse>(`/api/events/${eventId}/attend`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<AttendResponse>(
+      `/api/events/${eventId}/attend`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+      (value): value is AttendResponse =>
+        isRecord(value) && typeof value.going === "number" && typeof value.viewerGoing === "boolean",
+    );
     if (r) return r;
   }
   const item = fx.feedFixture.items.find((it) => it.event.id === eventId);
@@ -514,8 +1092,12 @@ export async function attendEvent(eventId: string, input: AttendInput): Promise<
 }
 
 export async function getEventComments(eventId: string): Promise<EventCommentsResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<EventCommentsResponse>(`/api/events/${eventId}/comments`);
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<EventCommentsResponse>(
+      `/api/events/${eventId}/comments`,
+      undefined,
+      hasArray<EventCommentsResponse>("comments"),
+    );
     if (r) return r;
   }
   const comments = fx.eventCommentsFixture
@@ -525,12 +1107,16 @@ export async function getEventComments(eventId: string): Promise<EventCommentsRe
 }
 
 export async function postEventComment(eventId: string, input: PostEventCommentInput): Promise<EventComment> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<EventComment>(`/api/events/${eventId}/comments`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<EventComment>(
+      `/api/events/${eventId}/comments`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+      (value): value is EventComment => hasId(value) && typeof value.eventId === "string",
+    );
     if (r) return r;
   }
   const me = fx.meFixture;
@@ -546,9 +1132,18 @@ export async function postEventComment(eventId: string, input: PostEventCommentI
 }
 
 // ROUND 2 - Public profile (section 11.8)
-export async function getPublicProfile(id: string): Promise<PublicProfile | null> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<PublicProfile>(`/api/users/${id}`);
+export async function getPublicProfile(
+  id: string,
+  context?: LiveDataContext,
+): Promise<PublicProfile | null> {
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<PublicProfile>(
+      `/api/users/${id}`,
+      undefined,
+      (value): value is PublicProfile =>
+        isRecord(value) && isRecord(value.user) && typeof value.user.id === "string",
+      context,
+    );
     if (r) return r;
   }
   return fx.publicProfileFor(id);
@@ -560,12 +1155,17 @@ export async function getMapComments(bbox?: {
   minLng: number;
   maxLat: number;
   maxLng: number;
-}): Promise<MapCommentsResponse> {
-  if (MODE === "live") {
+}, context?: LiveDataContext): Promise<MapCommentsResponse> {
+  if (canUseLiveData()) {
     const q = bbox
       ? `?bbox=${bbox.minLng},${bbox.minLat},${bbox.maxLng},${bbox.maxLat}`
       : "";
-    const r = await safeFetchJson<MapCommentsResponse>(`/api/map/comments${q}`);
+    const r = await safeFetchJson<MapCommentsResponse>(
+      `/api/map/comments${q}`,
+      undefined,
+      hasArray<MapCommentsResponse>("comments"),
+      context,
+    );
     if (r) return r;
   }
   const all = fx.mapCommentsFixture.slice();
@@ -582,12 +1182,16 @@ export async function getMapComments(bbox?: {
 }
 
 export async function addMapComment(input: PostMapCommentInput): Promise<MapComment> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<MapComment>("/api/map/comments", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<MapComment>(
+      "/api/map/comments",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+      (value): value is MapComment => hasId(value) && typeof value.body === "string",
+    );
     if (r) return r;
   }
   const me = fx.meFixture;
@@ -605,29 +1209,45 @@ export async function addMapComment(input: PostMapCommentInput): Promise<MapComm
 }
 
 // ROUND 2 batch 2 - Friends + notes (section 12.3, 12.4)
-export async function getFriends(): Promise<FriendsResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<FriendsResponse>("/api/friends");
+export async function getFriends(context?: LiveDataContext): Promise<FriendsResponse> {
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<FriendsResponse>(
+      "/api/friends",
+      undefined,
+      hasArray<FriendsResponse>("friends"),
+      context,
+    );
     if (r) return r;
   }
   return { friends: fx.friendsFixture.slice() };
 }
 
-export async function getFriendRequests(): Promise<FriendRequestsResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<FriendRequestsResponse>("/api/friends/requests");
-    if (r) return r;
+export async function getFriendRequests(context?: LiveDataContext): Promise<FriendRequestsResponse> {
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<FriendRequestsResponse | FriendsResponse>(
+      "/api/friends/requests",
+      undefined,
+      (value): value is FriendRequestsResponse | FriendsResponse =>
+        isRecord(value) && (Array.isArray(value.requests) || Array.isArray(value.friends)),
+      context,
+    );
+    if (r) return "requests" in r ? r : { requests: r.friends };
   }
   return { requests: fx.friendRequestsFixture.slice() };
 }
 
 export async function requestFriend(userId: string): Promise<Friend | null> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<Friend>("/api/friends/request", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<Friend>(
+      "/api/friends/request",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ userId }),
+      },
+      (value): value is Friend =>
+        isRecord(value) && isRecord(value.user) && typeof value.user.id === "string",
+    );
     if (r) return r;
   }
   if (fx.friendsFixture.some((f) => f.user.id === userId)) return null;
@@ -649,10 +1269,13 @@ export async function requestFriend(userId: string): Promise<Friend | null> {
 }
 
 export async function acceptFriend(userId: string): Promise<Friend | null> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<Friend>(`/api/friends/${userId}/accept`, {
-      method: "POST",
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<Friend>(
+      `/api/friends/${userId}/accept`,
+      { method: "POST" },
+      (value): value is Friend =>
+        isRecord(value) && isRecord(value.user) && typeof value.user.id === "string",
+    );
     if (r) return r;
   }
   const idx = fx.friendRequestsFixture.findIndex(
@@ -666,7 +1289,7 @@ export async function acceptFriend(userId: string): Promise<Friend | null> {
 }
 
 export async function declineFriend(userId: string): Promise<void> {
-  if (MODE === "live") {
+  if (canUseLiveData()) {
     await safeFetchJson(`/api/friends/${userId}/decline`, { method: "POST" });
   }
   const idx = fx.friendRequestsFixture.findIndex(
@@ -676,8 +1299,12 @@ export async function declineFriend(userId: string): Promise<void> {
 }
 
 export async function getFriendNotes(): Promise<FriendNotesResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<FriendNotesResponse>("/api/friends/notes");
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<FriendNotesResponse>(
+      "/api/friends/notes",
+      undefined,
+      hasArray<FriendNotesResponse>("notes"),
+    );
     if (r) return r;
   }
   return { notes: fx.friendNotesFixture.slice() };
@@ -691,12 +1318,16 @@ export async function planRoute(input: {
   apartmentLng: number;
 }): Promise<RouteResponse> {
   // 1. Live route (Person C's RC6, when it ships).
-  if (MODE === "live") {
-    const r = await safeFetchJson<RouteResponse>("/api/route", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<RouteResponse>(
+      "/api/route",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+      isRouteResponse,
+    );
     if (r) return r;
   }
   // 2. Client-side Mapbox Directions - real road-following (Google-Maps-like).
@@ -714,12 +1345,16 @@ export async function getRoutePois(input: {
   geometry: GeoJSONLineString;
   kinds: string[];
 }): Promise<RoutePoisResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<RoutePoisResponse>("/api/route/pois", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<RoutePoisResponse>(
+      "/api/route/pois",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+      hasArray<RoutePoisResponse>("pois"),
+    );
     if (r) return r;
   }
   const pois: RoutePoi[] = fx.findPoisAlongRoute(input.geometry, input.kinds);
@@ -730,21 +1365,34 @@ export async function buildCommuteSchedule(input: {
   apartmentId: string;
   selectedPlaceIds: string[];
 }): Promise<CommuteScheduleResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<CommuteScheduleResponse>("/api/route/schedule", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<CommuteScheduleResponse>(
+      "/api/route/schedule",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+      (value): value is CommuteScheduleResponse => isRecord(value) && isRecord(value.day),
+    );
     if (r) return r;
   }
   return fx.buildScheduleFromSelections(input);
 }
 
 // Round 3 - Comprehensive listing detail (section 13.2)
-export async function getListingDetail(id: string): Promise<ListingDetail | null> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<ListingDetail>(`/api/listings/${id}`);
+export async function getListingDetail(
+  id: string,
+  context?: LiveDataContext,
+): Promise<ListingDetail | null> {
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<ListingDetail>(
+      `/api/listings/${id}`,
+      undefined,
+      (value): value is ListingDetail =>
+        hasId(value) && typeof value.title === "string" && Array.isArray(value.photos),
+      context,
+    );
     if (r) return r;
   }
   return fx.listingDetailFor(id);
@@ -752,30 +1400,37 @@ export async function getListingDetail(id: string): Promise<ListingDetail | null
 
 // Round 3 - Booking flow (section 13.4)
 export async function getBookings(userId: string): Promise<BookingsResponse> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<BookingsResponse>("/api/bookings");
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<BookingsResponse>(
+      "/api/bookings",
+      undefined,
+      (value): value is BookingsResponse =>
+        isRecord(value) && Array.isArray(value.mine) && Array.isArray(value.incoming),
+    );
     if (r) return r;
   }
-  // Fixture: find my bookings + bookings against my listings.
+  // Fixture: find my bookings + bookings against my listings. A failed live
+  // read deliberately restores the established demo identity and data.
+  const fixtureUserId = canUseLiveData() ? fx.meFixture.id : userId;
   const all = fx.bookingsFixture;
   const myListingIds = new Set(
-    fx.listingsFixture.filter((l) => l.created_by === userId).map((l) => l.id),
+    fx.listingsFixture.filter((l) => l.created_by === fixtureUserId).map((l) => l.id),
   );
   const mine = all
     .filter(
       (b) =>
-        b.booker.id === userId ||
-        b.pendingRoommates.some((r) => r.id === userId) ||
-        b.roommates.some((r) => r.id === userId),
+        b.booker.id === fixtureUserId ||
+        b.pendingRoommates.some((r) => r.id === fixtureUserId) ||
+        b.roommates.some((r) => r.id === fixtureUserId),
     )
     .map((b) => ({
       ...b,
       viewerRole:
-        b.booker.id === userId
+        b.booker.id === fixtureUserId
           ? ("booker" as const)
-          : b.roommates.some((r) => r.id === userId)
+          : b.roommates.some((r) => r.id === fixtureUserId)
             ? ("roommate" as const)
-            : b.pendingRoommates.some((r) => r.id === userId)
+            : b.pendingRoommates.some((r) => r.id === fixtureUserId)
               ? ("invitee" as const)
               : ("other" as const),
     }));
@@ -787,12 +1442,16 @@ export async function requestBooking(
   listingId: string,
   input: BookRequestInput,
 ): Promise<Booking> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<Booking>(`/api/listings/${listingId}/book`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<Booking>(
+      `/api/listings/${listingId}/book`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+      isBooking,
+    );
     if (r) return r;
   }
   const me = fx.meFixture;
@@ -820,10 +1479,12 @@ export async function requestBooking(
 }
 
 export async function approveBooking(id: string): Promise<Booking | null> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<Booking>(`/api/bookings/${id}/approve`, {
-      method: "POST",
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<Booking>(
+      `/api/bookings/${id}/approve`,
+      { method: "POST" },
+      isBooking,
+    );
     if (r) return r;
   }
   const b = fx.bookingsFixture.find((x) => x.id === id);
@@ -834,10 +1495,12 @@ export async function approveBooking(id: string): Promise<Booking | null> {
 }
 
 export async function declineBooking(id: string): Promise<Booking | null> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<Booking>(`/api/bookings/${id}/decline`, {
-      method: "POST",
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<Booking>(
+      `/api/bookings/${id}/decline`,
+      { method: "POST" },
+      isBooking,
+    );
     if (r) return r;
   }
   const b = fx.bookingsFixture.find((x) => x.id === id);
@@ -849,10 +1512,12 @@ export async function declineBooking(id: string): Promise<Booking | null> {
 
 /** Booker confirms an approved booking. Booked -> listing.status='taken'. */
 export async function confirmBooking(id: string): Promise<Booking | null> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<Booking>(`/api/bookings/${id}/confirm`, {
-      method: "POST",
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<Booking>(
+      `/api/bookings/${id}/confirm`,
+      { method: "POST" },
+      isBooking,
+    );
     if (r) return r;
   }
   const b = fx.bookingsFixture.find((x) => x.id === id);
@@ -871,12 +1536,16 @@ export async function inviteRoommate(
   bookingId: string,
   userId: string,
 ): Promise<Booking | null> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<Booking>(`/api/bookings/${bookingId}/roommates`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<Booking>(
+      `/api/bookings/${bookingId}/roommates`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ userId }),
+      },
+      isBooking,
+    );
     if (r) return r;
   }
   const b = fx.bookingsFixture.find((x) => x.id === bookingId);
@@ -892,10 +1561,12 @@ export async function inviteRoommate(
 }
 
 export async function acceptRoommateInvite(bookingId: string): Promise<Booking | null> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<Booking>(`/api/bookings/${bookingId}/roommates/accept`, {
-      method: "POST",
-    });
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<Booking>(
+      `/api/bookings/${bookingId}/roommates/accept`,
+      { method: "POST" },
+      isBooking,
+    );
     if (r) return r;
   }
   const b = fx.bookingsFixture.find((x) => x.id === bookingId);
@@ -913,8 +1584,12 @@ export async function acceptRoommateInvite(bookingId: string): Promise<Booking |
 
 // Round 3 - Finance model (section 13.5)
 export async function getFinance(): Promise<FinanceBreakdown> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<FinanceBreakdown>("/api/finance");
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<FinanceBreakdown>(
+      "/api/finance",
+      undefined,
+      isFinanceBreakdown,
+    );
     if (r) return r;
   }
   return fx.buildFinanceBreakdown(fx.offerParseFixture);
@@ -936,8 +1611,12 @@ export function financeFromOffer(offer: OfferParse): FinanceBreakdown {
 
 /** Preview in-progress onboarding through the same finance route as persisted reads. */
 export async function getFinanceForOffer(offer: OfferParse): Promise<FinanceBreakdown> {
-  if (MODE === "live") {
-    const r = await safeFetchJson<FinanceBreakdown>(offerFinanceUrl(offer));
+  if (canUseLiveData()) {
+    const r = await safeFetchJson<FinanceBreakdown>(
+      offerFinanceUrl(offer),
+      undefined,
+      isFinanceBreakdown,
+    );
     if (r) return r;
   }
   return financeFromOffer(offer);
@@ -945,16 +1624,18 @@ export async function getFinanceForOffer(offer: OfferParse): Promise<FinanceBrea
 
 /** Persist corrected offer fields that later finance/listing surfaces read. */
 export async function saveOfferCorrections(offer: OfferParse): Promise<void> {
-  if (MODE !== "live") return;
-  const res = await fetch("/api/onboarding/offer", {
-    method: "PATCH",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      city: offer.city,
-      salary: offer.salary,
-      relocationStipend: offer.relocationStipend,
-      signingBonus: offer.signingBonus,
-    }),
-  });
-  if (!res.ok) throw new Error("offer_persist_failed");
+  if (!canUseLiveData()) return;
+  await safeFetchJson(
+    "/api/onboarding/offer",
+    {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        city: offer.city,
+        salary: offer.salary,
+        relocationStipend: offer.relocationStipend,
+        signingBonus: offer.signingBonus,
+      }),
+    },
+  );
 }

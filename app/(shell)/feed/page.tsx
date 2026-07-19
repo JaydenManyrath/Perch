@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { EventCard } from "@/components/feed/EventCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { getFeed } from "@/lib/data/source";
+import { getFeed } from "@/lib/data/server-source";
 
 /**
  * The Flyway - RA11: events-only. Past-intern notes moved to the map (RA12).

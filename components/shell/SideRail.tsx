@@ -5,12 +5,16 @@ import { usePathname } from "next/navigation";
 import { navItems, isActive } from "./nav-items";
 import { BrandMark } from "./BrandMark";
 import { cn } from "@/lib/utils";
+import { useCurrentUser } from "@/lib/auth/session";
+import { SignOutButton } from "@/components/auth/SignOutButton";
 
 /**
  * SideRail - desktop left-side navigation (>= md). Fixed to the left edge.
  */
 export function SideRail() {
   const pathname = usePathname();
+  const { currentUser } = useCurrentUser();
+  const items = navItems(currentUser?.id);
   return (
     <aside
       aria-label="Primary"
@@ -18,7 +22,7 @@ export function SideRail() {
     >
       <BrandMark className="mb-6 pl-2" />
       <ul className="flex flex-col gap-1">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const active = isActive(item, pathname);
           const Icon = item.icon;
           return (
@@ -47,8 +51,9 @@ export function SideRail() {
           );
         })}
       </ul>
-      <div className="mt-auto text-caption text-ink-muted pl-3">
+      <div className="mt-auto flex flex-col gap-3 text-caption text-ink-muted pl-3">
         <p>Land in a new city.</p>
+        <SignOutButton />
       </div>
     </aside>
   );

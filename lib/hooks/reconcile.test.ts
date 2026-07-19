@@ -146,6 +146,51 @@ describe("reconcile — the optimistic-send + Realtime echo flow", () => {
     expect(after2[1].pending).toBe(false);
   });
 
+  it("keeps received messages in a stable canonical order when events arrive out of order", () => {
+    const later = makeRow({ id: "srv-later", sender_id: PEER, created_at: "2026-06-08T12:01:00.000Z" });
+    const earlier = makeRow({ id: "srv-earlier", sender_id: PEER, created_at: "2026-06-08T12:00:00.000Z" });
+
+    const out = reconcile(reconcile([], later), earlier);
+
+    expect(out.map((message) => message.id)).toEqual(["srv-earlier", "srv-later"]);
+  });
+
+  it("dedupes the Realtime echo after the insert response already reconciled it", () => {
+    const pending = addPending([], {
+      conversation_id: CONV,
+      sender_id: ME,
+      recipient_id: PEER,
+      body: "arrived",
+      tempId: "tmp-arrived",
+    });
+    const inserted = makeRow({ id: "srv-arrived", body: "arrived" });
+
+    const afterInsert = reconcile(pending, inserted);
+    const afterEcho = reconcile(afterInsert, inserted);
+
+    expect(afterEcho).toHaveLength(1);
+    expect(afterEcho[0].id).toBe("srv-arrived");
+  });
+
+  it("preserves a Realtime insert that arrives before initial history resolves", () => {
+    const eventDuringRead = makeRow({
+      id: "srv-event",
+      sender_id: PEER,
+      body: "during read",
+      created_at: "2026-06-08T12:01:00.000Z",
+    });
+    const initialHistory = [makeRow({
+      id: "srv-history",
+      body: "older",
+      created_at: "2026-06-08T12:00:00.000Z",
+    })];
+
+    const afterEvent = reconcile([], eventDuringRead);
+    const afterHistory = initialHistory.reduce(reconcile, afterEvent);
+
+    expect(afterHistory.map((message) => message.id)).toEqual(["srv-history", "srv-event"]);
+  });
+
   it("markFailed only affects the targeted tempId", () => {
     let s: UIMessage[] = addPending([], {
       conversation_id: CONV,

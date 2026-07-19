@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getMe, getListings } from "@/lib/data/source";
+import { currentMode, getMe, getListings } from "@/lib/data/server-source";
 import { sublettersFixture } from "@/lib/fixtures";
 import { PostListingForm } from "@/components/post/PostListingForm";
 import { SubletterListings } from "@/components/post/SubletterListings";
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/Button";
  */
 export default async function PostPage({ searchParams }: { searchParams: { as?: string } }) {
   const me = await getMe();
-  const asSubletter = searchParams.as === "subletter";
+  const asSubletter = currentMode() === "fixture" && searchParams.as === "subletter";
   const acting = asSubletter ? sublettersFixture[0] : me;
   const isSubletter = acting.user_type === "subletter";
 

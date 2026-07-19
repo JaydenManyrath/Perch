@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { PublicProfile, ListingRow, PerchCard } from "@/lib/types/contract";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { BandedBadge } from "@/components/ui/BandedBadge";
 import { RatingBadge } from "@/components/ui/RatingBadge";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -21,10 +21,11 @@ export function SubletterProfile({ profile, headerAction }: { profile: PublicPro
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col sm:flex-row items-start gap-4 sm:items-center">
-        <Avatar className="h-20 w-20 sm:h-24 sm:w-24 shrink-0">
-          {profile.user.avatarUrl ? <AvatarImage src={profile.user.avatarUrl} alt="" /> : null}
-          <AvatarFallback className="text-h1">{profile.user.name[0]}</AvatarFallback>
-        </Avatar>
+        <ProfileAvatar
+          userId={profile.user.id}
+          name={profile.user.name}
+          initialUrl={profile.user.avatarUrl}
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-h1 text-ink-strong">{profile.user.name}</h1>

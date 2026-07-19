@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useConversation } from "@/lib/hooks/useConversation";
-import { ME_ID } from "@/lib/fixtures/users";
+import { useCurrentUser } from "@/lib/auth/session";
 
 /**
  * MessageActionButton - opens (or creates) a DM with the given user and jumps to
@@ -25,25 +25,26 @@ export function MessageActionButton({
 }) {
   const router = useRouter();
   const { createOrOpen } = useConversation();
+  const { currentUser } = useCurrentUser();
   const [busy, setBusy] = useState(false);
 
   async function open() {
-    if (busy || userId === ME_ID) return;
+    if (busy || !currentUser || userId === currentUser.id) return;
     setBusy(true);
     try {
-      const conv = await createOrOpen(ME_ID, userId);
+      const conv = await createOrOpen(currentUser.id, userId);
       router.push(`/dms/${conv.id}?focus=1`);
     } finally {
       setTimeout(() => setBusy(false), 1500);
     }
   }
 
-  if (userId === ME_ID) return null;
+  if (userId === currentUser?.id) return null;
 
   return (
     <Button
       onClick={open}
-      disabled={busy}
+      disabled={busy || !currentUser}
       variant={variant}
       size={size}
       aria-label={label}

@@ -32,9 +32,28 @@ export function useRealtimeMessages(conversationId: string, meId: string) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    getConversationMessages(conversationId)
+    async function loadInitialMessages() {
+      if (isLiveSupabase()) {
+        const supabase = getSupabaseBrowser();
+        if (supabase) {
+          const { data, error } = await supabase
+            .from("messages")
+            .select("*")
+            .eq("conversation_id", conversationId)
+            .order("created_at", { ascending: true });
+          if (!error && data) return data as MessageRow[];
+        }
+      }
+      return getConversationMessages(conversationId);
+    }
+
+    loadInitialMessages()
       .then((rows) => {
-        if (!cancelled) setMessages(rows);
+        if (!cancelled) {
+          // The subscription starts independently. Reconcile rather than
+          // replace so an INSERT received during this read is never lost.
+          setMessages((current) => rows.reduce(reconcile, current));
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -90,22 +109,8 @@ export function useRealtimeMessages(conversationId: string, meId: string) {
       );
 
       try {
-        if (isLiveSupabase()) {
-          const supa = getSupabaseBrowser();
-          if (supa) {
-            const { error } = await supa.from("messages").insert({
-              conversation_id: conversationId,
-              sender_id: meId,
-              recipient_id: input.recipientId,
-              body,
-            });
-            if (error) throw error;
-            // The Realtime echo will reconcile the pending row.
-            pendingBodies.current.delete(tempId);
-            return;
-          }
-        }
-        // Fixture: no channel — simulate the echo by reconciling with the row we just wrote.
+        // Live inserts derive sender_id from the Supabase session. Fixture mode
+        // uses the established in-memory row and simulates the echo.
         const row = await insertMessage({
           conversation_id: conversationId,
           sender_id: meId,

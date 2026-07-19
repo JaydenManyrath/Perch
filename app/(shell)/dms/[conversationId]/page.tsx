@@ -6,8 +6,8 @@ import {
   findOrCreateConversation,
   getUserById,
   participantsFromConversationId,
-} from "@/lib/data/source";
-import { ME_ID } from "@/lib/fixtures/users";
+} from "@/lib/data/server-source";
+import { getInitialSession } from "@/lib/auth/server-session";
 import { ConversationThread } from "@/components/dms/ConversationThread";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
 import { BandedBadge } from "@/components/ui/BandedBadge";
@@ -29,16 +29,20 @@ export default async function ConversationPage({
   params: { conversationId: string };
   searchParams: { focus?: string };
 }) {
-  const convs = await getConversationsForUser(ME_ID);
+  const session = await getInitialSession();
+  const meId = session.currentUser?.id;
+  if (!meId) return notFound();
+
+  const convs = await getConversationsForUser(meId);
   let conv = convs.find((c) => c.id === params.conversationId);
 
   if (!conv) {
     const pair = participantsFromConversationId(params.conversationId);
     if (pair) {
       const [a, b] = pair;
-      const peerId = a === ME_ID ? b : b === ME_ID ? a : null;
+      const peerId = a === meId ? b : b === meId ? a : null;
       if (peerId) {
-        const created = await findOrCreateConversation(ME_ID, peerId);
+        const created = await findOrCreateConversation(meId, peerId);
         const peer = await getUserById(peerId);
         if (peer) {
           conv = {
@@ -93,7 +97,7 @@ export default async function ConversationPage({
 
       <ConversationThread
         conversationId={conv.id}
-        meId={ME_ID}
+        meId={meId}
         peerId={conv.peer.id}
         autoFocus={autoFocus}
       />

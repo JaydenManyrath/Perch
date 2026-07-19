@@ -1,6 +1,5 @@
 import type { LucideIcon } from "lucide-react";
 import { Newspaper, Home, Map, MessageCircle, User } from "lucide-react";
-import { ME_ID } from "@/lib/fixtures/users";
 
 /**
  * Five destinations. Nav is shared between BottomNav (mobile) and SideRail
@@ -21,13 +20,21 @@ export type NavItem = {
   match?: RegExp;
 };
 
-export const navItems: NavItem[] = [
-  { href: "/feed", label: "Feed", bird: "Flyway", icon: Newspaper },
-  { href: "/stories", label: "Perches", bird: "swipe sublets", icon: Home },
-  { href: "/map", label: "Map", bird: "your city", icon: Map },
-  { href: "/dms", label: "DMs", bird: "your flock", icon: MessageCircle, match: /^\/dms(\/.*)?$/ },
-  { href: `/profile/${ME_ID}`, label: "Profile", bird: "you", icon: User, match: /^\/profile\/.*/ },
-];
+export function navItems(currentUserId?: string): NavItem[] {
+  return [
+    { href: "/feed", label: "Feed", bird: "Flyway", icon: Newspaper },
+    { href: "/stories", label: "Perches", bird: "swipe sublets", icon: Home },
+    { href: "/map", label: "Map", bird: "your city", icon: Map },
+    { href: "/dms", label: "DMs", bird: "your flock", icon: MessageCircle, match: /^\/dms(\/.*)?$/ },
+    {
+      href: `/profile/${currentUserId ?? "me"}`,
+      label: "Profile",
+      bird: "you",
+      icon: User,
+      match: /^\/profile\/.*/,
+    },
+  ];
+}
 
 export function isActive(item: NavItem, pathname: string): boolean {
   if (item.match) return item.match.test(pathname);

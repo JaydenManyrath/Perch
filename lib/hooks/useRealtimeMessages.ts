@@ -109,30 +109,8 @@ export function useRealtimeMessages(conversationId: string, meId: string) {
       );
 
       try {
-        if (isLiveSupabase()) {
-          const supa = getSupabaseBrowser();
-          if (supa) {
-            // Select the inserted canonical row as a safety net. The sender is
-            // normally subscribed to their own INSERT, but this makes a
-            // delayed Realtime delivery harmless and lets reconcile dedupe its
-            // eventual echo by id.
-            const { data, error } = await supa
-              .from("messages")
-              .insert({
-                conversation_id: conversationId,
-                sender_id: meId,
-                recipient_id: input.recipientId,
-                body,
-              })
-              .select()
-              .single();
-            if (error) throw error;
-            if (data) setMessages((prev) => reconcile(prev, data as MessageRow));
-            pendingBodies.current.delete(tempId);
-            return;
-          }
-        }
-        // Fixture: no channel — simulate the echo by reconciling with the row we just wrote.
+        // Live inserts derive sender_id from the Supabase session. Fixture mode
+        // uses the established in-memory row and simulates the echo.
         const row = await insertMessage({
           conversation_id: conversationId,
           sender_id: meId,

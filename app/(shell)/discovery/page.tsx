@@ -1,4 +1,4 @@
-import { getMatches } from "@/lib/data/source";
+import { getMatches } from "@/lib/data/server-source";
 import { DiscoveryStack } from "@/components/discovery/DiscoveryStack";
 
 export default async function DiscoveryPage() {

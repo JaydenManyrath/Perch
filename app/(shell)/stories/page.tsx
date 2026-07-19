@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Home } from "lucide-react";
-import { getPerchDeck, getSavedPerches } from "@/lib/data/source";
+import { getPerchDeck, getSavedPerches } from "@/lib/data/server-source";
 import { StoriesClient } from "@/components/stories/StoriesClient";
 
 export default async function StoriesPage({ searchParams }: { searchParams: { tab?: string } }) {

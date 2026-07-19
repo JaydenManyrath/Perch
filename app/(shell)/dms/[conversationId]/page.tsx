@@ -6,11 +6,7 @@ import {
   findOrCreateConversation,
   getUserById,
   participantsFromConversationId,
-  currentMode,
-} from "@/lib/data/source";
-import { ME_ID } from "@/lib/fixtures/users";
-import { hasSupabase } from "@/lib/env";
-import { createServerSupabase } from "@/lib/supabase/server";
+} from "@/lib/data/server-source";
 import { getInitialSession } from "@/lib/auth/server-session";
 import { ConversationThread } from "@/components/dms/ConversationThread";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
@@ -34,34 +30,11 @@ export default async function ConversationPage({
   searchParams: { focus?: string };
 }) {
   const session = await getInitialSession();
-  const meId = session.currentUser?.id ?? ME_ID;
-  let liveConversation: { id: string; participant_ids: string[] } | null = null;
-  let livePeer = null;
+  const meId = session.currentUser?.id;
+  if (!meId) return notFound();
 
-  if (currentMode() === "live" && hasSupabase() && session.currentUser) {
-    const supabase = await createServerSupabase();
-    const { data } = await supabase
-      .from("conversations")
-      .select("id, participant_ids")
-      .eq("id", params.conversationId)
-      .contains("participant_ids", [meId])
-      .maybeSingle();
-    if (data) {
-      liveConversation = data as { id: string; participant_ids: string[] };
-      const peerId = data.participant_ids.find((id: string) => id !== meId);
-      if (peerId) {
-        const { data: peer } = await supabase.from("users").select("*").eq("id", peerId).maybeSingle();
-        livePeer = peer;
-      }
-    }
-  }
-
-  const convs = liveConversation ? [] : await getConversationsForUser(meId);
+  const convs = await getConversationsForUser(meId);
   let conv = convs.find((c) => c.id === params.conversationId);
-
-  if (liveConversation && livePeer) {
-    conv = { ...liveConversation, peer: livePeer, lastMessage: undefined } as typeof conv;
-  }
 
   if (!conv) {
     const pair = participantsFromConversationId(params.conversationId);

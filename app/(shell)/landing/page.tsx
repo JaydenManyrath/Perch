@@ -1,4 +1,4 @@
-import { getItinerary } from "@/lib/data/source";
+import { getItinerary } from "@/lib/data/server-source";
 import { ItineraryDayCard } from "@/components/landing/ItineraryDayCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CalendarCheck } from "lucide-react";

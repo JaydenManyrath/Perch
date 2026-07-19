@@ -1,5 +1,5 @@
 import { FriendsClient } from "@/components/friends/FriendsClient";
-import { getFriends, getFriendRequests } from "@/lib/data/source";
+import { getFriends, getFriendRequests } from "@/lib/data/server-source";
 
 /**
  * /friends (RA16) - accepted friends list + requests inbox.

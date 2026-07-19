@@ -1,5 +1,3 @@
-"use client";
-
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createBrowserClient } from "@supabase/ssr";
 import { env, hasSupabase } from "@/lib/env";
@@ -12,6 +10,7 @@ import { env, hasSupabase } from "@/lib/env";
 let cached: SupabaseClient | null | undefined;
 
 export function getSupabaseBrowser(): SupabaseClient | null {
+  if (typeof window === "undefined") return null;
   if (cached !== undefined) return cached;
   if (!hasSupabase()) {
     cached = null;

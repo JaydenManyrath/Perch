@@ -11,8 +11,8 @@ import { Chip } from "@/components/ui/Chip";
 import { Button } from "@/components/ui/Button";
 import { FriendActionButton } from "@/components/friends/FriendActionButton";
 import { formatMoveWeek } from "@/lib/utils";
-import { ME_ID } from "@/lib/fixtures/users";
 import { useConversation } from "@/lib/hooks/useConversation";
+import { useCurrentUser } from "@/lib/auth/session";
 import type { Match } from "@/lib/types/contract";
 
 /**
@@ -27,13 +27,14 @@ import type { Match } from "@/lib/types/contract";
 export function MatchCard({ match, topPick = false }: { match: Match; topPick?: boolean }) {
   const router = useRouter();
   const { createOrOpen } = useConversation();
+  const { currentUser } = useCurrentUser();
   const [busy, setBusy] = useState(false);
 
   async function messageNow() {
-    if (busy) return;
+    if (busy || !currentUser) return;
     setBusy(true);
     try {
-      const conv = await createOrOpen(ME_ID, match.user.id);
+      const conv = await createOrOpen(currentUser.id, match.user.id);
       router.push(`/dms/${conv.id}?focus=1`);
     } finally {
       // Note: don't reset busy on success - we're navigating away.
@@ -90,7 +91,7 @@ export function MatchCard({ match, topPick = false }: { match: Match; topPick?: 
           </div>
           <div className="flex items-center gap-2">
             <FriendActionButton userId={match.user.id} />
-            <Button size="md" onClick={messageNow} disabled={busy} aria-label={`Message ${match.user.name} now`}>
+            <Button size="md" onClick={messageNow} disabled={busy || !currentUser} aria-label={`Message ${match.user.name} now`}>
               <Send className="h-4 w-4" aria-hidden />
               {busy ? "Opening..." : "Message now"}
             </Button>

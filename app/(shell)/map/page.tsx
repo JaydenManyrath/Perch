@@ -6,7 +6,7 @@ import {
   getListings,
   getMapComments,
   getMe,
-} from "@/lib/data/source";
+} from "@/lib/data/server-source";
 
 export default async function MapRoute({ searchParams }: { searchParams: { apartmentId?: string } }) {
   const [me, places, stickers, events, listings, comments] = await Promise.all([

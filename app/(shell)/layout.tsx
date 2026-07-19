@@ -2,6 +2,7 @@ import { BottomNav } from "@/components/shell/BottomNav";
 import { SideRail } from "@/components/shell/SideRail";
 import { TopBar } from "@/components/shell/TopBar";
 import { SignOutButton } from "@/components/auth/SignOutButton";
+import { DataSourceBadge } from "@/components/dev/DataSourceBadge";
 import { CurrentUserProvider } from "@/lib/auth/session";
 import { getInitialSession } from "@/lib/auth/server-session";
 
@@ -25,6 +26,7 @@ export default async function ShellLayout({ children }: { children: React.ReactN
           <div className="mx-auto w-full max-w-3xl">{children}</div>
         </main>
         <BottomNav />
+        <DataSourceBadge />
       </div>
     </CurrentUserProvider>
   );

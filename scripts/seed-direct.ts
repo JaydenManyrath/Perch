@@ -187,7 +187,7 @@ async function main(): Promise<void> {
           ["indie", "techno", "folk", "live"][i % 4],
           47.6 + i * 0.005,
           -122.33 - i * 0.005,
-          new Date(NOW + (i + 1) * DAY).toISOString(),
+          new Date(Date.now() + (i + 2) * DAY).toISOString(), // future-relative: always upcoming
           [`The Crocodile`, `Kremwerk`, `Fremont Abbey`, `Union Hall`][i % 4],
           `https://perch.demo/events/local-${i}`,
           "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=900",

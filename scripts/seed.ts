@@ -271,7 +271,9 @@ async function seed() {
     category: ["indie", "techno", "folk", "live"][i % 4],
     lat: 47.6 + (i % 6) * 0.005,
     lng: -122.33 - (i % 6) * 0.005,
-    datetime: new Date(Date.parse("2026-06-10T00:00:00Z") + i * 86_400_000).toISOString(),
+    // Future-relative so seeded events are always upcoming whenever the seed runs
+    // (the feed + map show datetime >= now only). Spread over the next ~2..16 days.
+    datetime: new Date(Date.now() + (i + 2) * 86_400_000).toISOString(),
     source: "seed",
     venue: [`The Crocodile`, `Kremwerk`, `Fremont Abbey`, `Union Hall`][i % 4],
     url: `https://perch.demo/events/seed-${i}`,

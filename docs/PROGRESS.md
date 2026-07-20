@@ -163,9 +163,9 @@ IMPLEMENTATION-PERSON-{A,B,C,D}-ROUND5.md. Branches: round5-person-a, round5-per
 round5-person-c, round5-person-d (each cut from main).
 
 ### Onboarding growth (person-a)
-- [todo] RA51 Recommended-friends "find your flock" onboarding step (reuses /api/matches + friends API; skippable)
-- [todo] RA52 Optional profile-picture step (upload or skip; nothing requires an avatar)
-- [todo] RA53 Shared initials-fallback Avatar component + sweep of every avatar render site
+- [verified] RA51 Recommended-friends "find your flock" onboarding step (reuses getMatches + requestFriend; optimistic add; skippable)
+- [verified] RA52 Optional profile-picture step (local preview in fixture, storage helper only when Supabase is configured; skip in one tap; nothing requires an avatar)
+- [verified] RA53 Shared InitialsAvatar (initials on a token background) swept across every avatar render site; a null/empty/broken avatar_url never breaks a surface
 
 ### Live event polling on Vercel (person-b)
 - [todo] RB51 Shared ingest core (lib/events/ingest.ts) + guarded /api/cron/ingest-events route (CRON_SECRET)
@@ -197,4 +197,5 @@ round5-person-c, round5-person-d (each cut from main).
 - 2026-07-17: Round 3 (person-a UI + person-b schema/APIs + person-c integrations) integrated and merged to main. Full suite green incl. 28 RLS tests on Postgres; production build clean; no client-bundle secret leak.
 - 2026-07-17: Round 4 planned (live backend: Supabase provisioning + go-live). Two-way split A/B on branches round4-person-a / round4-person-b; contract section 14; per-person plans in IMPLEMENTATION-PERSON-{A,B}-ROUND4.md. No new product features - the app moves from fixture-first to a real hosted Supabase project with live auth sessions, RLS verified on the real DB, Realtime + Storage live, and a Vercel deploy.
 - 2026-07-20: Round 5 planned (recommended friends + optional avatars in onboarding, live Ticketmaster polling on Vercel, OpenAI-first offer parsing with deterministic verification, bird-theme renames + branch motif). Four-way split on branches round5-person-{a,b,c,d}; seams in contract section 15; plans in IMPLEMENTATION-PERSON-{A,B,C,D}-ROUND5.md. Stale merged branches (person-a/b/c, sprint-3-person-c, claude/person-b-round2-build) removed.
+- 2026-07-20: Round 5 person-a (RA51-RA53) verified on branch round5-person-a. Shared InitialsAvatar replaces the Radix Avatar triad across all 13 render sites so a null/empty/broken avatar_url renders initials on a token background instead of a broken image; a skippable "find your flock" onboarding step recommends 3-6 interns (same company first, then same-city overlapping move-in) via getMatches + requestFriend with an optimistic add; an optional Photo step previews locally in fixture mode and calls the storage helper only when Supabase is configured. Fixture-first (zero keys), plain ASCII. Full suite 388 passing (6 skipped), typecheck and lint clean. Not merged.
 - 2026-07-18: RA47 deployment handoff checked. Vercel CLI is authenticated, but the active seo23 scope has no Vercel project and this checkout is not linked, so no Preview URL or hosted smoke test was performed. Hosted acceptance remains blocked on project creation or linking and Person B's RB41-RB47 handoff. README records the exact public-env and smoke-test sequence; no secrets, migrations, seed paths, Storage policies, or product shapes were changed.

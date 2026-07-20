@@ -275,21 +275,203 @@ async function seed() {
   console.log(`seeded ${stickers.length} stickers`);
 
   // ---- events ----
-  const events = Array.from({ length: 15 }, (_, i) => ({
-    id: uuid(`event-${i}`),
-    title: [`Indie show at The Crocodile`, `Techno night`, `Folk open mic`, `Intern mixer`][i % 4] + ` #${i}`,
-    category: ["indie", "techno", "folk", "live"][i % 4],
-    lat: 47.6 + (i % 6) * 0.005,
-    lng: -122.33 - (i % 6) * 0.005,
-    // Future-relative so seeded events are always upcoming whenever the seed runs
-    // (the feed + map show datetime >= now only). Spread over the next ~2..16 days.
-    datetime: new Date(Date.now() + (i + 2) * 86_400_000).toISOString(),
-    source: "seed",
-    venue: [`The Crocodile`, `Kremwerk`, `Fremont Abbey`, `Union Hall`][i % 4],
-    url: `https://perch.demo/events/seed-${i}`,
-    image_url: `https://images.unsplash.com/photo-${["1501281668745-f7f57925c3b4", "1492684223066-81342ee5ff30", "1501386761578-eac5c94b800a", "1527529482837-4698179dc6ce"][i % 4]}?w=900`,
-    price_range: i % 3 === 0 ? "Free" : `$${15 + i}-$${30 + i}`,
-  }));
+  // Hand-authored believable Seattle events at real venues. Future-relative so seeded
+  // events are always upcoming whenever the seed runs (the feed + map show
+  // datetime >= now only), spread over the next ~1..30 days. Times encode realistic
+  // Seattle local hours as UTC (PDT = UTC-7): shows render as evening events and
+  // markets as mornings instead of one uniform clock time. Ids stay uuid(`event-${i}`)
+  // so the upsert keeps replacing the same 15 rows (idempotent, onConflict id).
+  const PDT_UTC_OFFSET_HOURS = 7;
+  function eventAt(daysOut: number, localHour: number, localMinute = 0): string {
+    const d = new Date(Date.now() + daysOut * DAY_MS);
+    d.setUTCHours(localHour + PDT_UTC_OFFSET_HOURS, localMinute, 0, 0);
+    return d.toISOString();
+  }
+  /** Days (1..7) until the next given UTC weekday (0=Sunday); never 0, so the event stays upcoming. */
+  function daysToNext(weekday: number): number {
+    return ((weekday - new Date(Date.now()).getUTCDay() + 7) % 7) || 7;
+  }
+  const eventImg = (id: string) => `https://images.unsplash.com/photo-${id}?w=900`;
+  // The first 8 rows get the generic seeded comments below ("going after work"), so
+  // they are all evening events.
+  const eventRows: Array<{
+    title: string;
+    category: string;
+    venue: string;
+    lat: number;
+    lng: number;
+    datetime: string;
+    url: string | null;
+    image_url: string;
+    price_range: string;
+  }> = [
+    {
+      title: "Salt Lagoon with Glass Elk",
+      category: "indie",
+      venue: "Neumos",
+      lat: 47.6137,
+      lng: -122.3196,
+      datetime: eventAt(2, 20),
+      url: "https://www.neumos.com",
+      image_url: eventImg("1524368535928-5b5e00ddc76b"),
+      price_range: "$18-$22",
+    },
+    {
+      title: "Mariners vs. Astros",
+      category: "sports",
+      venue: "T-Mobile Park",
+      lat: 47.5914,
+      lng: -122.3325,
+      datetime: eventAt(4, 18, 40),
+      url: "https://www.mlb.com/mariners/tickets",
+      image_url: eventImg("1471295253337-3ceaaedca402"),
+      price_range: "$22-$150",
+    },
+    {
+      title: "New Faces stand-up showcase",
+      category: "comedy",
+      venue: "Here-After at The Crocodile",
+      lat: 47.6135,
+      lng: -122.3467,
+      datetime: eventAt(3, 20, 30),
+      url: "https://www.thecrocodile.com",
+      image_url: eventImg("1516280440614-37939bbacd81"),
+      price_range: "$15",
+    },
+    {
+      title: "Intern trivia night",
+      category: "social",
+      venue: "Optimism Brewing",
+      lat: 47.6141,
+      lng: -122.3211,
+      datetime: eventAt(1, 19, 30),
+      url: null,
+      image_url: eventImg("1436076863939-06870fe779c2"),
+      price_range: "Free",
+    },
+    {
+      title: "The Cascade Kicks (album release)",
+      category: "folk",
+      venue: "Tractor Tavern",
+      lat: 47.6655,
+      lng: -122.3822,
+      datetime: eventAt(6, 21),
+      url: "https://www.tractortavern.com",
+      image_url: eventImg("1510915361894-db8b60106cb1"),
+      price_range: "$16",
+    },
+    {
+      title: "Warehouse night: Kremwerk + Timbre Room",
+      category: "techno",
+      venue: "Kremwerk",
+      lat: 47.6174,
+      lng: -122.3319,
+      datetime: eventAt(5, 22),
+      url: "https://www.kremwerk.com",
+      image_url: eventImg("1514525253161-7a46d19cd819"),
+      price_range: "$15-$25",
+    },
+    {
+      title: "Paper Moons at The Showbox",
+      category: "indie",
+      venue: "The Showbox",
+      lat: 47.6086,
+      lng: -122.3394,
+      datetime: eventAt(9, 20),
+      url: "https://www.showboxpresents.com",
+      image_url: eventImg("1501281668745-f7f57925c3b4"),
+      price_range: "$25-$35",
+    },
+    {
+      title: "Seattle Storm vs. Las Vegas Aces",
+      category: "sports",
+      venue: "Climate Pledge Arena",
+      lat: 47.6221,
+      lng: -122.3541,
+      datetime: eventAt(8, 19),
+      url: "https://storm.wnba.com",
+      image_url: eventImg("1546519638-68e109498ffc"),
+      price_range: "$20-$95",
+    },
+    {
+      title: "Fremont Sunday Market",
+      category: "market",
+      venue: "Fremont Sunday Market",
+      lat: 47.6497,
+      lng: -122.351,
+      datetime: eventAt(daysToNext(0), 10), // lands on an actual Sunday morning
+      url: "https://www.fremontmarket.com",
+      image_url: eventImg("1488459716781-31db52582fe9"),
+      price_range: "Free entry",
+    },
+    {
+      title: "Pike Place after-hours food walk",
+      category: "food",
+      venue: "Pike Place Market",
+      lat: 47.6089,
+      lng: -122.3401,
+      datetime: eventAt(11, 17, 30),
+      url: "https://www.pikeplacemarket.org",
+      image_url: eventImg("1414235077428-338989a2e8c0"),
+      price_range: "$39",
+    },
+    {
+      title: "Pioneer Square Art Walk",
+      category: "community",
+      venue: "Occidental Square",
+      lat: 47.6003,
+      lng: -122.3331,
+      datetime: eventAt(daysToNext(4), 18), // gallery walks run on Thursday evenings
+      url: null,
+      image_url: eventImg("1531058020387-3be344556be6"),
+      price_range: "Free",
+    },
+    {
+      title: "Kerry Park sunset picnic",
+      category: "social",
+      venue: "Kerry Park",
+      lat: 47.6295,
+      lng: -122.3599,
+      datetime: eventAt(13, 19, 30),
+      url: null,
+      image_url: eventImg("1502175353174-a7a70e73b362"),
+      price_range: "Free",
+    },
+    {
+      title: "Green Lake fun run + coffee",
+      category: "outdoors",
+      venue: "Green Lake Park",
+      lat: 47.6805,
+      lng: -122.3395,
+      datetime: eventAt(16, 9),
+      url: null,
+      image_url: eventImg("1461896836934-ffe607ba8211"),
+      price_range: "Free",
+    },
+    {
+      title: "Hadestown - Broadway at The Paramount",
+      category: "theatre",
+      venue: "Paramount Theatre",
+      lat: 47.6134,
+      lng: -122.3318,
+      datetime: eventAt(21, 19, 30),
+      url: "https://www.stgpresents.org",
+      image_url: eventImg("1489599849927-2ee91cede3ba"),
+      price_range: "$45-$125",
+    },
+    {
+      title: "Harbor Lights Trio at Madame Lou's",
+      category: "indie",
+      venue: "Madame Lou's at The Crocodile",
+      lat: 47.6135,
+      lng: -122.3467,
+      datetime: eventAt(27, 20),
+      url: "https://www.thecrocodile.com",
+      image_url: eventImg("1429962714451-bb934ecdc4ec"),
+      price_range: "$20",
+    },
+  ];
+  const events = eventRows.map((e, i) => ({ id: uuid(`event-${i}`), source: "seed", ...e }));
   if ((await db.from("events").upsert(events, { onConflict: "id" })).error) throw new Error("events upsert failed");
   console.log(`seeded ${events.length} events`);
 

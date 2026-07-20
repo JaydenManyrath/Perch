@@ -41,7 +41,7 @@ const N = (friendIdx: number, eventId: string): FriendNote => {
 
 export const friendNotesFixture: FriendNote[] = [
   N(0, "E1"),  // Jordan -> Fred again..
-  N(3, "E6"),  // Priya -> Peggy Gou
+  N(3, "E6"),  // Priya -> Kremwerk warehouse night
   N(4, "E2"),  // Miles -> Phoenix
   N(8, "E3"),  // Wesley -> intern pub-quiz
 ];

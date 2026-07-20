@@ -23,16 +23,16 @@ describe("feed event images", () => {
   it("keeps seeded feed image sources on known-usable fixture URLs", () => {
     expect(eventsFixture.filter((event) => event.image_url === null)).toEqual([]);
     expect(eventsFixture.map((event) => event.image_url)).toEqual([
-      "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800",
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800",
+      "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=800",
+      "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=800",
       "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800",
       "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800",
       "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800",
-      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800",
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800",
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800",
+      "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800",
       "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=800",
       "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800",
-      "https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?w=800",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
     ]);
   });
 

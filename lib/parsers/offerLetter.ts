@@ -263,11 +263,32 @@ export function parseOfferText(text: string): OfferParse {
  * dynamically (server-only CJS) so it never enters the client bundle.
  */
 export async function extractOfferText(pdf: Buffer): Promise<string> {
-  const mod = await import("pdf-parse");
-  const pdfParse = (mod as unknown as { default: (b: Buffer) => Promise<{ text: string }> }).default;
   try {
-    const parsed = await pdfParse(pdf);
-    return parsed.text;
+    // `unpdf` wraps a modern, serverless-safe pdf.js: no filesystem reads and no debug
+    // harness (the old `pdf-parse` crashed in the Vercel bundle because its index.js runs
+    // `isDebugMode = !module.parent`, which fires in an ESM bundle and reads a missing
+    // bundled test PDF, so every upload parsed as empty). Loaded dynamically so it stays
+    // server-only. We rebuild the text from pdf.js text items and re-insert newlines at
+    // each `hasEOL` marker - the field parsers are line-anchored, and a newline-free blob
+    // would let `Company: (.+)` swallow the rest of the letter. Falls back to literal
+    // PDF-text extraction if it throws.
+    const { getDocumentProxy } = await import("unpdf");
+    const doc = await getDocumentProxy(new Uint8Array(pdf));
+    let text = "";
+    for (let p = 1; p <= doc.numPages; p++) {
+      const page = await doc.getPage(p);
+      const content = await page.getTextContent();
+      for (const item of content.items as Array<{ str?: string; hasEOL?: boolean }>) {
+        if (typeof item.str !== "string") continue;
+        text += item.str;
+        if (item.hasEOL) text += "\n";
+      }
+      text += "\n";
+    }
+    if (text.trim().length > 0) return text;
+    const literalText = extractLiteralPdfText(pdf);
+    if (literalText.trim().length > 0) return literalText;
+    return text;
   } catch (err) {
     const literalText = extractLiteralPdfText(pdf);
     if (literalText.trim().length > 0) return literalText;

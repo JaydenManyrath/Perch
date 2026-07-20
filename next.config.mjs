@@ -8,9 +8,11 @@ const nextConfig = {
       { protocol: "https", hostname: "api.dicebear.com" },
     ],
   },
-  // pdf-parse is a server-only CommonJS module — keep it external to the server bundle (from Person B).
+  // unpdf (serverless pdf.js) is server-only — keep it external to the server bundle so
+  // its pdf.js worker resolves from node_modules at runtime (Person B; replaced pdf-parse,
+  // whose debug harness crashed in the Vercel bundle and made every offer upload parse empty).
   experimental: {
-    serverComponentsExternalPackages: ["pdf-parse"],
+    serverComponentsExternalPackages: ["unpdf"],
   },
 };
 

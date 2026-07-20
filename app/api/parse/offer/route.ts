@@ -5,7 +5,7 @@ import { parseOfferPdf, parseOfferText } from "@/lib/parsers/offerLetter";
 import type { OfferParse } from "@/lib/types/contract";
 
 export const dynamic = "force-dynamic";
-export const runtime = "nodejs"; // pdf-parse needs Node, not edge
+export const runtime = "nodejs"; // unpdf's pdf.js needs Node APIs, not edge
 
 // POST /api/parse/offer - multipart PDF upload → structured offer (B6). Deterministic
 // extraction; salary is never invented. Stores the file to the private offer-letters

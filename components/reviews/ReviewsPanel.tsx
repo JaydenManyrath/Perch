@@ -9,7 +9,7 @@ import type {
 } from "@/lib/types/contract";
 import { Stars, StarsInput } from "@/components/ui/Stars";
 import { RatingBadge } from "@/components/ui/RatingBadge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -93,12 +93,7 @@ export function ReviewsPanel({
           {reviews.map((r) => (
             <li key={r.id} className="rounded-2xl border border-sky-100 bg-white p-3 shadow-card">
               <div className="flex items-center gap-3">
-                <Avatar className="h-9 w-9">
-                  {r.reviewer.avatarUrl ? (
-                    <AvatarImage src={r.reviewer.avatarUrl} alt="" />
-                  ) : null}
-                  <AvatarFallback>{r.reviewer.name[0]}</AvatarFallback>
-                </Avatar>
+                <InitialsAvatar name={r.reviewer.name} src={r.reviewer.avatarUrl} size={36} />
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/profile/${r.reviewer.id}`}

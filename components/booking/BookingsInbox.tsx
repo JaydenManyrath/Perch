@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Check, X, Clock } from "lucide-react";
@@ -148,12 +148,7 @@ function Row({
           aria-label={`Open ${booking.booker.name}'s profile`}
           className="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
         >
-          <Avatar className="h-10 w-10">
-            {booking.booker.avatarUrl ? (
-              <AvatarImage src={booking.booker.avatarUrl} alt="" />
-            ) : null}
-            <AvatarFallback>{booking.booker.name[0]}</AvatarFallback>
-          </Avatar>
+          <InitialsAvatar name={booking.booker.name} src={booking.booker.avatarUrl} size={40} />
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">

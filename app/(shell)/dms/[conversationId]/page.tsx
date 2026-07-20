@@ -9,7 +9,7 @@ import {
 } from "@/lib/data/server-source";
 import { getInitialSession } from "@/lib/auth/server-session";
 import { ConversationThread } from "@/components/dms/ConversationThread";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { BandedBadge } from "@/components/ui/BandedBadge";
 
 /**
@@ -74,10 +74,7 @@ export default async function ConversationPage({
           className="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
           aria-label={`Open ${conv.peer.name}'s profile`}
         >
-          <Avatar className="h-9 w-9">
-            {conv.peer.avatar_url ? <AvatarImage src={conv.peer.avatar_url} alt="" /> : null}
-            <AvatarFallback>{conv.peer.name[0]}</AvatarFallback>
-          </Avatar>
+          <InitialsAvatar name={conv.peer.name} src={conv.peer.avatar_url} size={36} />
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">

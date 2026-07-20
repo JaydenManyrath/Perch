@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Send, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { BandedBadge } from "@/components/ui/BandedBadge";
 import { Chip } from "@/components/ui/Chip";
 import { Button } from "@/components/ui/Button";
@@ -51,10 +51,12 @@ export function MatchCard({ match, topPick = false }: { match: Match; topPick?: 
             className="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
             aria-label={`Open ${match.user.name}'s profile`}
           >
-            <Avatar className="h-14 w-14">
-              {match.user.avatarUrl ? <AvatarImage src={match.user.avatarUrl} alt="" /> : null}
-              <AvatarFallback className="text-h3">{match.user.name[0]}</AvatarFallback>
-            </Avatar>
+            <InitialsAvatar
+              name={match.user.name}
+              src={match.user.avatarUrl}
+              size={56}
+              fallbackClassName="text-h3"
+            />
           </Link>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">

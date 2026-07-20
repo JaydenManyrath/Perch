@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { guard } from "@/lib/http";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { fetchNearbyEvents } from "@/lib/events/ticketmaster";
+import { fetchNearbyEvents, isTicketmasterEnabled } from "@/lib/events/ticketmaster";
+import { maybeRefreshCity } from "@/lib/events/ingest";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -29,6 +30,16 @@ export async function GET(req: NextRequest) {
       await admin.from("events").upsert(events, { onConflict: "source,external_id" });
     } catch (dbErr) {
       console.warn("events upsert skipped:", dbErr);
+    }
+
+    // RB52 - keep the events table live between daily cron runs. Under real traffic, kick
+    // a background ingest for this city at most once per cooldown (default 6h), collapsing
+    // concurrent requests onto one refresh. Fire-and-forget: never blocks or fails the
+    // response. Only meaningful with a key; the no-key path stays a pure seeded fallback.
+    // (Next 14 has no after()/waitUntil here, so this is best-effort - the synchronous
+    // upsert above and the daily cron are what guarantee freshness.)
+    if (isTicketmasterEnabled()) {
+      void maybeRefreshCity(createAdminClient, { name: `${lat},${lng}`, lat, lng, radiusMiles: radius });
     }
 
     // RB36 - upcoming only (contract 13.1): guard datetime >= now as defense in depth

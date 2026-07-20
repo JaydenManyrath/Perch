@@ -16,6 +16,7 @@
     "seed:live": "SEED_REQUIRE_HOSTED=1 tsx scripts/seed.ts",
     "seed:local": "tsx scripts/seed-direct.ts",
     "gen:fixtures": "tsx scripts/gen-fixtures.ts",
+    "gen:offer-fixtures": "tsx scripts/gen-offer-fixtures.ts",
     "db:push": "tsx scripts/db-push.ts",
     "db:push:live": "DB_PUSH_REQUIRE_HOSTED=1 tsx scripts/db-push.ts",
     "db:reset": "supabase db reset",

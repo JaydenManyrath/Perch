@@ -21,7 +21,8 @@
     "db:reset": "supabase db reset",
     "rls:test": "tsx scripts/rls-harness.ts",
     "rls:acceptance": "tsx scripts/rls-acceptance.ts",
-    "seed:sourcing": "tsx scripts/seed-sourcing.ts"
+    "seed:sourcing": "tsx scripts/seed-sourcing.ts",
+    "ingest:events": "tsx scripts/ingest-events.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.0",

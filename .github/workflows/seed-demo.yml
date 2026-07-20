@@ -30,3 +30,11 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SEED_REQUIRE_HOSTED: "1"
         run: npx tsx scripts/seed.ts
+      # One Ticketmaster call per city per day -> real events in the feed alongside the
+      # seeded base, without approaching any rate limit. No-ops if the key is unset.
+      - name: Ingest live Ticketmaster events
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://hjmyfaqwqncuyiodavmk.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
+        run: npx tsx scripts/ingest-events.ts

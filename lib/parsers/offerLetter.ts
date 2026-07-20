@@ -56,6 +56,10 @@ function firstMatch(text: string, patterns: RegExp[]): string | null {
 /** Confidence below this flags a field for manual review (contract 11.9). */
 export const REVIEW_THRESHOLD = 0.6;
 
+/** Sentinel used when no employer can be read - shared by the heuristic, the LLM
+ * layer, and the verification/merge layer so "absent employer" means one thing. */
+export const UNKNOWN_EMPLOYER = "Unknown employer";
+
 /** Try patterns in order; return the captured value + the pattern's confidence. */
 function matchConf(
   text: string,
@@ -176,7 +180,7 @@ export function parseOfferText(text: string): OfferParse {
     { re: /on behalf of\s+([A-Z][\w&.,'’\- ]+?)[.,\n]/i, conf: 0.7 },
     { re: /(?:join|joining)\s+([A-Z][\w&.,'’\- ]+?)(?:[.,\n]|\s+as\b)/, conf: 0.62 },
   ]);
-  const employer = employerM?.value ?? "Unknown employer";
+  const employer = employerM?.value ?? UNKNOWN_EMPLOYER;
   const employerConf = employerM?.conf ?? 0;
 
   // --- role ---
@@ -303,7 +307,7 @@ export function emptyOffer(): OfferParse {
     [...fields, "relocationStipend", "signingBonus"].map((f) => [f, 0]),
   ) as Record<OfferField, number>;
   return {
-    employer: "Unknown employer",
+    employer: UNKNOWN_EMPLOYER,
     role: null,
     salary: null,
     startDate: null,

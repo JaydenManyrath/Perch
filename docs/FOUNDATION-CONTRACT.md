@@ -1021,3 +1021,65 @@ in code/spec); update `README.md` + `docs/PROGRESS.md` on every merge to `main`;
 server-only and never committed; RLS stays the row-level authorization boundary (now verified
 against the REAL database, not just the harness). Determinism note: nothing in go-live changes
 the deterministic backends - it only points them at the real data store.
+
+## 15. Round 5 - Growth, live events, LLM parsing, bird theme (2026-07-20)
+
+A FOUR-way split of new product work, planned while Round 4 (live backend) is still in
+flight on `round4-person-a` / `round4-person-b`. Branches: `round5-person-a`,
+`round5-person-b`, `round5-person-c`, `round5-person-d` (each cut from `main`). Per-person
+plans: `docs/IMPLEMENTATION-PERSON-{A,B,C,D}-ROUND5.md`. Ticket prefixes: RA5x (A), RB5x (B),
+RC5x (C), RD5x (D).
+
+### 15.1 Scope summary
+- Person A - onboarding growth: a recommended-friends ("find your flock") step in
+  onboarding, and profile pictures made optional end to end (skippable upload + a shared
+  initials-fallback avatar).
+- Person B - live event polling on Vercel: the deployed app polls Ticketmaster itself
+  (cron route + schedule + cooldown-gated on-request refresh); the GitHub Action keeps only
+  the seed step. Partiful has no public API and is out; Luma needs a paid key and is out
+  unless a key appears (the sourcing-adapter seam leaves room).
+- Person C - OpenAI offer parsing: extraction becomes LLM-first (Vercel AI SDK structured
+  output) with a deterministic verification layer; heuristics remain the no-key fallback;
+  real-PDF regression fixtures prove the route end to end.
+- Person D - bird theme: nav renames (DMs -> Chirps, Map -> Migration, Profile -> Nest)
+  and a drawn branch/tree background motif on emotional surfaces only.
+
+### 15.2 Frozen interfaces (what this round may NOT change)
+- `lib/types/contract.ts` shapes are unchanged. `OfferParse` stays the parser output shape
+  (the LLM fills the SAME fields); `MatchesResponse` is reused as the recommendation source;
+  the friends API (request/accept/decline) is reused as-is by the onboarding step.
+- `users.avatar_url` is already nullable; "optional profile pictures" is a UI/UX guarantee
+  (no schema change): every avatar render site must tolerate null via the shared fallback.
+- Routes do not move: `/dms`, `/map`, `/profile/*`, `/feed`, `/stories` keep their paths.
+  Renames are labels/headers/copy only (deep links must not break).
+- The fixture-to-live boundary (14.2) and graceful-fallback rule hold for every new surface:
+  no key, no crash.
+- Env key names (14.1) gain one SECRET: `CRON_SECRET` (guards cron/ingest routes on Vercel).
+  `TICKETMASTER_API_KEY` and `OPENAI_API_KEY` / `OPENAI_MODEL` / `LLM_DISABLED` already exist.
+
+### 15.3 Ownership map (round 5)
+| Area | Owner | Notes |
+|---|---|---|
+| Onboarding steps (new flock + avatar steps) | A | may add steps; must NOT modify OfferStep internals (C owns) |
+| Shared `Avatar` initials fallback + render-site sweep | A | touches many components; label-only changes elsewhere stay D's |
+| Ingest cron route + `vercel.json` crons + refresh cooldown | B | server + config only; no UI |
+| GitHub Action slimming (seed stays, TM step retired) | B | `.github/workflows/seed-demo.yml` |
+| `lib/parsers/*`, `/api/parse/offer`, OfferStep internals | C | LLM layer + verification + fixtures |
+| `components/shell/nav-items.ts`, page headers, glossary | D | labels + subtitles; routes frozen |
+| Branch/tree motif asset + placements | D | emotional surfaces only (9); no heavy SVG filters |
+
+### 15.4 Overlap rules
+- A and C both touch onboarding: A adds NEW step files under `app/onboarding/_steps/`;
+  C changes OfferStep and the parse pipeline. Neither edits the other's files.
+- A and D both touch user-facing strings: D owns nav labels, page headers, README/glossary;
+  A owns onboarding copy. D's sweep must not reword onboarding.
+- B is server/config-only this round; nobody else edits `vercel.json`, cron routes, or the
+  workflow file.
+- All four update `docs/PROGRESS.md` + `README.md` on their own merge to `main` (working
+  agreements 14.6 apply unchanged, including plain ASCII).
+
+### 15.5 The naming contract (D ships, everyone adopts)
+Labels after RD51: Feed = "Flyway", Perches = "Perches", Map = "Migration", DMs = "Chirps",
+Profile = "Nest". Plain-meaning subtitles stay per section 9 (the bird word never costs
+clarity: e.g. Chirps subtitles "DMs", Migration subtitles "your city"). The glossary in
+section 10 is updated by D in the same merge.

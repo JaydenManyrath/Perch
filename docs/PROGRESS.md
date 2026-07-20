@@ -155,6 +155,33 @@ run `npm run db:push:live` then `npm run seed:live`, hand Person A the URL + ano
 then `RUN_RLS_TESTS=1 RLS_TEST_DATABASE_URL="$SUPABASE_DB_URL" npm run rls:test` and the
 `tests/auth-live.test.ts` login smoke. See the runbook.
 
+## Round 5 - Growth, live events, LLM parsing, bird theme (planned 2026-07-20)
+
+Four-way split of new product work, planned while Round 4 (live backend) is still in
+flight. Seams: FOUNDATION-CONTRACT.md section 15. Plans:
+IMPLEMENTATION-PERSON-{A,B,C,D}-ROUND5.md. Branches: round5-person-a, round5-person-b,
+round5-person-c, round5-person-d (each cut from main).
+
+### Onboarding growth (person-a)
+- [todo] RA51 Recommended-friends "find your flock" onboarding step (reuses /api/matches + friends API; skippable)
+- [todo] RA52 Optional profile-picture step (upload or skip; nothing requires an avatar)
+- [todo] RA53 Shared initials-fallback Avatar component + sweep of every avatar render site
+
+### Live event polling on Vercel (person-b)
+- [todo] RB51 Shared ingest core (lib/events/ingest.ts) + guarded /api/cron/ingest-events route (CRON_SECRET)
+- [todo] RB52 vercel.json crons (ingest-events + existing expire-listings) + cooldown-gated on-request refresh
+- [todo] RB53 Retire the workflow's Ticketmaster step (seed stays) + deployed verification with evidence
+
+### OpenAI offer parsing (person-c)
+- [todo] RC51 LLM-first extraction: generateObject over extracted text, OfferParse-shaped schema
+- [todo] RC52 Deterministic verification layer (verbatim-in-source rule) + pipeline merge order; byte-identical fallback when disabled
+- [todo] RC53 Real-PDF regression fixtures (incl. scanned OCR + adversarial case) + mocked e2e + one LIVE_LLM smoke
+
+### Bird theme (person-d)
+- [todo] RD51 Nav renames: DMs -> Chirps, Map -> Migration, Profile -> Nest (labels/subtitles only; routes frozen)
+- [todo] RD52 Drawn branch/tree motif on emotional surfaces only (flat vector, no SVG filters, aria-hidden)
+- [todo] RD53 Glossary (contract section 10) + README + plain-ASCII sweep
+
 ## Log
 
 - 2026-07-16: Round 1 merged to main.
@@ -169,4 +196,5 @@ then `RUN_RLS_TESTS=1 RLS_TEST_DATABASE_URL="$SUPABASE_DB_URL" npm run rls:test`
 - 2026-07-17: Final integrated acceptance: focused suite 155 of 155 tests passing across 19 files; full suite 325 of 326 tests passing across 46 passing files with 1 live-auth test/file skipped; typecheck and lint clean; production build passed with the existing dynamic OCR dependency warning; local database reset, 28 RLS tests, and idempotent seed passed. Browser acceptance passed all fixture flows except real Mapbox marker clicks because no public Mapbox token was configured. Round 3 remains a release candidate until that browser pass and merge to `main`.
 - 2026-07-17: Round 3 (person-a UI + person-b schema/APIs + person-c integrations) integrated and merged to main. Full suite green incl. 28 RLS tests on Postgres; production build clean; no client-bundle secret leak.
 - 2026-07-17: Round 4 planned (live backend: Supabase provisioning + go-live). Two-way split A/B on branches round4-person-a / round4-person-b; contract section 14; per-person plans in IMPLEMENTATION-PERSON-{A,B}-ROUND4.md. No new product features - the app moves from fixture-first to a real hosted Supabase project with live auth sessions, RLS verified on the real DB, Realtime + Storage live, and a Vercel deploy.
+- 2026-07-20: Round 5 planned (recommended friends + optional avatars in onboarding, live Ticketmaster polling on Vercel, OpenAI-first offer parsing with deterministic verification, bird-theme renames + branch motif). Four-way split on branches round5-person-{a,b,c,d}; seams in contract section 15; plans in IMPLEMENTATION-PERSON-{A,B,C,D}-ROUND5.md. Stale merged branches (person-a/b/c, sprint-3-person-c, claude/person-b-round2-build) removed.
 - 2026-07-18: RA47 deployment handoff checked. Vercel CLI is authenticated, but the active seo23 scope has no Vercel project and this checkout is not linked, so no Preview URL or hosted smoke test was performed. Hosted acceptance remains blocked on project creation or linking and Person B's RB41-RB47 handoff. README records the exact public-env and smoke-test sequence; no secrets, migrations, seed paths, Storage policies, or product shapes were changed.

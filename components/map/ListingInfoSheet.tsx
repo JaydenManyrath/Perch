@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/Sheet";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import type { ListingRow, ListingDetail } from "@/lib/types/contract";
 import { getListingDetail, conversationIdFor } from "@/lib/data/source";
 import { useCurrentUser } from "@/lib/auth/session";
@@ -147,12 +147,7 @@ export function ListingInfoSheet({
                     href={`/profile/${detail.host.id}`}
                     className="mt-3 flex items-center gap-2 rounded-xl bg-sky-50 px-3 py-2 hover:bg-sky-100 transition-colors"
                   >
-                    <Avatar className="h-8 w-8">
-                      {detail.host.avatarUrl ? (
-                        <AvatarImage src={detail.host.avatarUrl} alt="" />
-                      ) : null}
-                      <AvatarFallback>{detail.host.name[0]}</AvatarFallback>
-                    </Avatar>
+                    <InitialsAvatar name={detail.host.name} src={detail.host.avatarUrl} size={32} />
                     <div className="min-w-0 flex-1">
                       <p className="text-caption font-semibold text-ink-strong truncate">
                         Hosted by {detail.host.name}

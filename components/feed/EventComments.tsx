@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { Button } from "@/components/ui/Button";
 import { getEventComments, postEventComment } from "@/lib/data/source";
 import type { EventComment } from "@/lib/types/contract";
@@ -78,10 +78,7 @@ export function EventComments({
                 aria-label={`Open ${c.author.name}'s profile`}
                 className="shrink-0"
               >
-                <Avatar className="h-7 w-7">
-                  {c.author.avatarUrl ? <AvatarImage src={c.author.avatarUrl} alt="" /> : null}
-                  <AvatarFallback>{c.author.name[0]}</AvatarFallback>
-                </Avatar>
+                <InitialsAvatar name={c.author.name} src={c.author.avatarUrl} size={28} />
               </Link>
               <div className="min-w-0 flex-1 rounded-2xl bg-white border border-sky-100 px-3 py-2">
                 <div className="flex items-baseline justify-between gap-2">

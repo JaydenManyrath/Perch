@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { ImageUploadField } from "@/components/storage/ImageUploadField";
 import { useCurrentUser } from "@/lib/auth/session";
 import { saveProfileAvatar } from "@/lib/storage/image-upload";
@@ -26,10 +26,12 @@ export function ProfileAvatar({
 
   return (
     <div className="flex shrink-0 flex-col items-start gap-2">
-      <Avatar className="h-20 w-20 sm:h-24 sm:w-24">
-        {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-        <AvatarFallback className="text-h1">{name[0]}</AvatarFallback>
-      </Avatar>
+      <InitialsAvatar
+        name={name}
+        src={avatarUrl}
+        className="h-20 w-20 sm:h-24 sm:w-24"
+        fallbackClassName="text-h1"
+      />
       {editable ? (
         <ImageUploadField
           kind="avatar"

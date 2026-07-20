@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { BandedBadge } from "@/components/ui/BandedBadge";
 import type { UserRow, MessageRow } from "@/lib/types/contract";
 
@@ -37,10 +37,7 @@ export function ConversationListItem({
         aria-label={`Open ${peer.name}'s profile`}
         className="relative z-10 shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
       >
-        <Avatar className="h-12 w-12">
-          {peer.avatar_url ? <AvatarImage src={peer.avatar_url} alt="" /> : null}
-          <AvatarFallback>{peer.name[0]}</AvatarFallback>
-        </Avatar>
+        <InitialsAvatar name={peer.name} src={peer.avatar_url} size={48} />
       </Link>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">

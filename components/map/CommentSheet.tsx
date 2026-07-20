@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/Sheet";
 import { Button } from "@/components/ui/Button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import type { MapComment } from "@/lib/types/contract";
 
 /**
@@ -59,12 +59,7 @@ export function CommentSheet({
             <SheetHeader>
               <div className="flex items-start gap-3">
                 <Link href={`/profile/${comment.author.id}`} onClick={(e) => e.stopPropagation()}>
-                  <Avatar className="h-9 w-9">
-                    {comment.author.avatarUrl ? (
-                      <AvatarImage src={comment.author.avatarUrl} alt="" />
-                    ) : null}
-                    <AvatarFallback>{comment.author.name[0]}</AvatarFallback>
-                  </Avatar>
+                  <InitialsAvatar name={comment.author.name} src={comment.author.avatarUrl} size={36} />
                 </Link>
                 <div className="min-w-0">
                   <SheetTitle>{comment.topic}</SheetTitle>

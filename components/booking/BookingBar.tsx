@@ -5,7 +5,7 @@ import Link from "next/link";
 import { UserPlus, Check, X, Clock, Home } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import {
   getBookings,
   requestBooking,
@@ -335,10 +335,7 @@ function RoommateGroup({
               key={r.id}
               className="inline-flex items-center gap-1.5 rounded-full bg-sky-100 border border-sky-200 px-2 py-0.5 text-caption text-ink-strong font-semibold"
             >
-              <Avatar className="h-5 w-5">
-                {r.avatarUrl ? <AvatarImage src={r.avatarUrl} alt="" /> : null}
-                <AvatarFallback>{r.name[0]}</AvatarFallback>
-              </Avatar>
+              <InitialsAvatar name={r.name} src={r.avatarUrl} size={20} />
               {r.name}
             </li>
           ))}
@@ -352,10 +349,7 @@ function RoommateGroup({
               key={r.id}
               className="inline-flex items-center gap-1.5 rounded-full bg-white border border-sky-200 px-2 py-0.5 text-caption text-ink-strong font-semibold"
             >
-              <Avatar className="h-5 w-5">
-                {r.avatarUrl ? <AvatarImage src={r.avatarUrl} alt="" /> : null}
-                <AvatarFallback>{r.name[0]}</AvatarFallback>
-              </Avatar>
+              <InitialsAvatar name={r.name} src={r.avatarUrl} size={20} />
               {r.name} pending
             </li>
           ))}
@@ -381,10 +375,7 @@ function RoommateGroup({
                     disabled={busy}
                     className="w-full flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white text-left disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
                   >
-                    <Avatar className="h-7 w-7">
-                      {f.user.avatarUrl ? <AvatarImage src={f.user.avatarUrl} alt="" /> : null}
-                      <AvatarFallback>{f.user.name[0]}</AvatarFallback>
-                    </Avatar>
+                    <InitialsAvatar name={f.user.name} src={f.user.avatarUrl} size={28} />
                     <span className="min-w-0 flex-1">
                       <span className="block text-body font-semibold text-ink-strong truncate">
                         {f.user.name}

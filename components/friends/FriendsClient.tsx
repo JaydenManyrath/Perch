@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Chip } from "@/components/ui/Chip";
@@ -199,10 +199,7 @@ function PersonRow({ friend, children }: { friend: Friend; children?: React.Reac
         aria-label={`Open ${friend.user.name}'s profile`}
         className="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
       >
-        <Avatar className="h-11 w-11">
-          {friend.user.avatarUrl ? <AvatarImage src={friend.user.avatarUrl} alt="" /> : null}
-          <AvatarFallback>{friend.user.name[0]}</AvatarFallback>
-        </Avatar>
+        <InitialsAvatar name={friend.user.name} src={friend.user.avatarUrl} size={44} />
       </Link>
       <div className="min-w-0 flex-1">
         <Link

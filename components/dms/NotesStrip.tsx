@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import type { FriendNote } from "@/lib/types/contract";
 import { formatMonthDay } from "@/lib/utils";
 
@@ -43,10 +43,12 @@ function NoteBubble({ note }: { note: FriendNote }) {
           </p>
           <p className="text-[0.65rem] text-ink-soft">{formatMonthDay(note.event.datetime)}</p>
         </div>
-        <Avatar className="h-14 w-14 mx-auto ring-2 ring-sky-300 ring-offset-2 ring-offset-sky-50 group-focus-visible:ring-sky-500">
-          {note.friend.avatarUrl ? <AvatarImage src={note.friend.avatarUrl} alt="" /> : null}
-          <AvatarFallback>{note.friend.name[0]}</AvatarFallback>
-        </Avatar>
+        <InitialsAvatar
+          name={note.friend.name}
+          src={note.friend.avatarUrl}
+          size={56}
+          className="mx-auto ring-2 ring-sky-300 ring-offset-2 ring-offset-sky-50 group-focus-visible:ring-sky-500"
+        />
       </div>
       <span className="text-caption text-ink-strong font-semibold truncate w-full text-center">
         {firstName}

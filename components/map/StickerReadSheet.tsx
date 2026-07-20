@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/Sheet";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { STICKER_META } from "./sticker-catalog";
 import type { StickerRow, UserRow } from "@/lib/types/contract";
 
@@ -58,10 +58,7 @@ export function StickerReadSheet({
                 href={`/profile/${author.id}`}
                 className="mt-3 flex items-center gap-2 rounded-xl bg-sky-50 px-3 py-2 hover:bg-sky-100 transition-colors"
               >
-                <Avatar className="h-8 w-8">
-                  {author.avatar_url ? <AvatarImage src={author.avatar_url} alt="" /> : null}
-                  <AvatarFallback>{author.name[0]}</AvatarFallback>
-                </Avatar>
+                <InitialsAvatar name={author.name} src={author.avatar_url} size={32} />
                 <div className="min-w-0 flex-1">
                   <p className="text-caption font-semibold text-ink-strong truncate">
                     Left by {author.name}

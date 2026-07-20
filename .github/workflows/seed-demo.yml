@@ -1,0 +1,32 @@
+name: Seed demo data
+
+# Keeps the hosted Supabase demo data valid and fresh:
+#  - events are seeded relative to run time, so the Flyway feed + map always have
+#    UPCOMING events (a stale seed leaves them empty once the fixed dates pass);
+#  - the run also touches the project, so a free-tier Supabase project does not
+#    idle-pause before a demo.
+#
+# Runs daily and on demand. Requires one repo secret: SUPABASE_SERVICE_ROLE_KEY
+# (Settings -> Secrets and variables -> Actions -> New repository secret).
+# The seed is idempotent, so extra runs never duplicate rows.
+
+on:
+  schedule:
+    - cron: "0 12 * * *" # daily ~12:00 UTC (morning in the US)
+  workflow_dispatch: {} # lets you re-seed on demand from the Actions tab
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Seed hosted Supabase
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://hjmyfaqwqncuyiodavmk.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SEED_REQUIRE_HOSTED: "1"
+        run: npx tsx scripts/seed.ts

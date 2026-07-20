@@ -548,6 +548,11 @@ Theme rides alongside plain meaning - bird words never cost clarity; subtitle wh
 | **banded** | Verified - a bird is "banded" when tagged/identified; here it's the trust badge on a confirmed intern (seeded for the demo). |
 | **pre-flight** | The pre-move checklist - everything to handle before you leave the nest. |
 | **landing** | The first-week itinerary - the plan for the days right after you arrive. |
+| **migration** | The map tab - your new city on one map (places, stickers, events, listings, and the commute route). Route: `/map`. |
+| **chirps** | The DMs tab - live messages with your flock. Route: `/dms`. |
+| **nest** | The profile tab - who you are: your taste, banded badge, and pre-flight checklist. Route: `/profile/*`. |
+
+The five nav tabs wear their bird word as the label with a plain-meaning subtitle (RD51, naming contract section 15.5): Flyway (the feed), Perches (swipe sublets), Migration (your city), Chirps (DMs), Nest (you). Routes are frozen - only the labels are bird words.
 
 ---
 

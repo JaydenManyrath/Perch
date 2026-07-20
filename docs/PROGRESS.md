@@ -178,9 +178,9 @@ round5-person-c, round5-person-d (each cut from main).
 - [todo] RC53 Real-PDF regression fixtures (incl. scanned OCR + adversarial case) + mocked e2e + one LIVE_LLM smoke
 
 ### Bird theme (person-d)
-- [todo] RD51 Nav renames: DMs -> Chirps, Map -> Migration, Profile -> Nest (labels/subtitles only; routes frozen)
-- [todo] RD52 Drawn branch/tree motif on emotional surfaces only (flat vector, no SVG filters, aria-hidden)
-- [todo] RD53 Glossary (contract section 10) + README + plain-ASCII sweep
+- [verified] RD51 Nav renames: DMs -> Chirps, Map -> Migration, Profile -> Nest (labels/subtitles only; routes frozen). Feed/Perches also read their bird words (Flyway/Perches). DMs + Map page/loading headers swept; nav-labels test guards labels + subtitles + frozen hrefs.
+- [verified] RD52 Drawn branch/tree motif on emotional surfaces only (flat vector, no SVG filters, aria-hidden, pointer-events-none, static). components/theme/BranchMotif.tsx on the SideRail edge, onboarding backdrop, Chirps empty state, and login/landing; absent from listings/booking/finance/safety/map canvas. Constraint test added.
+- [verified] RD53 Glossary (contract section 10: Chirps/Migration/Nest + naming-contract note) + README nav-label parentheticals + plain-ASCII kept throughout.
 
 ## Log
 
@@ -197,4 +197,5 @@ round5-person-c, round5-person-d (each cut from main).
 - 2026-07-17: Round 3 (person-a UI + person-b schema/APIs + person-c integrations) integrated and merged to main. Full suite green incl. 28 RLS tests on Postgres; production build clean; no client-bundle secret leak.
 - 2026-07-17: Round 4 planned (live backend: Supabase provisioning + go-live). Two-way split A/B on branches round4-person-a / round4-person-b; contract section 14; per-person plans in IMPLEMENTATION-PERSON-{A,B}-ROUND4.md. No new product features - the app moves from fixture-first to a real hosted Supabase project with live auth sessions, RLS verified on the real DB, Realtime + Storage live, and a Vercel deploy.
 - 2026-07-20: Round 5 planned (recommended friends + optional avatars in onboarding, live Ticketmaster polling on Vercel, OpenAI-first offer parsing with deterministic verification, bird-theme renames + branch motif). Four-way split on branches round5-person-{a,b,c,d}; seams in contract section 15; plans in IMPLEMENTATION-PERSON-{A,B,C,D}-ROUND5.md. Stale merged branches (person-a/b/c, sprint-3-person-c, claude/person-b-round2-build) removed.
+- 2026-07-20: Round 5 Person D (RD51-RD53) built on branch round5-person-d (isolated worktree; the shared checkout was racing branch pointers across agents). Bird-word nav labels with plain subtitles (Flyway/Perches/Migration/Chirps/Nest), routes frozen; DMs + Map headers swept; a flat-vector BranchMotif on emotional surfaces only (SideRail edge, onboarding backdrop, Chirps empty state, login/landing) and deliberately absent from decision surfaces; glossary + README updated. Verified in isolation on the round-5 planning base: typecheck + lint clean, full test suite green, production build clean. Not merged to main.
 - 2026-07-18: RA47 deployment handoff checked. Vercel CLI is authenticated, but the active seo23 scope has no Vercel project and this checkout is not linked, so no Preview URL or hosted smoke test was performed. Hosted acceptance remains blocked on project creation or linking and Person B's RB41-RB47 handoff. README records the exact public-env and smoke-test sequence; no secrets, migrations, seed paths, Storage policies, or product shapes were changed.

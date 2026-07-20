@@ -153,7 +153,17 @@ async function seed() {
       lease_end: incomplete && i % 4 === 1 ? null : i % 4 === 0 ? "2026-07-31" : "2026-08-31",
       lease_type: incomplete && i % 4 === 2 ? null : (["sublet", "short_term", "standard"] as const)[i % 3],
       source: sourced ? "seed" : null,
-      photos: [],
+      // Demo room photos so the swipe deck + detail sheet render an image instead of the
+      // "Photo unavailable" placeholder (images.unsplash.com is allowed in next.config).
+      photos: [
+        [
+          "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=900&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=900&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=900&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=900&auto=format&fit=crop",
+        ][i % 5],
+      ],
       safety_flags:
         i % 7 === 0
           ? { scamSignals: ["asks for wire deposit"], notes: [] }

@@ -4,8 +4,8 @@ export default function DMsLoading() {
   return (
     <div className="px-4 pt-4 md:pt-8 pb-8">
       <header>
-        <h1 className="text-h1 text-ink-strong">DMs</h1>
-        <p className="text-caption text-ink-soft">Live messages with your flock.</p>
+        <h1 className="text-h1 text-ink-strong">Chirps</h1>
+        <p className="text-caption text-ink-soft">Your DMs - live messages with your flock.</p>
       </header>
       <ul className="mt-4 flex flex-col gap-2">
         {Array.from({ length: 4 }, (_, i) => (

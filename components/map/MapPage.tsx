@@ -201,10 +201,9 @@ export function MapPage({
   return (
     <div className="px-4 pt-4 md:pt-8 pb-8">
       <header className="mb-3">
-        <h1 className="text-h1 text-ink-strong">Map</h1>
+        <h1 className="text-h1 text-ink-strong">Migration</h1>
         <p className="text-caption text-ink-soft">
-          Places, stickers, events, and comments - one map for everything about
-          your city.
+          Your city - one map for places, stickers, events, and comments.
         </p>
       </header>
 

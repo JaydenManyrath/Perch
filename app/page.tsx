@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Mascot } from "@/components/mascot/Mascot";
+import { BranchMotif } from "@/components/theme/BranchMotif";
 
 /**
  * Root splash. Not part of the shell.
@@ -9,7 +10,16 @@ import { Mascot } from "@/components/mascot/Mascot";
  */
 export default function RootPage() {
   return (
-    <main className="min-h-dvh flex flex-col items-center justify-center px-6 py-12 bg-sky-50">
+    <main className="relative isolate overflow-hidden min-h-dvh flex flex-col items-center justify-center px-6 py-12 bg-sky-50">
+      {/* Decorative branch corners behind the splash - an emotional entry surface. */}
+      <BranchMotif
+        variant="corner"
+        className="absolute bottom-0 left-0 -z-10 w-44 opacity-50 md:w-64"
+      />
+      <BranchMotif
+        variant="corner"
+        className="absolute right-0 top-0 -z-10 w-44 -scale-x-100 -scale-y-100 opacity-50 md:w-64"
+      />
       <div className="max-w-md w-full flex flex-col items-center text-center gap-6">
         <Mascot variant="idle" size={168} />
         <div>

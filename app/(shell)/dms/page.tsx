@@ -53,9 +53,9 @@ export default function DMsPage() {
     <div className="px-4 pt-4 md:pt-8 pb-8">
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-h1 text-ink-strong">DMs</h1>
+          <h1 className="text-h1 text-ink-strong">Chirps</h1>
           <p className="text-caption text-ink-soft">
-            Live messages with your flock.
+            Your DMs - live messages with your flock.
           </p>
         </div>
         <Link
@@ -72,6 +72,7 @@ export default function DMsPage() {
           <p className="text-caption text-ink-soft mt-4">Loading conversations...</p>
         ) : rows.length === 0 ? (
           <EmptyState
+            perch
             title="No conversations yet"
             body="Find your flock in Discovery - one tap and a real DM opens."
             action={

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navItems, isActive } from "./nav-items";
 import { BrandMark } from "./BrandMark";
-import { BranchMotif } from "@/components/theme/BranchMotif";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/lib/auth/session";
 import { SignOutButton } from "@/components/auth/SignOutButton";
@@ -21,11 +20,6 @@ export function SideRail() {
       aria-label="Primary"
       className="hidden md:flex flex-col fixed inset-y-0 left-0 z-30 w-64 overflow-hidden border-r border-sky-200 bg-white/80 backdrop-blur px-4 py-5"
     >
-      {/* Decorative branch climbing the rail edge - behind the nav, above the bg. */}
-      <BranchMotif
-        variant="rail"
-        className="absolute inset-y-0 right-0 -z-10 h-full w-16 opacity-60"
-      />
       <BrandMark className="mb-6 pl-2" />
       <ul className="flex flex-col gap-1">
         {items.map((item) => {

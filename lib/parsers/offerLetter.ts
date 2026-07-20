@@ -321,11 +321,12 @@ export function emptyOffer(): OfferParse {
 }
 
 /**
- * Parse an offer PDF. Tries the text layer first; a scanned/image PDF yields almost no
- * text, so we fall back to OCR when enabled. If nothing is extractable, returns an
- * all-flagged result - never a fabricated value.
+ * Extract the plain text of an offer PDF: the pdf.js text layer first, then OCR for a
+ * scanned/image PDF when OCR is enabled. Never fabricates - returns "" when nothing is
+ * extractable. Shared by the heuristic path and the LLM pipeline (RC52) so both read
+ * exactly the same source text; the LLM never sees raw PDF bytes.
  */
-export async function parseOfferPdf(pdf: Buffer): Promise<OfferParse> {
+export async function extractOfferPdfText(pdf: Buffer): Promise<string> {
   let text = "";
   try {
     text = await extractOfferText(pdf);
@@ -338,6 +339,16 @@ export async function parseOfferPdf(pdf: Buffer): Promise<OfferParse> {
     if (ocrText && ocrText.length > text.length) text = ocrText;
   }
 
+  return text;
+}
+
+/**
+ * Parse an offer PDF. Tries the text layer first; a scanned/image PDF yields almost no
+ * text, so we fall back to OCR when enabled. If nothing is extractable, returns an
+ * all-flagged result - never a fabricated value.
+ */
+export async function parseOfferPdf(pdf: Buffer): Promise<OfferParse> {
+  const text = await extractOfferPdfText(pdf);
   if (text.trim().length === 0) return emptyOffer();
   return parseOfferText(text);
 }

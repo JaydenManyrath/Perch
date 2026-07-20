@@ -72,6 +72,7 @@ export default function DMsPage() {
           <p className="text-caption text-ink-soft mt-4">Loading conversations...</p>
         ) : rows.length === 0 ? (
           <EmptyState
+            perch
             title="No conversations yet"
             body="Find your flock in Discovery - one tap and a real DM opens."
             action={

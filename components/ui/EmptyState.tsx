@@ -1,9 +1,15 @@
 import { Mascot } from "@/components/mascot/Mascot";
+import { BranchMotif } from "@/components/theme/BranchMotif";
 import { cn } from "@/lib/utils";
 
 /**
  * EmptyState - chick-fronted empty state (A11).
  * Placement rule: this is a personality moment, so the chick lives here.
+ *
+ * `perch` (RD52) opts this empty state into the branch motif - a twig for the
+ * chick to sit on. Off by default so shared decision surfaces (booking, perches,
+ * posting) that reuse EmptyState stay clean per the section 9 "absent from
+ * decision surfaces" rule; enable it only on emotional surfaces (e.g. Chirps).
  */
 export function EmptyState({
   title,
@@ -12,6 +18,7 @@ export function EmptyState({
   className,
   variant = "idle",
   size = 120,
+  perch = false,
 }: {
   title: string;
   body?: string;
@@ -19,6 +26,7 @@ export function EmptyState({
   className?: string;
   variant?: "idle" | "hop";
   size?: number;
+  perch?: boolean;
 }) {
   return (
     <div
@@ -27,7 +35,17 @@ export function EmptyState({
         className
       )}
     >
-      <Mascot variant={variant} size={size} />
+      {perch ? (
+        <div className="relative isolate" style={{ width: size }}>
+          <BranchMotif
+            variant="perch"
+            className="absolute inset-x-0 bottom-0 -z-10 w-full opacity-70"
+          />
+          <Mascot variant={variant} size={size} />
+        </div>
+      ) : (
+        <Mascot variant={variant} size={size} />
+      )}
       <div className="max-w-xs">
         <h3 className="text-h3 text-ink-strong">{title}</h3>
         {body ? <p className="mt-1 text-body text-ink-soft">{body}</p> : null}

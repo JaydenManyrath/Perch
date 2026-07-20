@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     // Best-effort upsert into B's events table; never block the response on it.
     try {
       const admin = createAdminClient();
-      await admin.from("events").upsert(events, { onConflict: "source,external_id" });
+      await admin.from("events").upsert(events, { onConflict: "id" });
     } catch (dbErr) {
       console.warn("events upsert skipped:", dbErr);
     }

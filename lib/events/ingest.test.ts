@@ -8,6 +8,7 @@ const HOUR = 60 * 60 * 1000;
 
 function tmRow(id: string): EventUpsert {
   return {
+    id: `00000000-0000-0000-0000-${id.padStart(12, "0")}`,
     external_id: id,
     source: "ticketmaster",
     title: `Event ${id}`,
@@ -51,7 +52,7 @@ afterEach(() => {
 });
 
 describe("ingestEvents", () => {
-  it("upserts live rows keyed on the unique (source, external_id)", async () => {
+  it("upserts live rows keyed on the deterministic PK id", async () => {
     const { db, upsert } = fakeDb();
     const fetchEvents = fetcher({ events: [tmRow("a"), tmRow("b")], source: "ticketmaster" });
 
@@ -60,7 +61,9 @@ describe("ingestEvents", () => {
     expect(result.totalUpserted).toBe(2);
     expect(result.cities).toEqual([{ city: "Seattle", source: "ticketmaster", upserted: 2 }]);
     expect(upsert).toHaveBeenCalledTimes(1);
-    expect(upsert.mock.calls[0][1]).toEqual({ onConflict: "source,external_id" });
+    // PK conflict target: the partial (source, external_id) index cannot be used by
+    // PostgREST on_conflict, so rows carry a deterministic id instead.
+    expect(upsert.mock.calls[0][1]).toEqual({ onConflict: "id" });
   });
 
   it("is idempotent: a re-run adds zero rows", async () => {

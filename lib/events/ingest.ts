@@ -79,9 +79,11 @@ export async function ingestEvents(db: SupabaseClient, opts: IngestOptions = {})
   return { cities: results, totalUpserted };
 }
 
-/** Idempotent upsert onto the unique (source, external_id). Central so every caller dedupes identically. */
+/** Idempotent upsert on the deterministic PK id (derived from source + external_id).
+ * Central so every caller dedupes identically. The partial (source, external_id) index
+ * cannot be a PostgREST conflict target - see deterministicEventId. */
 async function upsertEvents(db: SupabaseClient, events: EventUpsert[]): Promise<{ error: string | null }> {
-  const { error } = await db.from("events").upsert(events, { onConflict: "source,external_id" });
+  const { error } = await db.from("events").upsert(events, { onConflict: "id" });
   return { error: error ? error.message : null };
 }
 

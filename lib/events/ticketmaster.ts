@@ -10,8 +10,16 @@ import { eventsFixture } from "@/lib/fixtures/events";
 
 const DISCOVERY_URL = "https://app.ticketmaster.com/discovery/v2/events.json";
 
-/** Insert shape for B's `events` table (dedupe on unique (source, external_id)). */
+/**
+ * Insert shape for B's `events` table. Dedupe key: `id` is DERIVED deterministically
+ * from (source, external_id) - see deterministicEventId - so upserts conflict on the
+ * PRIMARY KEY. (The migration-0006 unique index on (source, external_id) is PARTIAL
+ * (`where external_id is not null`) and PostgREST's on_conflict cannot target a partial
+ * index, which made every live upsert fail. The PK route needs no DDL and stays
+ * idempotent everywhere.)
+ */
 export type EventUpsert = {
+  id: string;
   external_id: string;
   source: string; // 'ticketmaster' | 'seeded'
   title: string;
@@ -29,6 +37,18 @@ export function isTicketmasterEnabled(): boolean {
   return !!process.env.TICKETMASTER_API_KEY;
 }
 
+/**
+ * Deterministic uuid for an external event: sha1(source:external_id) formatted as a
+ * uuid. Same input -> same id on every run and every machine, so re-ingesting is a
+ * pure no-op update and never duplicates a row.
+ */
+export function deterministicEventId(source: string, externalId: string): string {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { createHash } = require("crypto") as typeof import("crypto");
+  const hex = createHash("sha1").update(`${source}:${externalId}`).digest("hex").slice(0, 32);
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+}
+
 // ---- Minimal shape of a Ticketmaster Discovery event (only fields we read) ----
 type TmImage = { url?: string; width?: number; ratio?: string; fallback?: boolean };
 type TmVenue = { name?: string; location?: { latitude?: string; longitude?: string } };
@@ -44,7 +64,10 @@ type TmEvent = {
 };
 
 function formatTmDate(date: Date): string {
-  return date.toISOString().replace(".000Z", "Z");
+  // Discovery API 400s on fractional seconds - strip WHATEVER milliseconds are
+  // present (a bare `.replace(".000Z", ...)` misses real timestamps, which was why
+  // every ingest silently fell back to seeded events).
+  return date.toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
 function parseTime(datetime: string): number | null {
@@ -120,6 +143,7 @@ export function normalizeTmEvent(ev: TmEvent): EventUpsert | null {
   const category = (cls?.genre?.name ?? cls?.segment?.name ?? "event").toLowerCase();
 
   return {
+    id: deterministicEventId("ticketmaster", ev.id),
     external_id: ev.id,
     source: "ticketmaster",
     title: ev.name,
@@ -138,6 +162,7 @@ export function normalizeTmEvent(ev: TmEvent): EventUpsert | null {
 export function fallbackEvents(now: Date = new Date()): EventUpsert[] {
   const rows = [...eventsFixture].sort((a, b) => Date.parse(a.datetime) - Date.parse(b.datetime)).map((e, index) => {
     return {
+      id: deterministicEventId("seeded", e.id),
       external_id: e.id,
       source: "seeded",
       title: e.title,

@@ -53,14 +53,53 @@ export function sharedGenres(a: TasteProfile, b: TasteProfile): string[] {
  * Similarity of a taste profile to a single event category (0..1). Deterministic:
  * direct genre membership, else token overlap on the category string.
  */
+// Genre families so related genres score a partial affinity instead of a stark 0%.
+// A folk night for an indie fan should read "close to your taste", not "0% match".
+const FAMILY_GROUPS: Record<string, string[]> = {
+  electronic: ["electronic", "techno", "house", "edm", "dance", "trance", "dubstep", "dnb", "drum and bass", "garage", "disco"],
+  indie: ["indie", "alternative", "alt", "folk", "singer-songwriter", "acoustic", "rock", "punk", "live", "emo", "shoegaze", "indie pop"],
+  urban: ["hip hop", "hip-hop", "rap", "r&b", "rnb", "soul", "trap", "funk"],
+  pop: ["pop", "dance-pop", "synthpop"],
+  roots: ["jazz", "blues", "classical", "lounge", "country", "americana", "bluegrass"],
+};
+const GENRE_FAMILY: Record<string, string> = {};
+for (const [family, genres] of Object.entries(FAMILY_GROUPS)) {
+  for (const g of genres) GENRE_FAMILY[g] = family;
+}
+
+/** Graded genre-to-genre affinity: same genre 1, same family ~0.55, else a small floor. */
+function genreFamilyAffinity(a: string, b: string): number {
+  if (a === b) return 1;
+  const fa = GENRE_FAMILY[a];
+  const fb = GENRE_FAMILY[b];
+  if (fa && fb && fa === fb) return 0.55;
+  return 0.2; // small nonzero floor so an off-taste event never reads as a stark 0%
+}
+
+/**
+ * How well an event category fits a taste profile, as a graded 0..1 score (not binary).
+ * Exact genre match -> 1; a compound category sharing a token (e.g. "live music") -> high;
+ * otherwise the best genre-family affinity, so related genres score partially and
+ * unrelated ones get a small floor rather than 0.
+ */
 export function categoryAffinity(taste: TasteProfile, category: string): number {
-  const genres = new Set((taste.topGenres ?? []).map(norm));
+  const genres = (taste.topGenres ?? []).map(norm);
+  if (genres.length === 0) return 0;
+  const genreSet = new Set(genres);
   const cat = norm(category);
-  if (genres.has(cat)) return 1;
+
+  if (genreSet.has(cat)) return 1;
+
   const catTokens = cat.split(/[^a-z0-9]+/).filter(Boolean);
-  let hits = 0;
-  for (const t of catTokens) if (genres.has(t)) hits += 1;
-  return catTokens.length === 0 ? 0 : round3(hits / catTokens.length);
+  let tokenHits = 0;
+  for (const t of catTokens) if (genreSet.has(t)) tokenHits += 1;
+  if (tokenHits > 0 && catTokens.length > 0) {
+    return round3(0.7 + 0.3 * (tokenHits / catTokens.length)); // 0.7..1.0
+  }
+
+  let best = 0;
+  for (const g of genres) best = Math.max(best, genreFamilyAffinity(g, cat));
+  return round3(best);
 }
 
 export function clamp01(n: number): number {

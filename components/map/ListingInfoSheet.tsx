@@ -79,7 +79,7 @@ export function ListingInfoSheet({
             </SheetHeader>
 
             {photoUrl && !photoFailed ? (
-              <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-sky-100">
+              <div className="relative h-44 sm:h-52 w-full rounded-2xl overflow-hidden bg-sky-100">
                 <Image
                   src={photoUrl}
                   alt=""

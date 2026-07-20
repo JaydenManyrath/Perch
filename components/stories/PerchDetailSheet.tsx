@@ -98,7 +98,7 @@ export function PerchDetailSheet({
           </SheetHeader>
 
           {photoUrl && !photoFailed ? (
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-sky-100">
+            <div className="relative h-44 sm:h-52 w-full rounded-2xl overflow-hidden bg-sky-100">
               <Image
                 src={photoUrl}
                 alt=""
@@ -110,7 +110,7 @@ export function PerchDetailSheet({
             </div>
           ) : (
             <div
-              className="flex aspect-video w-full items-center justify-center rounded-2xl bg-sky-100 text-ink-strong"
+              className="flex h-44 sm:h-52 w-full items-center justify-center rounded-2xl bg-sky-100 text-ink-strong"
               aria-label={`No photo for ${perch.title}`}
             >
               <div className="flex flex-col items-center gap-1">

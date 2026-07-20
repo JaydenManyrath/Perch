@@ -26,7 +26,8 @@ const listing = {
   created_by: null,
   created_at: "2026-07-01T00:00:00.000Z",
   status: "available",
-  expires_at: "2026-07-20T00:00:00.000Z",
+  // Relative so a "fresh" fixture never silently expires on a later run date.
+  expires_at: new Date(Date.now() + 14 * 86_400_000).toISOString(),
   last_confirmed_at: null,
   sourced: true,
   source_name: "seed-adapter",

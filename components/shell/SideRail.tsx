@@ -44,7 +44,7 @@ export function SideRail() {
                 />
                 <span>{item.label}</span>
                 <span className="ml-auto text-caption font-normal text-ink-muted">
-                  {item.bird}
+                  {item.subtitle}
                 </span>
               </Link>
             </li>

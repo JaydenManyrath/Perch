@@ -56,6 +56,10 @@ function firstMatch(text: string, patterns: RegExp[]): string | null {
 /** Confidence below this flags a field for manual review (contract 11.9). */
 export const REVIEW_THRESHOLD = 0.6;
 
+/** Sentinel used when no employer can be read - shared by the heuristic, the LLM
+ * layer, and the verification/merge layer so "absent employer" means one thing. */
+export const UNKNOWN_EMPLOYER = "Unknown employer";
+
 /** Try patterns in order; return the captured value + the pattern's confidence. */
 function matchConf(
   text: string,
@@ -176,7 +180,7 @@ export function parseOfferText(text: string): OfferParse {
     { re: /on behalf of\s+([A-Z][\w&.,'’\- ]+?)[.,\n]/i, conf: 0.7 },
     { re: /(?:join|joining)\s+([A-Z][\w&.,'’\- ]+?)(?:[.,\n]|\s+as\b)/, conf: 0.62 },
   ]);
-  const employer = employerM?.value ?? "Unknown employer";
+  const employer = employerM?.value ?? UNKNOWN_EMPLOYER;
   const employerConf = employerM?.conf ?? 0;
 
   // --- role ---
@@ -303,7 +307,7 @@ export function emptyOffer(): OfferParse {
     [...fields, "relocationStipend", "signingBonus"].map((f) => [f, 0]),
   ) as Record<OfferField, number>;
   return {
-    employer: "Unknown employer",
+    employer: UNKNOWN_EMPLOYER,
     role: null,
     salary: null,
     startDate: null,
@@ -317,11 +321,12 @@ export function emptyOffer(): OfferParse {
 }
 
 /**
- * Parse an offer PDF. Tries the text layer first; a scanned/image PDF yields almost no
- * text, so we fall back to OCR when enabled. If nothing is extractable, returns an
- * all-flagged result - never a fabricated value.
+ * Extract the plain text of an offer PDF: the pdf.js text layer first, then OCR for a
+ * scanned/image PDF when OCR is enabled. Never fabricates - returns "" when nothing is
+ * extractable. Shared by the heuristic path and the LLM pipeline (RC52) so both read
+ * exactly the same source text; the LLM never sees raw PDF bytes.
  */
-export async function parseOfferPdf(pdf: Buffer): Promise<OfferParse> {
+export async function extractOfferPdfText(pdf: Buffer): Promise<string> {
   let text = "";
   try {
     text = await extractOfferText(pdf);
@@ -334,6 +339,16 @@ export async function parseOfferPdf(pdf: Buffer): Promise<OfferParse> {
     if (ocrText && ocrText.length > text.length) text = ocrText;
   }
 
+  return text;
+}
+
+/**
+ * Parse an offer PDF. Tries the text layer first; a scanned/image PDF yields almost no
+ * text, so we fall back to OCR when enabled. If nothing is extractable, returns an
+ * all-flagged result - never a fabricated value.
+ */
+export async function parseOfferPdf(pdf: Buffer): Promise<OfferParse> {
+  const text = await extractOfferPdfText(pdf);
   if (text.trim().length === 0) return emptyOffer();
   return parseOfferText(text);
 }

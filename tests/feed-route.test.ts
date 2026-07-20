@@ -92,4 +92,87 @@ describe("GET /api/feed", () => {
       viewerGoing: true,
     });
   });
+
+  it("serves only the viewer's area: events outside the city radius are filtered out", async () => {
+    const users = chain({
+      data: { taste_profile: { topArtists: [], topGenres: [], topTracks: [] }, city: "Seattle" },
+      error: null,
+    });
+    const mkEvent = (id: string, lat: number, lng: number) => ({
+      id,
+      title: id,
+      category: "music",
+      lat,
+      lng,
+      datetime: "2099-01-01T00:00:00Z",
+      source: "ticketmaster",
+      venue: "V",
+      url: null,
+      image_url: null,
+      price_range: null,
+    });
+    const events = chain({
+      data: [mkEvent("seattle-event", 47.61, -122.33), mkEvent("nyc-event", 40.71, -74.01)],
+      error: null,
+    });
+    const attendance: Record<string, unknown> = {};
+    attendance.select = vi.fn(() => attendance);
+    attendance.in = vi.fn(() => attendance);
+    attendance.eq = vi.fn(async () => ({ data: [], error: null }));
+    const from = vi.fn((table: string) => ({ users, events, event_attendance: attendance })[table]);
+    createServerSupabase.mockResolvedValue({
+      from,
+      rpc: vi.fn(async () => ({ data: 0, error: null })),
+    });
+    const { GET } = await import("@/app/api/feed/route");
+
+    const response = await GET(request());
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    const ids = body.items.map((item: { event: { id: string } }) => item.event.id);
+    expect(ids).toContain("seattle-event");
+    expect(ids).not.toContain("nyc-event");
+  });
+
+  it("never filters the feed empty: with zero in-area events all upcoming events serve", async () => {
+    const users = chain({
+      data: { taste_profile: { topArtists: [], topGenres: [], topTracks: [] }, city: "Seattle" },
+      error: null,
+    });
+    const events = chain({
+      data: [
+        {
+          id: "nyc-only",
+          title: "NYC only",
+          category: "music",
+          lat: 40.71,
+          lng: -74.01,
+          datetime: "2099-01-01T00:00:00Z",
+          source: "ticketmaster",
+          venue: "V",
+          url: null,
+          image_url: null,
+          price_range: null,
+        },
+      ],
+      error: null,
+    });
+    const attendance: Record<string, unknown> = {};
+    attendance.select = vi.fn(() => attendance);
+    attendance.in = vi.fn(() => attendance);
+    attendance.eq = vi.fn(async () => ({ data: [], error: null }));
+    const from = vi.fn((table: string) => ({ users, events, event_attendance: attendance })[table]);
+    createServerSupabase.mockResolvedValue({
+      from,
+      rpc: vi.fn(async () => ({ data: 0, error: null })),
+    });
+    const { GET } = await import("@/app/api/feed/route");
+
+    const response = await GET(request());
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.items.map((item: { event: { id: string } }) => item.event.id)).toContain("nyc-only");
+  });
 });

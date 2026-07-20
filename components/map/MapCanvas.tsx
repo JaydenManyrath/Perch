@@ -20,6 +20,8 @@ import {
 } from "./icon-utils";
 
 export type MapClickMode = "none" | "sticker" | "comment";
+/** Toggleable marker layers for the legend declutter controls (office is always shown). */
+export type MapLayerKey = "places" | "stickers" | "events" | "listings" | "comments";
 
 /**
  * MapCanvas - Mapbox GL render + all Round 2 layers.
@@ -40,6 +42,7 @@ export function MapCanvas({
   routePois,
   selectedPoiIds,
   clickMode,
+  hiddenLayers,
   onMapClick,
   onEventClick,
   onStickerClick,
@@ -59,6 +62,8 @@ export function MapCanvas({
   routePois?: RoutePoi[];
   selectedPoiIds?: Set<string>;
   clickMode: MapClickMode;
+  /** Layer categories the user has toggled off in the legend (declutter). */
+  hiddenLayers?: Set<MapLayerKey>;
   onMapClick?: (coord: { lat: number; lng: number }) => void;
   onEventClick?: (id: string) => void;
   onStickerClick?: (id: string) => void;
@@ -224,14 +229,16 @@ export function MapCanvas({
       markersRef.current.forEach((m) => (m as { remove: () => void }).remove());
       markersRef.current = [];
 
-      places.forEach((p) => {
+      const hidden = hiddenLayers ?? new Set<MapLayerKey>();
+
+      if (!hidden.has("places")) places.forEach((p) => {
         const el = mkEl(markerHtml(placeKindFor(p.kind), { size: 30 }), () => onPlaceClick?.(p.id));
         el.title = p.label;
         const marker = new mbgl.Marker({ element: el }).setLngLat([p.lng, p.lat]).addTo(map);
         markersRef.current.push(marker);
       });
 
-      stickers.forEach((s) => {
+      if (!hidden.has("stickers")) stickers.forEach((s) => {
         const el = mkEl(
           `<span class="ap-marker inline-flex items-center justify-center rounded-full shadow-card bg-sky-100 ring-2 ring-sky-400/40" style="width:30px;height:30px;font-size:16px;line-height:1" title="${STICKER_META_HTML_HINT(
             s.category,
@@ -242,7 +249,7 @@ export function MapCanvas({
         markersRef.current.push(marker);
       });
 
-      events.forEach((ev) => {
+      if (!hidden.has("events")) events.forEach((ev) => {
         const el = mkEl(markerHtml(eventKindFor(ev.category), { size: 34 }), () =>
           onEventClick?.(ev.id),
         );
@@ -251,8 +258,10 @@ export function MapCanvas({
         markersRef.current.push(marker);
       });
 
+      // The selected apartment stays visible even when listings are hidden (it anchors the route).
       listings.forEach((l) => {
         const highlighted = l.id === highlightedListingId;
+        if (hidden.has("listings") && !highlighted) return;
         const el = mkEl(
           markerHtml(highlighted ? "listing-highlighted" : "listing", {
             size: highlighted ? 44 : 26,
@@ -281,7 +290,7 @@ export function MapCanvas({
         markersRef.current.push(marker);
       }
 
-      mapComments.forEach((c) => {
+      if (!hidden.has("comments")) mapComments.forEach((c) => {
         const el = mkEl(markerHtml("comment", { size: 28 }), () => onCommentClick?.(c.id));
         el.title = c.topic;
         const marker = new mbgl.Marker({ element: el }).setLngLat([c.lng, c.lat]).addTo(map);
@@ -313,6 +322,7 @@ export function MapCanvas({
     highlightedListingId,
     officeLocation,
     mapComments,
+    hiddenLayers,
     routePois,
     selectedPoiIds,
     onEventClick,

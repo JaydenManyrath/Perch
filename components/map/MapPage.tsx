@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MapPin, Plus, X, MessageCircle } from "lucide-react";
-import { MapCanvas, type MapClickMode } from "./MapCanvas";
+import { MapCanvas, type MapClickMode, type MapLayerKey } from "./MapCanvas";
 import { PlaceStickerSheet } from "./PlaceStickerSheet";
 import { PlaceInfoSheet } from "./PlaceInfoSheet";
 import { CommentSheet } from "./CommentSheet";
@@ -72,6 +72,15 @@ export function MapPage({
 
   // Commute plan state (RA19).
   const [apartmentId, setApartmentId] = useState<string | null>(initialApartmentId);
+  // Legend declutter: layers the user has toggled off (office is always shown).
+  const [hiddenLayers, setHiddenLayers] = useState<Set<MapLayerKey>>(new Set());
+  const toggleLayer = (key: MapLayerKey) =>
+    setHiddenLayers((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   const apartment = apartmentId ? listings.find((l) => l.id === apartmentId) ?? null : null;
   const officeLocation = officeCoordsForCompany(me.company);
   const [routeGeometry, setRouteGeometry] = useState<GeoJSONLineString | null>(null);
@@ -237,6 +246,35 @@ export function MapPage({
         </span>
       </div>
 
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <span className="text-caption text-ink-soft">Show:</span>
+        {([
+          ["listings", "Listings"],
+          ["events", "Events"],
+          ["stickers", "Stickers"],
+          ["comments", "Comments"],
+          ["places", "Places"],
+        ] as const).map(([key, label]) => {
+          const shown = !hiddenLayers.has(key);
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => toggleLayer(key)}
+              aria-pressed={shown}
+              className={cn(
+                "rounded-full border px-3 py-1 text-caption font-semibold transition",
+                shown
+                  ? "border-sky-400 bg-sky-100 text-ink-strong"
+                  : "border-sky-200 bg-white text-ink-soft line-through",
+              )}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="rounded-2xl overflow-hidden border border-sky-200 shadow-card h-[62dvh] md:h-[70dvh] relative">
         <MapCanvas
           places={places}
@@ -244,7 +282,8 @@ export function MapPage({
           events={events}
           listings={listings}
           highlightedListingId={apartmentId}
-          officeLocation={apartmentId ? officeLocation : null}
+          officeLocation={officeLocation}
+          hiddenLayers={hiddenLayers}
           mapComments={comments}
           routeGeometry={routeGeometry}
           routePois={pois}

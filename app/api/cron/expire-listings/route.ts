@@ -2,30 +2,29 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { runFreshnessPass } from "@/lib/sourcing/freshness";
 import { rateLimit, rateHeaders } from "@/lib/llm/ratelimit";
+import { isCronAuthorized } from "@/lib/cron/auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 /**
- * POST /api/cron/expire-listings (RC2) - the freshness pass. Flips expired available
- * listings to stale and returns the near-expiry subletter ids to ping. Meant to run on
- * a schedule (Vercel Cron) or on demand for the demo. Service-role; rate-limited; gated
- * by CRON_SECRET when set (dev-only when unset).
+ * /api/cron/expire-listings (RC2) - the freshness pass. Flips expired available listings
+ * to stale and returns the near-expiry subletter ids to ping. Service-role; rate-limited;
+ * gated by CRON_SECRET (dev-open, prod-closed when unset).
+ *
+ * RB52: scheduled by vercel.json. Vercel Cron invokes with a GET and an
+ * `Authorization: Bearer ${CRON_SECRET}` header, so this exposes GET. The original POST
+ * (with the legacy `x-cron-secret` header) stays for on-demand demo calls - both share
+ * one handler and the same shared cron authorization.
  */
-function authorized(req: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return process.env.NODE_ENV !== "production";
-  return req.headers.get("x-cron-secret") === secret;
-}
-
-export async function POST(req: Request) {
+async function handle(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   const rl = rateLimit(`expire-listings:${ip}`);
   const headers = rateHeaders(rl);
   if (!rl.ok) {
     return NextResponse.json({ error: "rate_limited", retryAfterSec: rl.retryAfterSec }, { status: 429, headers });
   }
-  if (!authorized(req)) {
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "forbidden" }, { status: 403, headers });
   }
 
@@ -34,7 +33,10 @@ export async function POST(req: Request) {
     const result = await runFreshnessPass(admin);
     return NextResponse.json(result, { headers });
   } catch (err) {
-    console.error("POST /api/cron/expire-listings failed:", err);
+    console.error("cron/expire-listings failed:", err);
     return NextResponse.json({ error: "freshness_failed" }, { status: 500, headers });
   }
 }
+
+export const GET = handle; // Vercel Cron (GET + Authorization: Bearer)
+export const POST = handle; // on-demand demo call (legacy x-cron-secret)

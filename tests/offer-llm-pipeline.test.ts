@@ -60,6 +60,7 @@ function uploadFixture(name: string): Request {
 /** A model object with all fields null unless overridden. */
 function modelObject(partial: Partial<OfferLlmObject> = {}): OfferLlmObject {
   return {
+    name: null,
     employer: null,
     role: null,
     salary: null,

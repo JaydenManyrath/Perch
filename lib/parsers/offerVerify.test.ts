@@ -39,6 +39,7 @@ function offer(
   ) as Record<OfferField, number>;
   const { confidence: _c, ...rest } = partial;
   return {
+    name: null,
     employer: UNKNOWN_EMPLOYER,
     role: null,
     salary: null,

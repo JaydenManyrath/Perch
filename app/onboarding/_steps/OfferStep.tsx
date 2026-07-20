@@ -99,6 +99,7 @@ export function OfferStep({
 }
 
 const FIELDS: { key: OfferField; label: string; type: "text" | "number" | "date" }[] = [
+  { key: "name", label: "Your name (from the letter)", type: "text" },
   { key: "employer", label: "Employer", type: "text" },
   { key: "role", label: "Role", type: "text" },
   { key: "salary", label: "Salary (annual USD)", type: "number" },
@@ -117,6 +118,7 @@ function OfferCorrection({
   onContinue: (o: OfferParse) => void;
 }) {
   const [values, setValues] = useState<Record<OfferField, string>>({
+    name: offer.name ?? "",
     employer: offer.employer ?? "",
     role: offer.role ?? "",
     salary: offer.salary != null ? String(offer.salary) : "",
@@ -144,6 +146,7 @@ function OfferCorrection({
   const currentOffer: OfferParse = useMemo(
     () => ({
       ...offer,
+      name: values.name.trim() || null,
       employer: values.employer.trim() || offer.employer,
       role: values.role.trim() || null,
       salary: values.salary.trim() ? Number(values.salary) : null,

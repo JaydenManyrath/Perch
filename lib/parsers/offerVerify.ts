@@ -119,6 +119,11 @@ export function verifyOffer(llm: OfferParse, text: string): OfferParse {
     reject("endDate");
   }
 
+  let name = llm.name;
+  if (name !== null && !verifySubstring(name, text)) {
+    name = null;
+    reject("name");
+  }
   let city = llm.city;
   if (city !== null && !verifySubstring(city, text)) {
     city = null;
@@ -140,6 +145,7 @@ export function verifyOffer(llm: OfferParse, text: string): OfferParse {
   }
 
   return {
+    name,
     employer,
     role,
     salary,
@@ -154,6 +160,7 @@ export function verifyOffer(llm: OfferParse, text: string): OfferParse {
 }
 
 const CORE_FIELDS: OfferField[] = [
+  "name",
   "employer",
   "role",
   "salary",
@@ -191,6 +198,7 @@ export function mergeOffers(heuristic: OfferParse, llm: OfferParse): OfferParse 
   const employer = emp.value ?? UNKNOWN_EMPLOYER;
   const employerConf = emp.value === null ? 0 : emp.conf;
 
+  const name = pick(heuristic.name, heuristic.confidence.name, llm.name, llm.confidence.name);
   const role = pick(heuristic.role, heuristic.confidence.role, llm.role, llm.confidence.role);
   const salary = pick(heuristic.salary, heuristic.confidence.salary, llm.salary, llm.confidence.salary);
   const startDate = pick(heuristic.startDate, heuristic.confidence.startDate, llm.startDate, llm.confidence.startDate);
@@ -210,6 +218,7 @@ export function mergeOffers(heuristic: OfferParse, llm: OfferParse): OfferParse 
   );
 
   const confidence: Record<OfferField, number> = {
+    name: name.value === null ? 0 : name.conf,
     employer: employerConf,
     role: role.value === null ? 0 : role.conf,
     salary: salary.value === null ? 0 : salary.conf,
@@ -235,6 +244,7 @@ export function mergeOffers(heuristic: OfferParse, llm: OfferParse): OfferParse 
   if (benefitFlagged("signingBonus", signing.value)) needsReview.push("signingBonus");
 
   return {
+    name: name.value,
     employer,
     role: role.value,
     salary: salary.value,

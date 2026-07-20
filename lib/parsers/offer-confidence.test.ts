@@ -51,11 +51,12 @@ describe("parseOfferText confidence + needsReview (RC4)", () => {
     expect(e.salary).toBeNull();
     expect(e.relocationStipend).toBeNull();
     expect(e.signingBonus).toBeNull();
-    expect(e.needsReview).toEqual(["employer", "role", "salary", "startDate", "endDate", "city"]);
+    expect(e.needsReview).toEqual(["name", "employer", "role", "salary", "startDate", "endDate", "city"]);
     expect(Object.keys(e.confidence).sort()).toEqual([
       "city",
       "employer",
       "endDate",
+      "name",
       "relocationStipend",
       "role",
       "salary",

@@ -8,6 +8,7 @@ import { TakeoutStep } from "./_steps/TakeoutStep";
 import { AvatarStep } from "./_steps/AvatarStep";
 import { FlockStep } from "./_steps/FlockStep";
 import { DoneStep } from "./_steps/DoneStep";
+import { createAccountFromOffer } from "@/lib/data/source";
 import type { OfferParse, Place, TasteProfile } from "@/lib/types/contract";
 
 const LABELS = ["Offer", "Spotify", "Takeout", "Photo", "Flock", "Done"];
@@ -17,6 +18,7 @@ type State = {
   offer?: OfferParse;
   taste?: TasteProfile | null;
   places?: Place[] | null;
+  accountEmail?: string;
 };
 
 export default function OnboardingPage() {
@@ -26,7 +28,17 @@ export default function OnboardingPage() {
     <OnboardingLayout step={state.step} total={LABELS.length} labels={LABELS}>
       {state.step === 1 ? (
         <OfferStep
-          onDone={(offer) => setState({ step: 2, offer })}
+          onDone={async (offer) => {
+            // The account is minted for the person ON the letter (never the seeded
+            // persona) and starts with zero friends. Never blocks the flow: any
+            // failure falls back to the fixture identity inside the helper.
+            const account = await createAccountFromOffer(offer);
+            setState({
+              step: 2,
+              offer,
+              accountEmail: account.mode === "live" ? account.email : undefined,
+            });
+          }}
         />
       ) : state.step === 2 ? (
         <SpotifyStep
@@ -41,7 +53,7 @@ export default function OnboardingPage() {
       ) : state.step === 5 ? (
         <FlockStep onDone={() => setState((s) => ({ ...s, step: 6 }))} />
       ) : (
-        <DoneStep />
+        <DoneStep accountEmail={state.accountEmail} />
       )}
     </OnboardingLayout>
   );

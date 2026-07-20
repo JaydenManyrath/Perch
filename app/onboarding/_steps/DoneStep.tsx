@@ -9,7 +9,7 @@ import { CalendarCheck, Home } from "lucide-react";
  * Step 4 - Done. The one milestone beat where the mascot celebrates
  * (contract §3 rule: mascot for personality moments only).
  */
-export function DoneStep() {
+export function DoneStep({ accountEmail }: { accountEmail?: string }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center">
       <div className="relative">
@@ -24,6 +24,11 @@ export function DoneStep() {
           Taste profile, offer, and your landing week - all in place. Time to open
           the app.
         </p>
+        {accountEmail ? (
+          <p className="mt-2 text-caption text-ink-muted">
+            Your account: {accountEmail} (use it on the login page next time)
+          </p>
+        ) : null}
       </div>
       <div className="flex flex-col gap-3 w-full max-w-xs">
         <Button asChild size="lg" variant="accent">

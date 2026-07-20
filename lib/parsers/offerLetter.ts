@@ -172,6 +172,18 @@ export function parseOfferText(text: string): OfferParse {
     }
   }
 
+  // --- candidate name (the person the letter is addressed to) --- the account is
+  // minted for THEM, so this is a first-class field. Labelled forms and salutations
+  // are high confidence; never fabricate - no match -> null, confidence 0.
+  const nameM = matchConf(flat, [
+    { re: /(?:Candidate|Name|Recipient)\s*:\s*([A-Z][\w'.\-]+(?:\s+[A-Z][\w'.\-]+){1,3})/, conf: 0.92 },
+    { re: /Dear\s+([A-Z][\w'.\-]+(?:\s+[A-Z][\w'.\-]+){1,3})\s*[,:\n]/, conf: 0.88 },
+    { re: /offer (?:of employment )?(?:letter )?(?:for|to)\s+([A-Z][\w'.\-]+(?:\s+[A-Z][\w'.\-]+){1,3})\b/, conf: 0.8 },
+    { re: /Dear\s+([A-Z][\w'.\-]+)\s*[,:\n]/, conf: 0.6 },
+  ]);
+  const name = nameM?.value ?? null;
+  const nameConf = nameM?.conf ?? 0;
+
   // --- employer ---
   const employerM = matchConf(flat, [
     { re: /(?:Employer|Company)\s*:\s*(.+)/i, conf: 0.92 },
@@ -233,6 +245,7 @@ export function parseOfferText(text: string): OfferParse {
   ]);
 
   const confidence: Record<OfferField, number> = {
+    name: nameConf,
     employer: employerConf,
     role: roleConf,
     salary: salaryConf,
@@ -242,13 +255,14 @@ export function parseOfferText(text: string): OfferParse {
     relocationStipend: relocation.conf,
     signingBonus: signing.conf,
   };
-  const needsReview = (["employer", "role", "salary", "startDate", "endDate", "city"] as OfferField[]).filter(
+  const needsReview = (["name", "employer", "role", "salary", "startDate", "endDate", "city"] as OfferField[]).filter(
     (f) => confidence[f] < REVIEW_THRESHOLD,
   );
   if (relocation.mentioned && relocation.conf < REVIEW_THRESHOLD) needsReview.push("relocationStipend");
   if (signing.mentioned && signing.conf < REVIEW_THRESHOLD) needsReview.push("signingBonus");
 
   return {
+    name: name || null,
     employer,
     role: role || null,
     salary,
@@ -302,11 +316,12 @@ export async function extractOfferText(pdf: Buffer): Promise<string> {
 
 /** An all-unknown result (every field flagged) - used when nothing is extractable. */
 export function emptyOffer(): OfferParse {
-  const fields: OfferField[] = ["employer", "role", "salary", "startDate", "endDate", "city"];
+  const fields: OfferField[] = ["name", "employer", "role", "salary", "startDate", "endDate", "city"];
   const confidence = Object.fromEntries(
     [...fields, "relocationStipend", "signingBonus"].map((f) => [f, 0]),
   ) as Record<OfferField, number>;
   return {
+    name: null,
     employer: UNKNOWN_EMPLOYER,
     role: null,
     salary: null,

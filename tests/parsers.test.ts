@@ -25,6 +25,17 @@ describe("parseOfferText (deterministic)", () => {
   const text = readFileSync(join(FIX, "sample-offer-letter.txt"), "utf8");
   const parsed = parseOfferText(text);
 
+  it("extracts the candidate's name from the salutation (their account, not a persona)", () => {
+    expect(parsed.name).toBe("Jordan");
+  });
+  it("extracts a full name from a full-name salutation", () => {
+    expect(parseOfferText("Dear Alex Chen,\nWelcome to Acme.").name).toBe("Alex Chen");
+  });
+  it("returns null name and flags it for review when the letter names nobody", () => {
+    const p = parseOfferText("Welcome to Acme. Start date: 2026-06-01.");
+    expect(p.name).toBeNull();
+    expect(p.needsReview).toContain("name");
+  });
   it("extracts the employer", () => {
     expect(parsed.employer).toBe("Stripe");
   });

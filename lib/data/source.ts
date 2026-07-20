@@ -1582,6 +1582,70 @@ export async function acceptRoommateInvite(bookingId: string): Promise<Booking |
   return b;
 }
 
+// Round 5 follow-up - the account belongs to the person ON the offer letter.
+
+/**
+ * Mint the account for the person the offer letter names, instead of dropping them
+ * into the seeded persona. Live: POST /api/onboarding/account (admin-created auth user
+ * + users row from the parse, shared demo password seam) then sign the browser into
+ * it. Fixture (or any live failure - never a broken flow): the in-memory "me" takes
+ * the letter's identity. EITHER WAY the new identity starts with a fresh social
+ * graph: zero friends until they add someone (flock step / discovery).
+ */
+export async function createAccountFromOffer(
+  offer: OfferParse,
+): Promise<{ mode: "live"; email: string } | { mode: "fixture" }> {
+  if (MODE === "live" && offer.name) {
+    const r = await safeFetchJson<{ email: string; userId: string }>(
+      "/api/onboarding/account",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ offer }),
+      },
+    );
+    if (r?.email) {
+      const { getSupabaseBrowser } = await import("@/lib/supabase/client");
+      const supabase = getSupabaseBrowser();
+      if (supabase) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: r.email,
+          password: `perch-demo-${r.email}`,
+        });
+        if (!error) {
+          applyOfferIdentityToFixtures(offer);
+          return { mode: "live", email: r.email };
+        }
+      }
+    }
+  }
+  applyOfferIdentityToFixtures(offer);
+  return { mode: "fixture" };
+}
+
+/** Fixture mirror of the minted account: "me" becomes the letter's person and the
+ * friend graph resets to empty (friends exist only when added). In-place mutation -
+ * these arrays are shared by reference across the fixture getters. */
+function applyOfferIdentityToFixtures(offer: OfferParse) {
+  if (offer.name && offer.name !== fx.meFixture.name) {
+    fx.meFixture.name = offer.name;
+    // The seeded persona's photo is not this person's photo - initials render
+    // until they upload one (profile pictures are optional, RA52/RA53).
+    fx.meFixture.avatar_url = null;
+  }
+  if (offer.employer && offer.employer !== "Unknown employer") {
+    fx.meFixture.company = offer.employer;
+  }
+  if (offer.role) fx.meFixture.role = offer.role;
+  if (offer.city) fx.meFixture.city = offer.city;
+  if (offer.startDate) fx.meFixture.move_in_date = offer.startDate;
+  // Fresh graph: no friends, no pending requests, no friend notes until they add
+  // people themselves.
+  fx.friendsFixture.length = 0;
+  fx.friendRequestsFixture.length = 0;
+  fx.friendNotesFixture.length = 0;
+}
+
 // Round 3 - Finance model (section 13.5)
 export async function getFinance(): Promise<FinanceBreakdown> {
   if (canUseLiveData()) {

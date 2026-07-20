@@ -116,6 +116,7 @@ describe("buildFinanceBreakdown", () => {
 describe("buildFinanceBreakdownFromOffer", () => {
   it("matches the canonical model for corrected offer fields", () => {
     const offer = {
+      name: "Alex Chen",
       employer: "Stripe",
       role: "SWE Intern",
       salary: 60_000,
@@ -125,6 +126,7 @@ describe("buildFinanceBreakdownFromOffer", () => {
       relocationStipend: 5_000,
       signingBonus: 10_000,
       confidence: {
+        name: 1,
         employer: 1,
         role: 1,
         salary: 1,
@@ -152,6 +154,7 @@ describe("buildFinanceBreakdownFromOffer", () => {
 
   it("keeps absent benefits deterministic as zeroes", () => {
     const offer = {
+      name: null,
       employer: "Acme",
       role: "Analyst",
       salary: 90_000,
@@ -161,6 +164,7 @@ describe("buildFinanceBreakdownFromOffer", () => {
       relocationStipend: null,
       signingBonus: null,
       confidence: {
+        name: 1,
         employer: 1,
         role: 1,
         salary: 1,

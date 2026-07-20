@@ -125,6 +125,7 @@ export type MapPlacesResponse = { places: Place[] };
 
 // Section 4.6 - onboarding data routes
 export type OfferField =
+  | "name"
   | "employer"
   | "role"
   | "salary"
@@ -135,6 +136,9 @@ export type OfferField =
   | "signingBonus";
 
 export type OfferParse = {
+  // The person the letter is addressed to - the account is minted for THEM,
+  // not a seeded persona. Null when the letter never names them (fix in review).
+  name: string | null;
   employer: string;
   role: string | null;
   salary: number | null;

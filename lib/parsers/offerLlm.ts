@@ -15,6 +15,10 @@ const confidence = z.number().min(0).max(1);
 
 /** Structured shape the model must fill - mirrors OfferParse fields; absent -> null. */
 export const OfferLlmSchema = z.object({
+  name: z
+    .string()
+    .nullable()
+    .describe("The candidate's full name - the person the letter is addressed to - exactly as written, or null."),
   employer: z.string().nullable().describe("Company/employer name exactly as written, or null if absent."),
   role: z.string().nullable().describe("Job title / position, exactly as written, or null."),
   salary: z
@@ -40,6 +44,7 @@ export const OfferLlmSchema = z.object({
     .describe("One-time signing/joining bonus in USD (plain number), or null. Only a concrete stated amount."),
   fieldConfidence: z
     .object({
+      name: confidence,
       employer: confidence,
       role: confidence,
       salary: confidence,
@@ -103,6 +108,7 @@ export function toOfferParse(object: OfferLlmObject): OfferParse {
   const conf = (key: keyof typeof c, present: boolean): number =>
     present ? (typeof c[key] === "number" ? (c[key] as number) : 0.8) : 0;
 
+  const name = toStr(object.name);
   const employer = toStr(object.employer);
   const role = toStr(object.role);
   const salary = toInt(object.salary);
@@ -113,6 +119,7 @@ export function toOfferParse(object: OfferLlmObject): OfferParse {
   const signingBonus = toInt(object.signingBonus);
 
   return {
+    name,
     employer: employer ?? UNKNOWN_EMPLOYER,
     role,
     salary,
@@ -122,6 +129,7 @@ export function toOfferParse(object: OfferLlmObject): OfferParse {
     relocationStipend,
     signingBonus,
     confidence: {
+      name: conf("name", name !== null),
       employer: conf("employer", employer !== null),
       role: conf("role", role !== null),
       salary: conf("salary", salary !== null),

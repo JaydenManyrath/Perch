@@ -4,6 +4,7 @@ import type { OfferParse, TasteProfile } from "@/lib/types/contract";
 // Round 2 (section 11.9): confidence + needsReview mimic Person C's OCR pipeline.
 // Round 3 (section 13.5): relocationStipend + signingBonus feed the finance model.
 export const offerParseFixture: OfferParse = {
+  name: "Alex Chen",
   employer: "Stripe",
   role: "Software Engineer Intern",
   salary: 145000,
@@ -11,6 +12,7 @@ export const offerParseFixture: OfferParse = {
   endDate: "2026-08-14",
   city: "Seattle",
   confidence: {
+    name: 0.95,
     employer: 0.98,
     role: 0.94,
     // City came from a scanned-image PDF and the OCR guessed - flag it for the user.

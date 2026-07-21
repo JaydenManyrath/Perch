@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { OnboardingLayout } from "@/components/onboarding/OnboardingLayout";
 import { OfferStep } from "./_steps/OfferStep";
+import { AccountStep, type AccountAssist } from "./_steps/AccountStep";
 import { SpotifyStep } from "./_steps/SpotifyStep";
 import { TakeoutStep } from "./_steps/TakeoutStep";
 import { AvatarStep } from "./_steps/AvatarStep";
@@ -19,6 +20,8 @@ type State = {
   taste?: TasteProfile | null;
   places?: Place[] | null;
   accountEmail?: string;
+  /** Visible account-creation assist between the correction screen and step 2. */
+  account?: AccountAssist;
 };
 
 export default function OnboardingPage() {
@@ -27,19 +30,32 @@ export default function OnboardingPage() {
   return (
     <OnboardingLayout step={state.step} total={LABELS.length} labels={LABELS}>
       {state.step === 1 ? (
-        <OfferStep
-          onDone={async (offer) => {
-            // The account is minted for the person ON the letter (never the seeded
-            // persona) and starts with zero friends. Never blocks the flow: any
-            // failure falls back to the fixture identity inside the helper.
-            const account = await createAccountFromOffer(offer);
-            setState({
-              step: 2,
-              offer,
-              accountEmail: account.mode === "live" ? account.email : undefined,
-            });
-          }}
-        />
+        state.account ? (
+          <AccountStep
+            assist={state.account}
+            onContinue={() => setState((s) => ({ ...s, step: 2 }))}
+          />
+        ) : (
+          <OfferStep
+            onDone={async (offer) => {
+              // The account is minted for the person ON the letter (never the
+              // seeded persona) and starts with zero friends. The assist screen
+              // makes the mint visible; any failure falls back to the fixture
+              // identity with a plain note - no silent swap, no blocked flow.
+              const name = offer.name ?? "";
+              setState((s) => ({ ...s, offer, account: { phase: "creating", name } }));
+              const account = await createAccountFromOffer(offer);
+              setState((s) => ({
+                ...s,
+                account:
+                  account.mode === "live"
+                    ? { phase: "created", name, email: account.email }
+                    : { phase: "fallback", name },
+                accountEmail: account.mode === "live" ? account.email : undefined,
+              }));
+            }}
+          />
+        )
       ) : state.step === 2 ? (
         <SpotifyStep
           onDone={(taste) => setState((s) => ({ ...s, step: 3, taste }))}

@@ -93,8 +93,8 @@ export function FlockStepView({
       <header>
         <h2 className="text-h2 text-ink-strong">Find your flock</h2>
         <p className="mt-1 text-body text-ink-soft">
-          Interns landing in {viewer.city} around when you do. Add a few now, or do it
-          later - your call.
+          Interns landing in {viewer.city || "your city"} around when you do. Add a few
+          now, or do it later - your call.
         </p>
       </header>
 

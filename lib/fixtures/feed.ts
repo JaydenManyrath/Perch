@@ -64,7 +64,7 @@ export const feedFixture: FeedResponse = {
     {
       event: eventForFeed("E6"),
       tasteScore: 0.7,
-      reason: "Peggy Gou fits your techno picks. Late show - bring a jacket.",
+      reason: "Warehouse techno fits your electronic picks. Late show - bring a jacket.",
       internsGoing: 9,
       viewerGoing: false,
     },
@@ -78,7 +78,7 @@ export const feedFixture: FeedResponse = {
     {
       event: eventForFeed("E7"),
       tasteScore: 0.58,
-      reason: "Ballard SeafoodFest - a Seattle summer staple.",
+      reason: "Fremont Sunday Market - vintage stalls and food trucks, a Sunday staple.",
       internsGoing: 4,
       viewerGoing: false,
     },

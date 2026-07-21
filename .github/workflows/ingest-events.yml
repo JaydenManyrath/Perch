@@ -1,0 +1,36 @@
+name: Ingest live events
+
+# Pulls real upcoming Ticketmaster events into the hosted Supabase `events` table via
+# scripts/ingest-events.ts - the same shared core (lib/events/ingest.ts) the deployed
+# app runs from its cron route - so the Flyway feed keeps showing ACTUAL events
+# alongside the hand-authored seeded base even when the app's own cron misses a day.
+#
+# Safe without the Ticketmaster key: scripts/ingest-events.ts logs and exits 0 when
+# TICKETMASTER_API_KEY is absent (no live ingest, seeded events remain), so a missing
+# secret never fails the run. It DOES exit 1 without the Supabase URL + service-role key.
+#
+# Runs daily at 15:00 UTC - deliberately offset from seed-demo.yml (12:00 UTC) so the
+# fresh seed lands first and the two scheduled jobs never overlap. Also runnable on
+# demand. Repo secrets: SUPABASE_SERVICE_ROLE_KEY, TICKETMASTER_API_KEY
+# (Settings -> Secrets and variables -> Actions -> New repository secret).
+
+on:
+  schedule:
+    - cron: "0 15 * * *" # daily 15:00 UTC (3h after the 12:00 UTC seed)
+  workflow_dispatch: {} # lets you re-ingest on demand from the Actions tab
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Ingest Ticketmaster events into hosted Supabase
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://hjmyfaqwqncuyiodavmk.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
+        run: npx tsx scripts/ingest-events.ts

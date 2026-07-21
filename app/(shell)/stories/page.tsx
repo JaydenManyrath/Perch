@@ -27,7 +27,7 @@ export default async function StoriesPage({ searchParams }: { searchParams: { ta
             href="/negotiate"
             className="shrink-0 inline-flex items-center gap-1.5 rounded-2xl bg-accent-beak text-white text-caption font-semibold px-3 py-2 shadow-card hover:bg-accent-beakDeep transition-colors"
           >
-            Negotiate <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+            Scout perches <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </Link>
         </div>
       </header>

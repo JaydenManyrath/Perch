@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { NegotiateRequest, NegotiateStreamEvent } from "@/lib/types/contract";
 import { Mascot } from "@/components/mascot/Mascot";
 import { ListingVerdictCard, type ListingState } from "./ListingVerdictCard";
@@ -102,27 +102,15 @@ export function ScoutStream({ request }: { request: NegotiateRequest }) {
     }
   }, [apply, request]);
 
+  // The caller commits by submitting the picker, so scout as soon as we mount.
+  useEffect(() => {
+    void start();
+  }, [start]);
+
   const listings = order.map((id) => byId[id]).filter(Boolean);
 
   return (
     <div>
-      {status === "idle" ? (
-        <button
-          onClick={start}
-          style={{
-            background: "#5E9BCB",
-            color: "#FFFFFF",
-            border: "none",
-            borderRadius: 10,
-            padding: "10px 18px",
-            fontWeight: 700,
-            cursor: "pointer",
-          }}
-        >
-          Send the scouts
-        </button>
-      ) : null}
-
       {status === "streaming" ? (
         <div style={{ margin: "8px 0 20px" }}>
           <Mascot variant="hop" size={72} caption="Scouting your perches..." />

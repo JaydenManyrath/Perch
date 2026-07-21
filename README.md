@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/perch-banner.svg" alt="Perch - the social network interns use to land in a new city" width="840"/>
+</p>
+
 # Perch
 
 The social network interns use to land in a new city: find your flock (roommates,

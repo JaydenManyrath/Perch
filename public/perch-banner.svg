@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-label="Perch - land in a new city">
+  <!-- ground -->
+  <rect x="0" y="0" width="1200" height="320" rx="24" fill="#F2F9FE"/>
+  <rect x="1" y="1" width="1198" height="318" rx="23" fill="none" stroke="#DCEFFB" stroke-width="2"/>
+
+  <!-- soft sky shapes -->
+  <circle cx="1080" cy="52" r="70" fill="#DCEFFB" opacity="0.55"/>
+  <circle cx="985" cy="84" r="42" fill="#DCEFFB" opacity="0.4"/>
+  <circle cx="70" cy="40" r="34" fill="#DCEFFB" opacity="0.45"/>
+  <g fill="#FFFFFF" opacity="0.9">
+    <ellipse cx="880" cy="60" rx="52" ry="16"/>
+    <ellipse cx="922" cy="52" rx="34" ry="13"/>
+    <ellipse cx="150" cy="86" rx="44" ry="14"/>
+  </g>
+
+  <!-- branch (bottom left, the chick's perch) -->
+  <g stroke="#9CC5DD" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 262 C 120 250 220 246 340 250 C 420 253 470 258 520 266" stroke-width="10"/>
+    <path d="M96 256 C 88 240 88 228 96 216" stroke-width="5"/>
+    <path d="M330 250 C 336 236 344 228 356 222" stroke-width="5"/>
+  </g>
+  <g stroke="#9CC5DD" stroke-width="2">
+    <path d="M96 216 C 104 202 120 198 132 206 C 122 216 108 220 96 216 Z" fill="#BFE3F7"/>
+    <path d="M356 222 C 364 208 380 204 392 212 C 382 222 368 226 356 222 Z" fill="#BFE3F7"/>
+  </g>
+  <circle cx="524" cy="266" r="7" fill="#F6A22C"/>
+
+  <!-- plush chick, perched -->
+  <g>
+    <ellipse cx="210" cy="256" rx="58" ry="10" fill="#9CC5DD" opacity="0.25"/>
+    <!-- feet -->
+    <g stroke="#E5851C" stroke-width="6" stroke-linecap="round">
+      <path d="M190 244 L190 254"/>
+      <path d="M230 244 L230 254"/>
+    </g>
+    <!-- body -->
+    <ellipse cx="210" cy="188" rx="66" ry="62" fill="#BFE3F7" stroke="#9CC5DD" stroke-width="4"/>
+    <!-- head tuft -->
+    <path d="M196 129 C 200 118 208 114 214 118 C 210 124 206 128 204 132 Z" fill="#BFE3F7" stroke="#9CC5DD" stroke-width="3" stroke-linejoin="round"/>
+    <!-- wings -->
+    <ellipse cx="152" cy="196" rx="20" ry="30" fill="#7FB2DB" opacity="0.75"/>
+    <ellipse cx="268" cy="196" rx="20" ry="30" fill="#7FB2DB" opacity="0.75"/>
+    <!-- cheeks -->
+    <circle cx="176" cy="196" r="9" fill="#F7C8B4"/>
+    <circle cx="244" cy="196" r="9" fill="#F7C8B4"/>
+    <!-- eyes -->
+    <circle cx="190" cy="176" r="6.5" fill="#2C4A63"/>
+    <circle cx="230" cy="176" r="6.5" fill="#2C4A63"/>
+    <circle cx="192.5" cy="173.5" r="2" fill="#FFFFFF"/>
+    <circle cx="232.5" cy="173.5" r="2" fill="#FFFFFF"/>
+    <!-- beak -->
+    <path d="M203 188 L217 188 L210 199 Z" fill="#F6A22C"/>
+  </g>
+
+  <!-- wordmark + tagline -->
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+    <text x="420" y="150" font-size="92" font-weight="800" fill="#2C4A63" letter-spacing="-2">Perch</text>
+    <text x="424" y="196" font-size="28" fill="#5E7E97">The social network interns use to land in a new city.</text>
+
+    <!-- bird-word tabs -->
+    <g font-size="17" font-weight="700">
+      <rect x="424" y="224" rx="16" width="96" height="34" fill="#FFFFFF" stroke="#BFE3F7" stroke-width="2"/>
+      <text x="472" y="246" text-anchor="middle" fill="#2C4A63">Flyway</text>
+
+      <rect x="530" y="224" rx="16" width="102" height="34" fill="#FFFFFF" stroke="#BFE3F7" stroke-width="2"/>
+      <text x="581" y="246" text-anchor="middle" fill="#2C4A63">Perches</text>
+
+      <rect x="642" y="224" rx="16" width="114" height="34" fill="#FFFFFF" stroke="#BFE3F7" stroke-width="2"/>
+      <text x="699" y="246" text-anchor="middle" fill="#2C4A63">Migration</text>
+
+      <rect x="766" y="224" rx="16" width="92" height="34" fill="#FFFFFF" stroke="#BFE3F7" stroke-width="2"/>
+      <text x="812" y="246" text-anchor="middle" fill="#2C4A63">Chirps</text>
+
+      <rect x="868" y="224" rx="16" width="80" height="34" fill="#F6A22C"/>
+      <text x="908" y="246" text-anchor="middle" fill="#FFFFFF">Nest</text>
+    </g>
+  </g>
+</svg>

@@ -107,6 +107,45 @@ function isUserRow(value: unknown): value is UserRow {
   );
 }
 
+function isTasteProfile(value: unknown): value is TasteProfile {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.topArtists) &&
+    Array.isArray(value.topGenres) &&
+    Array.isArray(value.topTracks)
+  );
+}
+
+/**
+ * Normalize a live `users` row into the frozen UserRow shape. Rows minted from an
+ * offer letter (POST /api/onboarding/account) legitimately carry NULL company/role/
+ * city/move_in_date when the letter lacked a field; the strict isUserRow guard would
+ * reject those rows and silently bounce the signed-in user back to the seeded
+ * persona. Identity stays strict (id + name must be strings); every optional field
+ * coalesces to the contract's empty value instead.
+ */
+function toUserRow(value: unknown): UserRow | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.id !== "string" || typeof value.name !== "string") return null;
+  const str = (v: unknown) => (typeof v === "string" ? v : "");
+  return {
+    id: value.id,
+    name: value.name,
+    company: str(value.company),
+    role: str(value.role),
+    city: str(value.city),
+    move_in_date: str(value.move_in_date),
+    taste_profile: isTasteProfile(value.taste_profile) ? value.taste_profile : null,
+    verified: value.verified === true,
+    avatar_url: typeof value.avatar_url === "string" ? value.avatar_url : null,
+    created_at: str(value.created_at),
+    user_type:
+      value.user_type === "intern" || value.user_type === "subletter"
+        ? value.user_type
+        : undefined,
+  };
+}
+
 function isListingRow(value: unknown): value is ListingRow {
   return (
     isRecord(value) &&
@@ -385,6 +424,13 @@ const USER_SELECT =
 const LISTING_SELECT =
   "id,title,address,lat,lng,price,lease_start,lease_end,lease_type,source,photos,safety_flags,created_by,created_at,status,expires_at,last_confirmed_at,sourced,source_name,source_url,external_id";
 
+/**
+ * The current user. Live: browser session (or the server context's session-bound
+ * client) -> auth.getUser() -> select own `users` row, normalized via toUserRow so a
+ * minted account with sparse offer fields still resolves to THEIR identity. Any
+ * error, missing session, or unusable row falls back to the seeded persona; fixture
+ * mode always returns the seeded persona.
+ */
 export async function getMe(context?: LiveDataContext): Promise<UserRow> {
   const supabase = liveSupabase(context);
   if (supabase) {
@@ -396,7 +442,10 @@ export async function getMe(context?: LiveDataContext): Promise<UserRow> {
           .select(USER_SELECT)
           .eq("id", userId)
           .maybeSingle();
-        if (!error && isUserRow(data)) return data;
+        if (!error) {
+          const row = toUserRow(data);
+          if (row) return row;
+        }
       }
     } catch {
       // Fall through to the complete fixture experience.
@@ -416,7 +465,9 @@ export async function getUserById(id: string, context?: LiveDataContext): Promis
         .maybeSingle();
       if (!error) {
         if (data === null) return null;
-        if (isUserRow(data)) return data;
+        // Same normalization as getMe: minted rows may have NULL optional fields.
+        const row = toUserRow(data);
+        if (row) return row;
       }
     } catch {
       // Fall through to fixture data.

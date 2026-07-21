@@ -110,13 +110,27 @@ function dateInFallbackWindow(original: string, now: Date, index: number): strin
   return formatTmDate(base);
 }
 
+/** Largest image (by width) that has a url, or null. Strict `>` keeps the first of a tie, so the pick stays deterministic by input order. */
+function largestByWidth(images: TmImage[]): string | null {
+  const withUrl = images.filter((i) => i.url);
+  if (withUrl.length === 0) return null;
+  return withUrl.reduce((best, i) => ((i.width ?? 0) > (best.width ?? 0) ? i : best), withUrl[0]).url ?? null;
+}
+
+/**
+ * Pick the best image url for an event (R7). Precedence:
+ *   1. largest non-fallback 16_9 image (the shape every surface renders),
+ *   2. else largest non-fallback image of any ratio,
+ *   3. else largest image even when Ticketmaster marks it fallback:true.
+ * Null ONLY when the array is empty or no entry has a url - Person A's
+ * placeholder is the last resort, not the default for real events (the old
+ * 16_9-only policy left 8 of 39 ingested events imageless).
+ */
 function pickImage(images: TmImage[] | undefined): string | null {
   if (!images || images.length === 0) return null;
   const usable = images.filter((i) => i.url && !i.fallback);
-  // Person A has a placeholder for null images; avoid inventing a poor source image.
   const wide = usable.filter((i) => i.ratio === "16_9");
-  if (wide.length === 0) return null;
-  return wide.reduce((best, i) => ((i.width ?? 0) > (best.width ?? 0) ? i : best), wide[0]).url ?? null;
+  return largestByWidth(wide) ?? largestByWidth(usable) ?? largestByWidth(images);
 }
 
 function priceRange(pr: TmEvent["priceRanges"]): string | null {

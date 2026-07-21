@@ -4,7 +4,7 @@ import { ocrImage, isOcrEnabled } from "./ocr";
 /**
  * Offer-letter parsing (B6). DETERMINISTIC extraction — regex/heuristics over the
  * letter text. The LLM may only normalize ambiguous fields downstream; it must NEVER
- * invent a number (CLAUDE.md §8). `parseOfferText` is pure and fully unit-tested;
+ * invent a number (docs/ARCHITECTURE.md). `parseOfferText` is pure and fully unit-tested;
  * `extractOfferText` is the thin PDF-to-text step used by the route.
  */
 

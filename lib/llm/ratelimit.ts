@@ -1,6 +1,6 @@
 /**
  * Rate limiting (B12). Every LLM/external route passes through this so a leaked or
- * abused key can't be drained (CLAUDE.md §8.4). In-memory sliding-window token
+ * abused key can't be drained (docs/ARCHITECTURE.md). In-memory sliding-window token
  * bucket keyed per caller (session id) or IP. Sufficient for the demo / single
  * instance; swap for Upstash/Redis in production.
  */

@@ -40,7 +40,7 @@ function VerdictPill({ verdict }: { verdict: Verdict }) {
 /**
  * A single listing card that fills in live as scout verdicts arrive. Numbers are
  * rendered as a clean, serious, information-first surface - no mascot here (decision
- * surface, CLAUDE.md section 9). When the overall verdict is `pass`, the card gets the
+ * surface, docs/ARCHITECTURE.md). When the overall verdict is `pass`, the card gets the
  * shared "lands into tray" motion primitive.
  */
 export function ListingVerdictCard({ state }: { state: ListingState }) {

@@ -1,5 +1,5 @@
 -- 0001_core_tables.sql — B1
--- All 8 tables from FOUNDATION-CONTRACT §2, exact column names + types.
+-- All 8 tables from docs/ARCHITECTURE.md, exact column names + types.
 -- `supabase db reset` applies this first. Nullability adjusted at migration time per
 -- the contract note; names are the frozen seam and must not drift.
 
@@ -51,7 +51,7 @@ create table if not exists public.stickers (
   created_at timestamptz not null default now()
 );
 comment on constraint stickers_category_check on public.stickers is
-  'Positive/vibe categories ONLY — no avoid/unsafe labels ever (CLAUDE.md §8, contract §2).';
+  'Positive/vibe categories ONLY — no avoid/unsafe labels ever (docs/ARCHITECTURE.md, contract §2).';
 
 -- ============================================================ conversations
 create table if not exists public.conversations (

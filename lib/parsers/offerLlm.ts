@@ -6,7 +6,7 @@ import { UNKNOWN_EMPLOYER } from "./offerLetter";
  * LLM extraction layer (RC51). Reads the ALREADY-extracted offer text (unpdf / OCR
  * output - never raw PDF bytes) and returns an OfferParse-shaped object via the Vercel
  * AI SDK's structured output (`generateObject`). The model READS; it must never invent
- * a value (CLAUDE.md sections 4 + 8) - the prompt forbids inference, and every value is
+ * a value (docs/ARCHITECTURE.md) - the prompt forbids inference, and every value is
  * independently re-checked against the source by offerVerify before it is trusted. This
  * module has no opinion on trust; it only turns text into candidate fields.
  */

@@ -1,9 +1,8 @@
 /**
- * FROZEN contract types - verbatim from docs/FOUNDATION-CONTRACT.md sections
- * 4, 4.6, 5, 11, and 12.
+ * FROZEN contract types - the shared shapes for API responses, rows, and
+ * fixtures (see docs/ARCHITECTURE.md).
  *
- * DO NOT DRIFT. If a shape needs to change, edit the contract doc first in
- * a PR both people review, THEN update this file in the same PR.
+ * DO NOT DRIFT. If a shape needs to change, agree on the shape change in a PR first, THEN update this file in the same PR.
  *
  * Merged from person-a (UI) + person-b (schema+APIs) + person-c (integrations).
  * Fields are kept OPTIONAL where possible so A's fixture data, B's server

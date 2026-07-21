@@ -13,7 +13,7 @@ function render(variant: BranchMotifVariant, className?: string) {
 
 /**
  * RD52 - the branch motif is decorative and cheap. This test is the guardrail
- * for the mascot-filter lesson (CLAUDE.md section 9): no SVG filters, never
+ * for the mascot-filter lesson (docs/ARCHITECTURE.md): no SVG filters, never
  * intercepts pointer events, always aria-hidden, token colors only (no raw hex).
  */
 describe("BranchMotif (RD52)", () => {

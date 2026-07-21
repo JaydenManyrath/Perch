@@ -1,6 +1,6 @@
 /**
  * Idempotent seed generator (B4). Populates a believable intern population so Person
- * A's shell looks alive (CLAUDE.md section 8.5). Running twice yields identical state (stable
+ * A's shell looks alive (docs/ARCHITECTURE.md). Running twice yields identical state (stable
  * UUIDs + upserts, no duplicates). Uses the SERVICE-ROLE admin client (bypasses RLS).
  *
  * Run: npm run seed   (requires .env.local with Supabase URL + service-role key)

@@ -3,7 +3,7 @@ import { parseDateToIso, REVIEW_THRESHOLD, UNKNOWN_EMPLOYER } from "./offerLette
 
 /**
  * Deterministic trust layer (RC52). The LLM may READ the offer text; it may NEVER
- * introduce a value that is not grounded in that text (CLAUDE.md sections 4 + 8).
+ * introduce a value that is not grounded in that text (docs/ARCHITECTURE.md).
  * Every field the model returns is checked against the source BEFORE it is trusted:
  *   - numbers must appear verbatim, modulo formatting ($, commas, decimals);
  *   - dates must parse from a date string present in the text (via parseDateToIso);

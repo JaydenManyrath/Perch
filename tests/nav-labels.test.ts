@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { navItems, isActive } from "@/components/shell/nav-items";
 
 /**
- * RD51 - the round-5 naming contract (FOUNDATION-CONTRACT section 15.5).
+ * RD51 - the round-5 naming contract (docs/ARCHITECTURE.md).
  * Every tab wears its bird word as the label with a plain-meaning subtitle,
  * and ROUTES ARE FROZEN: the hrefs must stay byte-identical so deep links
  * never break. This test is the guardrail for both halves of that promise.

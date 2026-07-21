@@ -26,8 +26,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# SECRETS — never commit (see CLAUDE.md §8.4 / §10b). Ignore ALL .env* except the
-# committed template .env.example (FOUNDATION-CONTRACT §6 item 3 / plan §3).
+# SECRETS — never commit (see docs/ARCHITECTURE.md). Ignore ALL .env* except the
+# committed template .env.example (docs/ARCHITECTURE.md / plan §3).
 .env
 .env*
 !.env.example
@@ -43,8 +43,8 @@ yarn-error.log*
 /supabase/.branches
 /supabase/.temp
 
-# agent worktrees (never commit embedded checkouts)
-.claude/worktrees/
+# local tooling state
+.claude/
 
 # editor
 .idea/

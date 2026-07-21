@@ -1,7 +1,7 @@
 import type { Verdict } from "@/lib/types/contract";
 
 /**
- * Verdict to color. Straight from FOUNDATION-CONTRACT section 3 functional tokens, kept
+ * Verdict to color. Straight from docs/ARCHITECTURE.mdfunctional tokens, kept
  * UNMUTED (never pastel-ify a warning). The pale *Bg values are backgrounds only,
  * paired with the strong foreground for the label. Inline hex is used deliberately so
  * these stay correct regardless of Tailwind's purge - decision surfaces must be legible.

@@ -5,7 +5,7 @@ import { Newspaper, Home, Map, MessageCircle, User } from "lucide-react";
  * Five destinations. Nav is shared between BottomNav (mobile) and SideRail
  * (desktop) so the source-of-truth is one file.
  *
- * NAMING (round 5, RD51 - naming contract FOUNDATION-CONTRACT section 15.5):
+ * NAMING (round 5, RD51 - naming contract docs/ARCHITECTURE.md):
  * every tab wears its bird word as the `label`, with the plain meaning kept
  * as the `subtitle` so the theme never costs clarity (section 9). Bird labels:
  * Flyway (the feed), Perches (swipe sublets), Migration (your city),

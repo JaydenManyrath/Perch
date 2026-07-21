@@ -4,7 +4,7 @@ import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Perch - the plush-chick mascot. Recolored teal → baby-blue per FOUNDATION-CONTRACT §3
+ * Perch - the plush-chick mascot. Recolored teal → baby-blue per docs/ARCHITECTURE.md
  * (body = sky.200/chick.body, wings = sky.400/chick.wing, beak/feet = accent.beak*).
  *
  * `variant`:
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
  * in styles/mascot-keyframes.css. Under reduced motion the same SVG renders as
  * a static pose - no code changes needed.
  *
- * PLACEMENT RULE (CLAUDE.md §9): the chick lives ONLY in personality moments -
+ * PLACEMENT RULE (docs/ARCHITECTURE.md): the chick lives ONLY in personality moments -
  * onboarding, loading, empty states, milestones. It is ABSENT from decision
  * surfaces (listings, safety, money, map decisions).
  *

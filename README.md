@@ -1,73 +1,107 @@
 # Perch
 
-The social network interns use to land in a new city: find your flock (roommates, friends, people to go out with) and short-term sublets, and get oriented before you arrive. Instagram-shaped UX, baby-chick mascot, baby-blue-and-white theme.
-
-Demo build in dev/test mode (no production auth/verification). Full context in [CLAUDE.md](CLAUDE.md).
+The social network interns use to land in a new city: find your flock (roommates,
+friends, people to go out with) and short-term sublets, and get oriented before you
+arrive. Instagram-shaped UX, baby-chick mascot, baby-blue-and-white theme.
 
 Docs style: plain ASCII only (no emojis, no em-dashes).
 
-## Status
+## What it does
 
-- Round 1 (v1 app): DONE. The full Instagram-shaped shell on seed/fixture data, plus the streaming housing negotiation and the live intern-connection beat.
-- Round 2: DONE. UI + APIs + integrations all merged to `main`.
-  - All UI: perches swipe deck + saved tray, subletter posting + freshness confirm, Airbnb-style reviews on perches and on subletter profiles, tappable profiles, Google-Maps-style icons + legend + event pins, event card with picture + venue + Going Y/N poll + comments, offer manual-correction, feed events-only, map comments with placeholders + read/add, friends UI (add + list + requests), DMs Instagram-Notes strip, front-page cleanup, apartment -> office road-following route + along-route POI selection + generated schedule, Message-on-profile.
-  - Schema + core APIs: user_type + freshness columns; listing_swipes, reviews, event_attendance, comments, friendships, map-comment notes; API routes for perches (deck/swipe/saved), listings (post/confirm), reviews, event attendance/comments, friends (list/requests/request/accept/decline/notes), map comments, public profiles, route POIs + schedule.
-  - Integrations + AI: sourcing pipeline (adapter + normalize + dedupe + ingest), freshness expiry job, "still available?" ping dispatch, Ticketmaster Discovery API + /api/events/nearby + seeded fallback, offer parser hardening (confidence + needsReview + OCR + broader formats), Mapbox Directions POST /api/route + geocode + along-route POI search.
+- Onboarding that builds YOUR account: upload your offer letter and the parsed fields
+  (name, employer, salary, dates, city) become your identity - flagged low-confidence
+  fields are editable, a live finance breakdown recomputes as you correct them, and
+  the account is created for the person the letter names with zero pre-seeded friends.
+- Flyway (feed): upcoming events near your city - live Ticketmaster events with images
+  and links, ranked to your Spotify taste, with going polls, intern counts, and
+  comment threads.
+- Perches: a Tinder-style deck of fresh sublets with full detail sheets, reviews,
+  affordability against your take-home, request-to-book with roommate grouping, and
+  freshness rules so stale or taken listings never surface.
+- Migration (map): category pins for places, stickers, events, listings, and community
+  comments; road-following commute routes from your apartment to your office with
+  coffee/gym picks along the way and a generated schedule.
+- Chirps (DMs): realtime messaging with optimistic sends, plus a notes strip showing
+  which friends are going to which events.
+- Nest (profile): banded (verified) badge, taste profile, categorized pre-flight
+  checklist, friends and requests.
+- The negotiation hero: streaming per-listing verdicts where deterministic rules
+  decide (budget, lease window, safety, commute) and the model only narrates.
 
-- Round 3: DONE. Merged to `main` 2026-07-17 (person-a UI + person-b schema/APIs + person-c integrations integrated together). Full suite green incl. 28 RLS tests on Postgres, production build clean, no client-bundle secret leak. Evidence in [SPRINT-3-ACCEPTANCE.md](docs/SPRINT-3-ACCEPTANCE.md).
-  - Experience: event images with a placeholder fallback, comprehensive perch details and post inputs, the full booking flow, accepted-friend roommate invitations, canonical finance on onboarding/landing/listings, grouped pre-flight checklist, percentage-free onboarding, and marker-specific map sheets.
-  - Data and APIs: migrations 0011/0012, booking and roommate state machines with RLS, cost-of-living and persisted offer inputs, comprehensive listing and finance routes, upcoming-only event/feed guards, and canonical affordability in negotiation.
-  - Integrations and parser: upcoming Ticketmaster events with usable images, relocation stipend/signing bonus extraction with confidence and review behavior, canonical cost-of-living lookup with deterministic fallback, and RC34 closed as no external place-details integration required.
-- Round 4: IN PROGRESS (live backend: Supabase provisioning + go-live). No new product features - the app moves from fixture-first to a real hosted Supabase project: SSR auth sessions, RLS verified on the real DB, live Realtime + Storage, and a Vercel deploy. Two-way split A/B on branches `round4-person-a` / `round4-person-b`; plans in `docs/IMPLEMENTATION-PERSON-{A,B}-ROUND4.md`.
-  - Person A (client / auth session / deploy, RA41-RA47) on `round4-person-a`: SSR session refresh in `middleware.ts` + login / sign-out / protected routes, the fixture-to-live data-source flip with graceful fallback, live Realtime DMs and Mapbox verification, and shared Storage image uploads.
-  - Person B (hosted DB / server / secrets, RB41-RB47) on `round4-person-b`: a CLI-free idempotent migration applier (`npm run db:push` / `db:push:live`) tracked in `perch_meta.applied_migrations`; an idempotent seed (`seed:live` for the hosted project incl. the `perch-demo-<email>` login seam, `seed:local` for a throwaway Postgres); live RLS proof (28 adversarial cases + a two-user isolation demo) and storage-bucket policy checks against a real Postgres; a session-only `guard()` (401/429) and default-deterministic kill switches; a clean client-bundle secret grep. See [RUNBOOK-LIVE-BACKEND.md](docs/RUNBOOK-LIVE-BACKEND.md).
-- Round 5: IN PROGRESS (onboarding growth, live event polling on Vercel, LLM-first offer parsing, bird theme). Four-way split on branches `round5-person-{a,b,c,d}`; seams in [FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md) section 15.
-  - Person C (OpenAI offer parsing, RC51-RC53) on `round5-person-c`: offer-letter extraction is now LLM-first (Vercel AI SDK `generateObject` over the already-extracted PDF/OCR text) with a deterministic trust layer - every value the model returns is verified verbatim against the source (numbers modulo $/comma/decimal, dates by parse-equivalence, employer/role/city as substrings) or it is nulled and flagged for review, so the model may read but may never invent a number. Heuristics stay the no-key fallback: with `LLM_DISABLED=1` or no key the output is byte-identical to before. Real-shaped PDF fixtures (classic, table, stipend+bonus, scanned/OCR, adversarial) prove the `/api/parse/offer` route end to end with the model mocked (zero tokens); one opt-in live smoke sits behind `LIVE_LLM=1`.
+## Stack
 
-Seams are documented in [FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md): sections 11 (round-2 batch 1), 12 (round-2 batch 2), 13 (round 3), 14 (round 4 - live backend), and 15 (round 5). The `lib/types/contract.ts` file mirrors those shapes verbatim.
+Next.js + TypeScript, Tailwind + shadcn/ui, Framer Motion, Supabase
+(Postgres / Auth / Realtime / Storage with RLS everywhere), OpenAI via the Vercel AI
+SDK, Ticketmaster Discovery API, Mapbox, Composio (Spotify OAuth), deployed on Vercel.
 
-## The stack (locked)
-
-Next.js + TypeScript, Tailwind + shadcn/ui, Framer Motion, Supabase (DB / Auth / Realtime / Storage), OpenAI via Vercel AI SDK, Composio (Spotify + IG Business OAuth), Mapbox, deployed on Vercel.
+Full end-to-end reference: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Run it locally
 
 1. `npm install`
-2. Copy `.env.local.example` to `.env.local` and fill the client keys (Supabase anon URL/key, Mapbox token). Server keys (service role, OpenAI, Composio, Ticketmaster) go in `.env` per [docs/SECRETS.md](docs/SECRETS.md); never commit secrets.
-3. `npm run dev`. The app runs on the fixture data source with no live keys; set `NEXT_PUBLIC_DATA_SOURCE=live` to hit the real API routes and Supabase.
-4. Supabase (optional for live mode): `supabase db reset` to apply `supabase/migrations`, then `npm run seed` to populate a live DB. `npm run seed:sourcing` seeds via the auto-sourcing pipeline.
+2. Copy `.env.local.example` to `.env.local` and fill the client keys (Supabase URL +
+   anon key, Mapbox token). Server keys (service role, OpenAI, Ticketmaster, Composio)
+   are server-only - see [docs/SECRETS.md](docs/SECRETS.md); never commit secrets.
+3. `npm run dev`. With no keys the app runs fully on the fixture data source; set
+   `NEXT_PUBLIC_DATA_SOURCE=live` to hit the real API routes and Supabase.
+4. Supabase (for live mode): `npm run db:push` applies `supabase/migrations`, then
+   `npm run seed` populates a believable demo cohort (idempotent, safe to re-run).
 
 ## Walkthrough
 
 - `/` splash - Start onboarding.
-- `/onboarding` - upload offer -> parsed fields render incl. YOUR NAME from the letter (low-confidence fields are flagged with a "check this" hint and editable) + live finance breakdown recomputes as you correct them -> your account is minted for the person the letter names (never a seeded persona; <name>@perch.demo, shown on the Done step) and starts with zero friends until you add them -> Spotify connect (or skip) -> Takeout upload (optional) -> add a profile photo (optional; local preview, skip in one tap and your initials show instead) -> find your flock (3-6 recommended interns to add as friends, skippable) -> done. Progress is shown as step dots, not a percent. Profile pictures are optional everywhere: any missing avatar renders the person's initials on a baby-blue token background, never a broken image.
-- `/feed` (labeled "Flyway" in nav) - upcoming events near YOUR city (the one from onboarding; live Ticketmaster events for that area refresh in the background when keyed), ranked to your taste. Each card shows a picture (or a category-labeled placeholder), venue, category, taste-match bar, a Going Y/N poll + intern count, and a comment thread.
-- `/stories` (labeled "Perches" in nav) - Tinder-style swipe deck of fresh sublets. Drag or use Pass/Save buttons. Right-swipes populate the Saved tab. Tap a card for the full detail sheet: furnished, pros, bed/bath/sqft, amenities, utilities, host + reviews, affordability line vs your take-home, and Request-to-book (adds roommates from your friends, tracks approval, and flips the listing to "taken" on confirm).
-- `/post` - subletter posting form (title, address, price, dates, furnished, pros, bed/bath/sqft, amenities, utilities included) + incoming booking requests inbox with Approve/Decline + your listings + confirm/relist. `?as=subletter` previews the flow as a subletter account for the demo.
-- `/discovery` - match cards. Tap "Message now" for the connection-hero beat.
-- `/map` (labeled "Migration" in nav) - Google-Maps-style Streets base with a subtle water tint. Category-icon pins for places, stickers, events, listings, and map comments. Legend. Drop-a-comment + drop-a-sticker placement modes. Tap any marker for a rich info sheet: listings show a hero photo + price + bed/bath/furnished/utilities + host with review count + Set-as-commute-anchor + Message host; stickers show category + author's note + who left it; events show taste-fit + intern-attendance from the feed. Setting a listing as the commute anchor (or arriving via `?apartmentId=`) draws a real road-following polyline (Mapbox Directions), lets you pick coffee/gym stops along the route, and generates a schedule.
-- `/dms` (labeled "Chirps" in nav) - conversation list with an Instagram-Notes strip on top showing friends going to events. Message any profile from a Message button.
+- `/onboarding` - upload offer -> parsed fields render incl. your name from the letter
+  (low-confidence fields are flagged with a "check this" hint and editable) + live
+  finance breakdown recomputes as you correct them -> your account is created for the
+  person the letter names (<name>@perch.demo, shown on the Done step) and starts with
+  zero friends until you add them -> Spotify connect (or skip) -> Takeout upload
+  (optional) -> add a profile photo (optional; skip in one tap and your initials show
+  instead) -> find your flock (recommended interns to add as friends, skippable) ->
+  done. Progress is step dots, not a percent.
+- `/feed` (labeled "Flyway" in nav) - upcoming events near your city, ranked to your
+  taste. Each card shows a picture, venue, category, taste-match bar, a Going Y/N poll
+  + intern count, a comment thread, and a link to the real event page.
+- `/stories` (labeled "Perches" in nav) - swipe deck of fresh sublets. Right-swipes
+  populate the Saved tab. Tap a card for the full detail sheet: furnished, pros,
+  bed/bath/sqft, amenities, utilities, host + reviews, affordability vs your
+  take-home, and Request-to-book (roommates from your friends, approval tracking,
+  listing flips to "taken" on confirm).
+- `/post` - subletter posting form + incoming booking requests inbox with
+  Approve/Decline + your listings + confirm/relist. `?as=subletter` previews the
+  subletter view.
+- `/discovery` - match cards. Tap "Message now" to land in a live DM.
+- `/map` (labeled "Migration" in nav) - category-icon pins with a legend,
+  drop-a-sticker and drop-a-comment modes, rich per-marker info sheets, commute
+  routing with along-route coffee/gym picks and a generated schedule.
+- `/dms` (labeled "Chirps" in nav) - conversation list with the friends-going-to-events
+  notes strip. Message any profile from its Message button.
 - `/friends` - accepted friends + incoming/outgoing requests.
-- `/profile/[id]` (labeled "Nest" in nav) - intern profile (banded badge, taste, pre-flight checklist for self grouped by category with per-group progress, Message + Add-friend for others). Subletter profile shows listings + review summary + reviews panel.
-- `/landing` - top-of-page finance readout (take-home vs salary, COL-adjusted rent ceiling, upfront cash needed + relocation stipend/signing bonus offset) followed by your first-week itinerary.
-- `/negotiate` - the streaming housing-negotiation hero.
+- `/profile/[id]` (labeled "Nest" in nav) - intern profile (banded badge, taste,
+  categorized pre-flight checklist for self). Subletter profiles show listings +
+  review summary.
+- `/landing` - finance readout (take-home vs salary, COL-adjusted rent ceiling,
+  upfront cash + stipend/bonus offsets) followed by your first-week itinerary.
+- `/negotiate` - the streaming housing-negotiation hero over your saved perches.
 
 ## Data source
 
-`lib/data/source.ts` reads `NEXT_PUBLIC_DATA_SOURCE=fixture|live` (default `fixture`). When `live` is set but a route errors or a key is missing, it falls back to the fixture rather than crashing. That means the whole app runs cold with zero live keys, and you flip surfaces to `live` one at a time as Supabase + the API routes come online.
+`lib/data/source.ts` reads `NEXT_PUBLIC_DATA_SOURCE=fixture|live` (default `fixture`).
+When `live` is set but a route errors or a key is missing, every getter falls back to
+the fixture rather than crashing - the whole app runs cold with zero live keys.
 
-## Round 4 hosted deployment status
+## Deploying
 
-No Round 4 Vercel preview has been created or smoke-tested as of 2026-07-18. The local Vercel CLI is authenticated, but the active `seo23` scope has no Vercel project and this checkout is not linked. Create or link the Perch project before deploying the branch preview.
+The app deploys on Vercel with daily crons for event ingestion and listing expiry,
+plus GitHub Actions backstops for seeding and ingest. The full go-live checklist
+(environment variables, cron secret, GitHub secrets, Supabase auth URLs, and the
+post-deploy smoke list) lives in
+[docs/PRODUCTION-READINESS.md](docs/PRODUCTION-READINESS.md); the hosted-backend
+runbook is [docs/RUNBOOK-LIVE-BACKEND.md](docs/RUNBOOK-LIVE-BACKEND.md).
 
-Hosted smoke testing is also intentionally pending Person B's handoff: a migrated and seeded Supabase project, the public project URL and anon key, Preview server environment values set by Person B, hosted Storage buckets and policies, and live RLS and kill-switch evidence. The service-role key must not be provided to or handled by the browser/deploy owner.
+## Docs
 
-Once those dependencies are available, deploy the `round4-person-a` branch as a Vercel Preview with only the public values (`NEXT_PUBLIC_DATA_SOURCE=live`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_MAPBOX_TOKEN`). Person B sets server-only values directly in Vercel. Exercise the resulting preview URL before reporting success: seeded-user login, protected navigation, sign-out, feed, map tiles, booking, two-user Realtime DM reconciliation, listing-photo and avatar Storage round trips, guarded-route caller identity, RLS isolation evidence from Person B, and the deterministic fallback paths with optional integrations unavailable.
-
-## Start here
-
-1. Read [CLAUDE.md](CLAUDE.md) for the full architecture reference.
-2. Read [docs/FOUNDATION-CONTRACT.md](docs/FOUNDATION-CONTRACT.md) for the data model, design tokens, and API shapes.
-3. Read [docs/PROGRESS.md](docs/PROGRESS.md) for build status.
-
-Mascot assets live in [assets/mascot/](assets/mascot/). Env template lives in [docs/SECRETS.md](docs/SECRETS.md).
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - end-to-end system reference
+- [docs/PROGRESS.md](docs/PROGRESS.md) - build history and status
+- [docs/SECRETS.md](docs/SECRETS.md) - environment and key handling
+- [docs/PRODUCTION-READINESS.md](docs/PRODUCTION-READINESS.md) - go-live checklist
+- [docs/RUNBOOK-LIVE-BACKEND.md](docs/RUNBOOK-LIVE-BACKEND.md) - provision/migrate/seed/verify

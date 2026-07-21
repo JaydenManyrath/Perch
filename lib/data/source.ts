@@ -8,7 +8,7 @@
  * Person A never holds server secrets. `live` reads only the frozen API routes owned
  * by Person B (schema + core CRUD) and Person C (integrations + AI), plus Supabase via
  * the anon key for direct reads + realtime DMs. All shapes come from
- * lib/types/contract.ts - frozen by FOUNDATION-CONTRACT sections 4-6 and 11-12.
+ * lib/types/contract.ts - frozen by docs/ARCHITECTURE.md
  */
 
 import { env, hasSupabase } from "@/lib/env";

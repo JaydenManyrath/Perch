@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 
 /**
  * Perch — Tailwind config.
- * Colors are the FROZEN §3 tokens from docs/FOUNDATION-CONTRACT.md.
+ * Colors are the locked design tokens (see docs/ARCHITECTURE.md).
  * WCAG rule: NEVER render body text in baby-blue (sky.*) on white/sky.50.
  * Body text is always ink.strong on white/sky.50, secondary is ink.soft.
  * func.pass/flag/scam stay UNMUTED — never pastel-ify a warning.

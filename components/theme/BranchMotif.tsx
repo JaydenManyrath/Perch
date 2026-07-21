@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 /**
  * BranchMotif (RD52) - a quiet hand-drawn branch the UI can "perch" things on.
  *
- * DESIGN RULES (CLAUDE.md section 9 + the mascot-filter lesson):
+ * DESIGN RULES (docs/ARCHITECTURE.mdthe mascot-filter lesson):
  *   - Flat vector ONLY. No SVG filters (no feTurbulence / feDisplacementMap /
  *     feGaussianBlur) - those stutter and render inconsistently. Cheap to paint.
  *   - Token colors only (the Tailwind stroke and fill utilities map to the

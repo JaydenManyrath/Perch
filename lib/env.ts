@@ -1,7 +1,7 @@
 /**
  * Env accessor. Client-visible keys are NEXT_PUBLIC_*. Never read a secret here.
  *
- * Rule (CLAUDE.md §8.4): only the Supabase anon key + Mapbox token are client-visible.
+ * Rule (docs/ARCHITECTURE.md): only the Supabase anon key + Mapbox token are client-visible.
  * Never NEXT_PUBLIC_ a service-role, OpenAI, or Composio key.
  *
  * Degrades gracefully: reads env with safe fallbacks so a missing key never crashes.

@@ -6,7 +6,7 @@ import type { ScoutListing, ScoutResult } from "./types";
  *   soft/advisory note only → flag
  *   clean                   → pass
  * Positive-only framing: we never infer "avoid this area" from location (bias/harm
- * risk, CLAUDE.md §8). Verdicts come only from explicit flags on the listing itself.
+ * risk, docs/ARCHITECTURE.md). Verdicts come only from explicit flags on the listing itself.
  */
 export function safetyScout(listing: ScoutListing): ScoutResult {
   const flags = listing.safety_flags ?? { scamSignals: [], notes: [] };

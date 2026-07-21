@@ -1,8 +1,8 @@
 # Secret Management Convention (Person B - B12)
 
 > Owner: Person B. Establishes how every credential in Perch is stored, named, and
-> kept out of git and out of the client bundle. Referenced by FOUNDATION-CONTRACT
-> section 6 item 3 and CLAUDE.md sections 8.4 and 10b.
+> kept out of git and out of the client bundle. Referenced by docs/ARCHITECTURE.md
+> section 6 item 3 and docs/ARCHITECTURE.mdb.
 
 ## Rules (non-negotiable)
 
@@ -21,7 +21,7 @@
    is rate-limited (`lib/llm/ratelimit.ts`) so an exposed endpoint cannot be drained.
 5. **Vercel:** set the server secrets as Vercel Environment Variables (Production +
    Preview). Person B owns ensuring the server env vars are present; Person A owns the
-   repo-to-Vercel connection (FOUNDATION-CONTRACT section 6 item 6).
+   repo-to-Vercel connection (docs/ARCHITECTURE.mditem 6).
 
 ## Kill switches (deterministic fallbacks)
 

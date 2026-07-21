@@ -21,7 +21,7 @@ export const runtime = "nodejs"; // unpdf's pdf.js needs Node APIs, not edge
  * A verified LLM value fills a null or overrides a low-confidence heuristic; a
  * verified-heuristic value is never overwritten by an unverified LLM one. With
  * LLM_DISABLED=1 or no key the LLM branch is skipped entirely, so the output is
- * byte-identical to the deterministic heuristics (CLAUDE.md 4/8; contract 14.2).
+ * byte-identical to the deterministic heuristics (docs/ARCHITECTURE.md; contract 14.2).
  */
 async function parseOfferPipeline(buf: Buffer, isPdf: boolean): Promise<OfferParse> {
   if (!isLlmEnabled()) {

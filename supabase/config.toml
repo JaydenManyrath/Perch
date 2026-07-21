@@ -20,7 +20,7 @@ port = 54323
 
 [auth]
 enabled = true
-# Dev mode: no production verification flows (CLAUDE.md §2). Email auth for the demo.
+# Dev mode: no production verification flows (docs/ARCHITECTURE.md). Email auth for the demo.
 site_url = "http://localhost:3000"
 enable_signup = true
 

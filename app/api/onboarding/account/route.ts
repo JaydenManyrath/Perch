@@ -20,7 +20,7 @@ export const runtime = "nodejs";
  * Anonymous by design (it CREATES the session's account - there is nobody to
  * authenticate yet), so it is rate-limited by IP instead of going through guard().
  * Demo-mode seam: a real product would verify an email; this repo is explicitly a
- * dev/test-mode demo (CLAUDE.md section 2), so the letter's name is the identity.
+ * dev/test-mode demo (docs/ARCHITECTURE.md), so the letter's name is the identity.
  */
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";

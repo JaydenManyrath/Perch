@@ -9,7 +9,7 @@ const INK_SOFT = "#5E7E97";
  * own saved perches (falling back to the fresh deck when nothing is saved yet). Four
  * deterministic scouts - budget, safety, lease fit, routine fit - stream in a verdict
  * per perch, then rank them best to worst. The LLM only narrates; it never moves a
- * verdict (CLAUDE.md section 4).
+ * verdict (docs/ARCHITECTURE.md).
  */
 export default async function NegotiatePage() {
   const saved = await getSavedPerches();

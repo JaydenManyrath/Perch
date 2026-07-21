@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { guard } from "@/lib/http";
+import { guardOptionalAuth } from "@/lib/http";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   parseOfferPdf,
@@ -53,7 +53,10 @@ async function parseOfferPipeline(buf: Buffer, isPdf: boolean): Promise<OfferPar
 // against the source before it is trusted. Stores the file to the private offer-letters
 // bucket under the caller's uid prefix (owner-only RLS, 0005).
 export async function POST(req: Request) {
-  const g = await guard(req);
+  // Onboarding parses the letter BEFORE the account exists (the parse is what mints
+  // it), so anonymous callers are allowed - IP rate-limited - instead of 401ing into
+  // the fixture fallback, which would mint the account from the wrong identity.
+  const g = await guardOptionalAuth(req);
   if (g instanceof NextResponse) return g;
 
   try {
@@ -68,16 +71,20 @@ export async function POST(req: Request) {
     const parsed: OfferParse = await parseOfferPipeline(buf, isPdf);
 
     // Best-effort: archive the original to private storage (never blocks the parse).
-    try {
-      const admin = createAdminClient();
-      await admin.storage
-        .from("offer-letters")
-        .upload(`${g.callerId}/offer-${Date.now()}.pdf`, buf, {
-          contentType: isPdf ? "application/pdf" : "text/plain",
-          upsert: false,
-        });
-    } catch (storageErr) {
-      console.warn("offer archive skipped:", storageErr);
+    // Only when a signed-in caller exists - an anonymous onboarder has no uid prefix
+    // yet, and their letter should not be stored before they have an account.
+    if (g.callerId) {
+      try {
+        const admin = createAdminClient();
+        await admin.storage
+          .from("offer-letters")
+          .upload(`${g.callerId}/offer-${Date.now()}.pdf`, buf, {
+            contentType: isPdf ? "application/pdf" : "text/plain",
+            upsert: false,
+          });
+      } catch (storageErr) {
+        console.warn("offer archive skipped:", storageErr);
+      }
     }
 
     return NextResponse.json(parsed, { headers: g.headers });

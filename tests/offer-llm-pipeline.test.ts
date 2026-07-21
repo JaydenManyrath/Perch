@@ -20,7 +20,7 @@ const { guardMock, adminMock, generateObjectMock, ocrImageMock } = vi.hoisted(()
   ocrImageMock: vi.fn(),
 }));
 
-vi.mock("@/lib/http", () => ({ guard: guardMock }));
+vi.mock("@/lib/http", () => ({ guard: guardMock, guardOptionalAuth: guardMock }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: adminMock }));
 vi.mock("ai", () => ({ generateObject: generateObjectMock }));
 vi.mock("@ai-sdk/openai", () => ({ openai: () => ({ id: "mock-model" }) }));

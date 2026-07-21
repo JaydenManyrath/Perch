@@ -3,6 +3,15 @@
   <rect x="0" y="0" width="1200" height="320" rx="24" fill="#F2F9FE"/>
   <rect x="1" y="1" width="1198" height="318" rx="23" fill="none" stroke="#DCEFFB" stroke-width="2"/>
 
+  <defs>
+    <filter id="mSoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="mSoft2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="mFur" x="-25%" y="-25%" width="150%" height="150%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.6 0.82" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+
   <!-- soft sky shapes -->
   <circle cx="1080" cy="52" r="70" fill="#DCEFFB" opacity="0.55"/>
   <circle cx="985" cy="84" r="42" fill="#DCEFFB" opacity="0.4"/>
@@ -25,31 +34,50 @@
   </g>
   <circle cx="524" cy="266" r="7" fill="#F6A22C"/>
 
-  <!-- plush chick, perched -->
-  <g>
-    <ellipse cx="210" cy="256" rx="58" ry="10" fill="#9CC5DD" opacity="0.25"/>
-    <!-- feet -->
-    <g stroke="#E5851C" stroke-width="6" stroke-linecap="round">
-      <path d="M190 244 L190 254"/>
-      <path d="M230 244 L230 254"/>
+  <!-- plush chick (the furry mascot), perched -->
+  <g transform="translate(129,84) scale(0.62)">
+    <ellipse cx="130" cy="288" rx="72" ry="11" fill="#2C4A63" opacity="0.13" filter="url(#mSoft2)"/>
+    <g filter="url(#mFur)">
+      <path d="M88,184 C60,196 30,190 17,166 C11,153 21,145 33,152 C43,158 58,168 74,172 C82,174 88,178 90,182 Z" fill="#7FB2DB"/>
+      <path d="M172,184 C200,196 230,190 243,166 C249,153 239,145 227,152 C217,158 202,168 186,172 C178,174 172,178 170,182 Z" fill="#7FB2DB"/>
     </g>
-    <!-- body -->
-    <ellipse cx="210" cy="188" rx="66" ry="62" fill="#BFE3F7" stroke="#9CC5DD" stroke-width="4"/>
-    <!-- head tuft -->
-    <path d="M196 129 C 200 118 208 114 214 118 C 210 124 206 128 204 132 Z" fill="#BFE3F7" stroke="#9CC5DD" stroke-width="3" stroke-linejoin="round"/>
-    <!-- wings -->
-    <ellipse cx="152" cy="196" rx="20" ry="30" fill="#7FB2DB" opacity="0.75"/>
-    <ellipse cx="268" cy="196" rx="20" ry="30" fill="#7FB2DB" opacity="0.75"/>
-    <!-- cheeks -->
-    <circle cx="176" cy="196" r="9" fill="#F7C8B4"/>
-    <circle cx="244" cy="196" r="9" fill="#F7C8B4"/>
-    <!-- eyes -->
-    <circle cx="190" cy="176" r="6.5" fill="#2C4A63"/>
-    <circle cx="230" cy="176" r="6.5" fill="#2C4A63"/>
-    <circle cx="192.5" cy="173.5" r="2" fill="#FFFFFF"/>
-    <circle cx="232.5" cy="173.5" r="2" fill="#FFFFFF"/>
-    <!-- beak -->
-    <path d="M203 188 L217 188 L210 199 Z" fill="#F6A22C"/>
+    <g filter="url(#mFur)">
+      <path d="M30,162 C41,159 53,163 63,167" stroke="#5E7E97" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8"/>
+      <path d="M26,169 C37,167 49,170 59,173" stroke="#5E7E97" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <path d="M230,162 C219,159 207,163 197,167" stroke="#5E7E97" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8"/>
+      <path d="M234,169 C223,167 211,170 201,173" stroke="#5E7E97" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <path d="M18,161 C24,159 30,160 35,163" stroke="#F7FBFC" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M242,161 C236,159 230,160 225,163" stroke="#F7FBFC" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </g>
+    <circle cx="130" cy="176" r="95" fill="#BFE3F7" filter="url(#mFur)"/>
+    <ellipse cx="130" cy="240" rx="72" ry="34" fill="#5E7E97" opacity="0.16" filter="url(#mSoft2)"/>
+    <g transform="translate(116,256)" fill="#E9A24C">
+      <ellipse cx="-5" cy="7" rx="2.8" ry="7" transform="rotate(-22 -5 7)"/>
+      <ellipse cx="0" cy="8" rx="3" ry="7.6"/>
+      <ellipse cx="5" cy="7" rx="2.8" ry="7" transform="rotate(22 5 7)"/>
+    </g>
+    <g transform="translate(146,256)" fill="#E9A24C">
+      <ellipse cx="-5" cy="7" rx="2.8" ry="7" transform="rotate(-22 -5 7)"/>
+      <ellipse cx="0" cy="8" rx="3" ry="7.6"/>
+      <ellipse cx="5" cy="7" rx="2.8" ry="7" transform="rotate(22 5 7)"/>
+    </g>
+    <path d="M37,150 C37,96 80,60 130,60 C180,60 223,96 223,150 C223,182 206,193 182,196 C170,197 162,205 148,205 C140,205 137,200 130,200 C123,200 120,205 112,205 C98,205 92,197 78,196 C54,193 37,182 37,150 Z" fill="#F7FBFC" filter="url(#mFur)"/>
+    <path d="M62,197 C92,207 168,207 198,197" stroke="#9CC5DD" stroke-width="9" opacity="0.15" fill="none" stroke-linecap="round" filter="url(#mSoft)"/>
+    <g fill="#F7FBFC" filter="url(#mFur)">
+      <path d="M92,196 q9,17 18,0 Z"/>
+      <path d="M112,199 q9,18 18,0 Z"/>
+      <path d="M132,199 q9,18 18,0 Z"/>
+      <path d="M152,196 q9,16 18,0 Z"/>
+    </g>
+    <ellipse cx="92" cy="106" rx="30" ry="19" fill="#ffffff" opacity="0.45" filter="url(#mSoft2)" transform="rotate(-24 92 106)"/>
+    <path d="M121,150 C125,148 135,148 139,150 C141,151 141,154 139,156 L132,164 C130.5,166 129.5,166 128,164 L121,156 C119,154 119,151 121,150 Z" fill="#F6A22C"/>
+    <path d="M125,158 C129,160 133,160 137,158 L132,164 C130.5,166 129.5,166 128,164 Z" fill="#E5851C"/>
+    <circle cx="108" cy="147" r="6.8" fill="#2C4A63"/>
+    <circle cx="152" cy="147" r="6.8" fill="#2C4A63"/>
+    <circle cx="105.6" cy="144.4" r="1.9" fill="#fff" opacity="0.9"/>
+    <circle cx="149.6" cy="144.4" r="1.9" fill="#fff" opacity="0.9"/>
+    <ellipse cx="93" cy="161" rx="12" ry="7.5" fill="#F2A69E" opacity="0.5"/>
+    <ellipse cx="167" cy="161" rx="12" ry="7.5" fill="#F2A69E" opacity="0.5"/>
   </g>
 
   <!-- wordmark + tagline -->

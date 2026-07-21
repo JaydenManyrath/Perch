@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/perch-banner.svg" alt="Perch - the social network interns use to land in a new city" width="840"/>
+  <img src="public/mascot/plush-chick-static-fur.svg" alt="Perch mascot - a plush baby chick" width="220"/>
 </p>
 
 # Perch

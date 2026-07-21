@@ -187,6 +187,7 @@ round5-person-c, round5-person-d (each cut from main).
 
 ## Log
 
+- 2026-07-20: Round 6 merged to main (r6-events-seed + r6-prod-audit) plus the pre-auth parse fix: /api/parse/offer now allows anonymous callers (IP rate-limited; storage archive only for signed-in callers) because onboarding parses the letter BEFORE the account exists - previously an anonymous onboarder silently got the fixture parse and the account would have been minted from the wrong identity. Account-creation chain verified live against the hosted project end to end: anonymous parse of the sample letter (name Jordan, Stripe, 126000, Seattle) -> POST /api/onboarding/account minted jordan@perch.demo with the letter's identity and verified=false -> zero friendships for the new user -> sign-in with the minted credentials issued a token; test account deleted after verification. Full gates on the merged tree: 471 tests, typecheck, lint, production build, and unpiped bundle greps for sb_secret/service-key/TM-key values all clean.
 - 2026-07-16: Round 1 merged to main.
 - 2026-07-16: Round 2 planned and split three ways.
 - 2026-07-16: Round 2 batch 2 planned.

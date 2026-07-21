@@ -43,6 +43,9 @@ yarn-error.log*
 /supabase/.branches
 /supabase/.temp
 
+# agent worktrees (never commit embedded checkouts)
+.claude/worktrees/
+
 # editor
 .idea/
 .vscode/*

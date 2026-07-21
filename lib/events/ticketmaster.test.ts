@@ -92,6 +92,58 @@ describe("normalizeTmEvent", () => {
   });
 });
 
+describe("pickImage precedence (via normalizeTmEvent)", () => {
+  type TestImage = { url?: string; width?: number; ratio?: string; fallback?: boolean };
+  function imageFor(images: TestImage[] | undefined): string | null {
+    return normalizeTmEvent({ ...TM_EVENT, images })!.image_url;
+  }
+
+  it("prefers the largest non-fallback 16_9 image even when a larger other-ratio image exists", () => {
+    expect(
+      imageFor([
+        { url: "https://img/huge-square.jpg", width: 3000, ratio: "1_1" },
+        { url: "https://img/wide-small.jpg", width: 640, ratio: "16_9" },
+        { url: "https://img/wide-big.jpg", width: 1024, ratio: "16_9" },
+        { url: "https://img/wide-fallback.jpg", width: 2048, ratio: "16_9", fallback: true },
+      ]),
+    ).toBe("https://img/wide-big.jpg");
+  });
+
+  it("falls back to the largest non-fallback image of any ratio when no non-fallback 16_9 exists", () => {
+    expect(
+      imageFor([
+        { url: "https://img/wide-fallback.jpg", width: 2048, ratio: "16_9", fallback: true },
+        { url: "https://img/photo.jpg", width: 640, ratio: "3_2" },
+        { url: "https://img/square.jpg", width: 1080, ratio: "1_1" },
+      ]),
+    ).toBe("https://img/square.jpg");
+  });
+
+  it("uses the largest fallback image as a last resort instead of returning null", () => {
+    expect(
+      imageFor([
+        { url: "https://img/fb-small.jpg", width: 1024, ratio: "16_9", fallback: true },
+        { url: "https://img/fb-big.jpg", width: 2048, ratio: "3_2", fallback: true },
+      ]),
+    ).toBe("https://img/fb-big.jpg");
+  });
+
+  it("keeps the first of equal-width candidates, so the pick is deterministic", () => {
+    expect(
+      imageFor([
+        { url: "https://img/first.jpg", width: 1024, ratio: "16_9" },
+        { url: "https://img/second.jpg", width: 1024, ratio: "16_9" },
+      ]),
+    ).toBe("https://img/first.jpg");
+  });
+
+  it("returns null only when there are no images or no image has a url", () => {
+    expect(imageFor(undefined)).toBeNull();
+    expect(imageFor([])).toBeNull();
+    expect(imageFor([{ url: "", width: 1920, ratio: "16_9" }, { width: 640, ratio: "1_1" }])).toBeNull();
+  });
+});
+
 describe("dedupeEvents", () => {
   it("collapses duplicate external ids", () => {
     const a = normalizeTmEvent(TM_EVENT)!;
@@ -187,7 +239,7 @@ describe("fetchNearbyEvents", () => {
     });
   });
 
-  it("prefers the largest usable 16:9 non-fallback image and preserves null when none is usable", async () => {
+  it("applies the image precedence end to end and nulls image_url only when no image has a url", async () => {
     await withTicketmasterKey("tm-key", async () => {
       vi.spyOn(globalThis, "fetch").mockResolvedValue({
         ok: true,
@@ -204,11 +256,19 @@ describe("fetchNearbyEvents", () => {
                 ],
               }),
               tmEvent({
-                id: "no-image",
+                id: "fallback-image",
                 dateTime: "2026-07-19T20:00:00Z",
                 images: [
                   { url: "", width: 1920, ratio: "16_9" },
                   { url: "https://img/fallback.jpg", width: 1920, ratio: "16_9", fallback: true },
+                ],
+              }),
+              tmEvent({
+                id: "no-image",
+                dateTime: "2026-07-20T20:00:00Z",
+                images: [
+                  { url: "", width: 1920, ratio: "16_9" },
+                  { width: 640, ratio: "1_1" },
                 ],
               }),
             ],
@@ -219,6 +279,7 @@ describe("fetchNearbyEvents", () => {
       const { events } = await fetchNearbyEvents({ lat: 47.6, lng: -122.3, now: FIXED_NOW });
 
       expect(events.find((e) => e.external_id === "image")?.image_url).toBe("https://img/best.jpg");
+      expect(events.find((e) => e.external_id === "fallback-image")?.image_url).toBe("https://img/fallback.jpg");
       expect(events.find((e) => e.external_id === "no-image")?.image_url).toBeNull();
     });
   });

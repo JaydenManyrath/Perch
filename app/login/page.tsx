@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { getSupabaseBrowser } from "@/lib/supabase/client";
 import { BranchMotif } from "@/components/theme/BranchMotif";
+import { BackButton } from "@/components/ui/BackButton";
 
 const DEMO_ACCOUNTS = [
   { email: "intern0@perch.demo", label: "Banded Intern" },
@@ -52,6 +53,7 @@ export default function LoginPage() {
         variant="corner"
         className="absolute right-0 top-0 -z-10 w-40 -scale-x-100 -scale-y-100 opacity-50 md:w-56"
       />
+      <BackButton fallbackHref="/" className="absolute left-4 top-4" />
       <form onSubmit={signIn} className="w-full max-w-md rounded-3xl border border-sky-300 bg-white p-6 shadow-card">
         <h1 className="text-display text-ink-strong">Demo sign in</h1>
         <p className="mt-2 text-body text-ink-soft">

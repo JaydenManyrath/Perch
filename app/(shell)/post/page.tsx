@@ -7,6 +7,7 @@ import { BookingsInbox } from "@/components/booking/BookingsInbox";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Chip } from "@/components/ui/Chip";
 import { Button } from "@/components/ui/Button";
+import { BackButton } from "@/components/ui/BackButton";
 
 /**
  * /post - the "post a sublease" surface (RA3). Gated on user_type === 'subletter'.
@@ -23,6 +24,7 @@ export default async function PostPage({ searchParams }: { searchParams: { as?: 
   if (!isSubletter) {
     return (
       <div className="px-4 pt-4 md:pt-8 pb-8">
+      <BackButton fallbackHref="/stories" />
         <header>
           <h1 className="text-h1 text-ink-strong">Post a sublease</h1>
           <p className="text-caption text-ink-soft">
@@ -46,6 +48,7 @@ export default async function PostPage({ searchParams }: { searchParams: { as?: 
 
   return (
     <div className="px-4 pt-4 md:pt-8 pb-8 flex flex-col gap-6">
+      <BackButton fallbackHref="/stories" />
       <header className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-h1 text-ink-strong">Post a sublease</h1>

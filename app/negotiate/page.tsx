@@ -1,5 +1,6 @@
 import { getSavedPerches, getPerchDeck } from "@/lib/data/server-source";
 import { NegotiateClient, type PickablePerch } from "./_components/NegotiateClient";
+import { BackButton } from "@/components/ui/BackButton";
 
 const INK_STRONG = "#2C4A63";
 const INK_SOFT = "#5E7E97";
@@ -24,6 +25,7 @@ export default async function NegotiatePage() {
 
   return (
     <main style={{ padding: "2.5rem 1.25rem", maxWidth: 720, margin: "0 auto" }}>
+      <BackButton fallbackHref="/stories" />
       <h1 style={{ fontSize: 26, fontWeight: 800, color: INK_STRONG }}>Scout your perches</h1>
       <p style={{ color: INK_SOFT, marginTop: 4, lineHeight: 1.5 }}>
         Send scouts to vet each saved sublet against four checks - does it fit your budget,

@@ -4,12 +4,14 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { CalendarCheck } from "lucide-react";
 import { Chip } from "@/components/ui/Chip";
 import { FinanceBreakdownCard } from "@/components/finance/FinanceBreakdownCard";
+import { BackButton } from "@/components/ui/BackButton";
 
 export default async function LandingPage() {
   const itinerary = await getItinerary(7);
 
   return (
     <div className="px-4 pt-4 md:pt-8 pb-8 flex flex-col gap-6">
+      <BackButton fallbackHref="/feed" />
       <header>
         <div className="flex items-center gap-2">
           <h1 className="text-h1 text-ink-strong">Landing</h1>

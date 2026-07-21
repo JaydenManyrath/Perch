@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Chip } from "@/components/ui/Chip";
 import { getUserById, getMe, getChecklist, getPublicProfile } from "@/lib/data/server-source";
 import { getInitialSession } from "@/lib/auth/server-session";
+import { BackButton } from "@/components/ui/BackButton";
 
 /**
  * /profile/[id] - RA6 tappable profiles.
@@ -31,6 +32,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
     if (!profile) return notFound();
     return (
       <div className="px-4 pt-4 md:pt-8 pb-8">
+      <BackButton fallbackHref="/feed" />
         <SubletterProfile
           profile={profile}
           headerAction={
@@ -45,6 +47,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
 
   return (
     <div className="px-4 pt-4 md:pt-8 pb-8 flex flex-col gap-6">
+      <BackButton fallbackHref="/feed" />
       <div className="flex items-start justify-between gap-3">
         <ProfileHeader user={user} />
         {!isMe ? (

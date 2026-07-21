@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { RatingBadge } from "@/components/ui/RatingBadge";
 import { ReviewsPanel } from "@/components/reviews/ReviewsPanel";
 import { formatMonthDay } from "@/lib/utils";
+import { BackButton } from "@/components/ui/BackButton";
 
 export default async function ListingDetailPage({ params }: { params: { id: string } }) {
   const detail = await getListingDetail(params.id);
@@ -15,6 +16,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
 
   return (
     <div className="px-4 pt-4 md:pt-8 pb-8">
+      <BackButton fallbackHref="/stories" />
       <header className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
           <Link href="/map" className="text-caption font-semibold text-sky-600 hover:text-sky-700">

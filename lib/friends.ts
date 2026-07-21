@@ -81,10 +81,14 @@ async function usersById(db: SupabaseLike, ids: string[]) {
 async function eventsById(db: SupabaseLike, ids: string[]) {
   if (ids.length === 0) return new Map<string, FriendEventRow>();
   const uniqueIds = [...new Set(ids)];
+  // Upcoming only, in-query (round 7): the DMs notes strip must never resurface an event
+  // a friend once marked "going" after it has passed. Same guard the feed and map use;
+  // listFriendNotes drops attendance rows whose event misses this lookup.
   const { data, error } = await db
     .from("events")
     .select("id, title, datetime")
-    .in("id", uniqueIds);
+    .in("id", uniqueIds)
+    .gte("datetime", new Date().toISOString());
   if (error) throw error;
   return new Map<string, FriendEventRow>((data ?? []).map((event: FriendEventRow) => [event.id, event]));
 }

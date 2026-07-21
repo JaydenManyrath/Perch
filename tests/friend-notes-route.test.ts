@@ -29,6 +29,7 @@ class Query {
 
   select(...args: unknown[]) { this.calls.push({ method: "select", args }); return this; }
   eq(...args: unknown[]) { this.calls.push({ method: "eq", args }); return this; }
+  gte(...args: unknown[]) { this.calls.push({ method: "gte", args }); return this; }
   in(...args: unknown[]) { this.calls.push({ method: "in", args }); return this; }
   or(...args: unknown[]) { this.calls.push({ method: "or", args }); return this; }
   order(...args: unknown[]) { this.calls.push({ method: "order", args }); return this; }
@@ -121,6 +122,12 @@ describe("GET /api/friends/notes", () => {
     expect(db.used.event_attendance[0].calls).toEqual(
       expect.arrayContaining([{ method: "in", args: ["user_id", [friendId, secondFriendId]] }]),
     );
+    // Round 7 upcoming guard: the events lookup must filter datetime >= now in-query so a
+    // passed event a friend marked "going" never resurfaces in the notes strip.
+    const gte = db.used.events[0].calls.find((call) => call.method === "gte");
+    expect(gte).toBeDefined();
+    expect(gte?.args[0]).toBe("datetime");
+    expect(Number.isNaN(Date.parse(String(gte?.args[1])))).toBe(false);
   });
 
   it("does not expose pending Friend Requests, strangers, or query-parameter targets", async () => {

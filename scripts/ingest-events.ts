@@ -35,15 +35,15 @@ if (!process.env.TICKETMASTER_API_KEY) {
 const db = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 
 async function main(): Promise<void> {
-  const { cities, totalUpserted } = await ingestEvents(db);
+  const { cities, totalUpserted, totalPruned } = await ingestEvents(db);
   for (const c of cities) {
     if (c.source === "ticketmaster") {
-      console.log(`ingest:events - ${c.city}: upserted ${c.upserted} live Ticketmaster events.`);
+      console.log(`ingest:events - ${c.city}: upserted ${c.upserted} live Ticketmaster events, pruned ${c.pruned} passed.`);
     } else {
-      console.log(`ingest:events - ${c.city}: no live events (seeded events remain).`);
+      console.log(`ingest:events - ${c.city}: no live events (seeded events remain); pruned ${c.pruned} passed.`);
     }
   }
-  console.log(`ingest:events - done (${totalUpserted} live events; seeded events untouched).`);
+  console.log(`ingest:events - done (${totalUpserted} live events upserted, ${totalPruned} passed pruned; seeded events untouched).`);
 }
 
 main().catch((err) => {

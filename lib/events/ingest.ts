@@ -10,6 +10,11 @@ import { fetchNearbyEvents, type EventUpsert } from "@/lib/events/ticketmaster";
  * returns the seeded fallback (no key / quota / empty), nothing is written and the seeded
  * events remain untouched. Pure of any env/schedule concern - give it a service-role
  * client and it behaves identically everywhere.
+ *
+ * Self-cleaning (round 7): every pass also PRUNES live Ticketmaster rows whose start time
+ * passed more than PRUNE_GRACE_MS ago - live or fallback, so cron runs, GH Action runs,
+ * and cooldown refreshes all keep the table upcoming-only without manual runs. Seeded and
+ * community rows (source <> 'ticketmaster') are never deleted.
  */
 
 export type IngestCity = { name: string; lat: number; lng: number; radiusMiles: number };
@@ -26,12 +31,22 @@ export type CityIngestResult = {
   city: string;
   source: "ticketmaster" | "fallback";
   upserted: number; // live rows upserted (0 when the seeded fallback was used)
+  pruned: number; // passed live rows deleted by this pass (seeded rows never counted - never deleted)
 };
 
 export type IngestResult = {
   cities: CityIngestResult[];
   totalUpserted: number;
+  totalPruned: number;
 };
+
+/**
+ * How long a started event stays visible before the pruner removes it: a show that began
+ * at 8pm should survive through the evening, not vanish at 8:01. Matches the serving
+ * guards' spirit (feed/map filter datetime >= now) - pruning is the storage-side cleanup,
+ * the guards are the read-side truth.
+ */
+export const PRUNE_GRACE_MS = 6 * 60 * 60 * 1000; // 6h
 
 /** Injectable fetcher (defaults to the real Ticketmaster client); lets tests stay offline. */
 type FetchEvents = typeof fetchNearbyEvents;
@@ -51,32 +66,41 @@ type IngestOptions = {
 export async function ingestEvents(db: SupabaseClient, opts: IngestOptions = {}): Promise<IngestResult> {
   const cities = opts.cities ?? INGEST_CITIES;
   const fetchEvents = opts.fetchEvents ?? fetchNearbyEvents;
+  // One clock per run: the fetch window (startDateTime = now), the prune cutoff, and the
+  // per-city results all agree on the same instant. Injectable for deterministic tests.
+  const now = opts.now ?? new Date();
   const results: CityIngestResult[] = [];
   let totalUpserted = 0;
+  let totalPruned = 0;
 
   for (const city of cities) {
     const { events, source } = await fetchEvents({
       lat: city.lat,
       lng: city.lng,
       radiusMiles: city.radiusMiles,
-      now: opts.now,
+      now,
     });
 
     // Only persist genuine live rows. A fallback result means the seeded base already
     // covers the feed - writing it would be redundant and could shadow real rows.
+    // Prune regardless: even a keyless/fallback pass must clear passed live rows.
     if (source !== "ticketmaster" || events.length === 0) {
-      results.push({ city: city.name, source: "fallback", upserted: 0 });
+      const pruned = await prunePassedEvents(db, now);
+      totalPruned += pruned;
+      results.push({ city: city.name, source: "fallback", upserted: 0, pruned });
       continue;
     }
 
     const { error } = await upsertEvents(db, events);
     if (error) throw new Error(`ingest ${city.name} failed: ${error}`);
 
+    const pruned = await prunePassedEvents(db, now);
     totalUpserted += events.length;
-    results.push({ city: city.name, source: "ticketmaster", upserted: events.length });
+    totalPruned += pruned;
+    results.push({ city: city.name, source: "ticketmaster", upserted: events.length, pruned });
   }
 
-  return { cities: results, totalUpserted };
+  return { cities: results, totalUpserted, totalPruned };
 }
 
 /** Idempotent upsert on the deterministic PK id (derived from source + external_id).
@@ -85,6 +109,27 @@ export async function ingestEvents(db: SupabaseClient, opts: IngestOptions = {})
 async function upsertEvents(db: SupabaseClient, events: EventUpsert[]): Promise<{ error: string | null }> {
   const { error } = await db.from("events").upsert(events, { onConflict: "id" });
   return { error: error ? error.message : null };
+}
+
+/**
+ * Delete live Ticketmaster rows whose start time passed more than PRUNE_GRACE_MS ago.
+ * Scoped hard to source = 'ticketmaster': seeded/community rows are the demo's stable
+ * base and are NEVER deleted, no matter how old their datetime. Non-fatal by design -
+ * every serving surface already guards datetime >= now on read, so a failed prune only
+ * leaves invisible rows behind; log it and report 0 rather than failing the ingest.
+ */
+async function prunePassedEvents(db: SupabaseClient, now: Date): Promise<number> {
+  const cutoff = new Date(now.getTime() - PRUNE_GRACE_MS).toISOString();
+  const { count, error } = await db
+    .from("events")
+    .delete({ count: "exact" })
+    .eq("source", "ticketmaster")
+    .lt("datetime", cutoff);
+  if (error) {
+    console.warn("events prune failed:", error.message);
+    return 0;
+  }
+  return count ?? 0;
 }
 
 // ---------------------------------------------------------------------------------------
@@ -157,7 +202,7 @@ export function maybeRefreshCity(
     ingestEvents(makeDb(), { cities: [city], now: new Date(now), fetchEvents: opts.fetchEvents }))()
     .catch((err) => {
       console.warn(`events refresh failed for ${city.name}:`, err instanceof Error ? err.message : err);
-      return { cities: [], totalUpserted: 0 } as IngestResult;
+      return { cities: [], totalUpserted: 0, totalPruned: 0 } as IngestResult;
     })
     .finally(() => {
       const s = refreshState.get(key);

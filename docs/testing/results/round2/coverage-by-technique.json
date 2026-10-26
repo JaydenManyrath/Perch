@@ -1,0 +1,402 @@
+{
+  "baseline": {
+    "total": {
+      "lines": 46.05,
+      "branches": 76.72
+    },
+    "perFile": {
+      "app/api/cron/expire-listings/route.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "app/api/negotiate/route.ts": {
+        "lines": 93.15,
+        "branches": 75,
+        "branchesCovered": 12,
+        "branchesTotal": 16
+      },
+      "lib/bookings.ts": {
+        "lines": 55.72,
+        "branches": 76.05,
+        "branchesCovered": 54,
+        "branchesTotal": 71
+      },
+      "lib/data/source.ts": {
+        "lines": 26.54,
+        "branches": 66.66,
+        "branchesCovered": 110,
+        "branchesTotal": 165
+      },
+      "lib/finance/model.ts": {
+        "lines": 100,
+        "branches": 83.87,
+        "branchesCovered": 26,
+        "branchesTotal": 31
+      },
+      "lib/negotiate/budget.ts": {
+        "lines": 100,
+        "branches": 100,
+        "branchesCovered": 13,
+        "branchesTotal": 13
+      },
+      "lib/negotiate/lease.ts": {
+        "lines": 91.48,
+        "branches": 81.25,
+        "branchesCovered": 13,
+        "branchesTotal": 16
+      },
+      "lib/negotiate/routine.ts": {
+        "lines": 83.78,
+        "branches": 84.61,
+        "branchesCovered": 11,
+        "branchesTotal": 13
+      },
+      "lib/negotiate/safety.ts": {
+        "lines": 100,
+        "branches": 62.5,
+        "branchesCovered": 5,
+        "branchesTotal": 8
+      },
+      "lib/negotiate/scouts.ts": {
+        "lines": 100,
+        "branches": 83.33,
+        "branchesCovered": 15,
+        "branchesTotal": 18
+      },
+      "lib/parsers/offerLetter.ts": {
+        "lines": 90.87,
+        "branches": 86.13,
+        "branchesCovered": 87,
+        "branchesTotal": 101
+      },
+      "lib/sourcing/freshness.ts": {
+        "lines": 52.5,
+        "branches": 90.9,
+        "branchesCovered": 10,
+        "branchesTotal": 11
+      }
+    }
+  },
+  "fsm": {
+    "total": {
+      "lines": 14.69,
+      "branches": 61.65
+    },
+    "perFile": {
+      "app/api/cron/expire-listings/route.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "app/api/negotiate/route.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/bookings.ts": {
+        "lines": 76.04,
+        "branches": 65.27,
+        "branchesCovered": 47,
+        "branchesTotal": 72
+      },
+      "lib/data/source.ts": {
+        "lines": 9.09,
+        "branches": 70.45,
+        "branchesCovered": 31,
+        "branchesTotal": 44
+      },
+      "lib/finance/model.ts": {
+        "lines": 32.43,
+        "branches": 100,
+        "branchesCovered": 0,
+        "branchesTotal": 0
+      },
+      "lib/negotiate/budget.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/negotiate/lease.ts": {
+        "lines": 0,
+        "branches": 100,
+        "branchesCovered": 1,
+        "branchesTotal": 1
+      },
+      "lib/negotiate/routine.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/negotiate/safety.ts": {
+        "lines": 0,
+        "branches": 100,
+        "branchesCovered": 1,
+        "branchesTotal": 1
+      },
+      "lib/negotiate/scouts.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/parsers/offerLetter.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/sourcing/freshness.ts": {
+        "lines": 95,
+        "branches": 22.22,
+        "branchesCovered": 2,
+        "branchesTotal": 9
+      }
+    }
+  },
+  "pt": {
+    "total": {
+      "lines": 19.02,
+      "branches": 73.5
+    },
+    "perFile": {
+      "app/api/cron/expire-listings/route.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "app/api/negotiate/route.ts": {
+        "lines": 95.89,
+        "branches": 71.42,
+        "branchesCovered": 10,
+        "branchesTotal": 14
+      },
+      "lib/bookings.ts": {
+        "lines": 0,
+        "branches": 100,
+        "branchesCovered": 1,
+        "branchesTotal": 1
+      },
+      "lib/data/source.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/finance/model.ts": {
+        "lines": 100,
+        "branches": 77.41,
+        "branchesCovered": 24,
+        "branchesTotal": 31
+      },
+      "lib/negotiate/budget.ts": {
+        "lines": 100,
+        "branches": 90.9,
+        "branchesCovered": 10,
+        "branchesTotal": 11
+      },
+      "lib/negotiate/lease.ts": {
+        "lines": 100,
+        "branches": 100,
+        "branchesCovered": 18,
+        "branchesTotal": 18
+      },
+      "lib/negotiate/routine.ts": {
+        "lines": 83.78,
+        "branches": 92.3,
+        "branchesCovered": 12,
+        "branchesTotal": 13
+      },
+      "lib/negotiate/safety.ts": {
+        "lines": 100,
+        "branches": 87.5,
+        "branchesCovered": 7,
+        "branchesTotal": 8
+      },
+      "lib/negotiate/scouts.ts": {
+        "lines": 71.87,
+        "branches": 100,
+        "branchesCovered": 9,
+        "branchesTotal": 9
+      },
+      "lib/parsers/offerLetter.ts": {
+        "lines": 53.68,
+        "branches": 44.18,
+        "branchesCovered": 19,
+        "branchesTotal": 43
+      },
+      "lib/sourcing/freshness.ts": {
+        "lines": 0,
+        "branches": 100,
+        "branchesCovered": 1,
+        "branchesTotal": 1
+      }
+    }
+  },
+  "cft": {
+    "total": {
+      "lines": 15.33,
+      "branches": 75.71
+    },
+    "perFile": {
+      "app/api/cron/expire-listings/route.ts": {
+        "lines": 100,
+        "branches": 87.5,
+        "branchesCovered": 7,
+        "branchesTotal": 8
+      },
+      "app/api/negotiate/route.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/bookings.ts": {
+        "lines": 61.45,
+        "branches": 73.58,
+        "branchesCovered": 39,
+        "branchesTotal": 53
+      },
+      "lib/data/source.ts": {
+        "lines": 10.24,
+        "branches": 75.92,
+        "branchesCovered": 41,
+        "branchesTotal": 54
+      },
+      "lib/finance/model.ts": {
+        "lines": 32.43,
+        "branches": 100,
+        "branchesCovered": 0,
+        "branchesTotal": 0
+      },
+      "lib/negotiate/budget.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/negotiate/lease.ts": {
+        "lines": 0,
+        "branches": 100,
+        "branchesCovered": 1,
+        "branchesTotal": 1
+      },
+      "lib/negotiate/routine.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/negotiate/safety.ts": {
+        "lines": 0,
+        "branches": 100,
+        "branchesCovered": 1,
+        "branchesTotal": 1
+      },
+      "lib/negotiate/scouts.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/parsers/offerLetter.ts": {
+        "lines": 0,
+        "branches": 0,
+        "branchesCovered": 0,
+        "branchesTotal": 1
+      },
+      "lib/sourcing/freshness.ts": {
+        "lines": 100,
+        "branches": 94.44,
+        "branchesCovered": 17,
+        "branchesTotal": 18
+      }
+    }
+  },
+  "all": {
+    "total": {
+      "lines": 53.59,
+      "branches": 83.3
+    },
+    "perFile": {
+      "app/api/cron/expire-listings/route.ts": {
+        "lines": 100,
+        "branches": 87.5,
+        "branchesCovered": 7,
+        "branchesTotal": 8
+      },
+      "app/api/negotiate/route.ts": {
+        "lines": 95.89,
+        "branches": 82.35,
+        "branchesCovered": 14,
+        "branchesTotal": 17
+      },
+      "lib/bookings.ts": {
+        "lines": 85.41,
+        "branches": 85.58,
+        "branchesCovered": 95,
+        "branchesTotal": 111
+      },
+      "lib/data/source.ts": {
+        "lines": 31.26,
+        "branches": 74.01,
+        "branchesCovered": 151,
+        "branchesTotal": 204
+      },
+      "lib/finance/model.ts": {
+        "lines": 100,
+        "branches": 87.87,
+        "branchesCovered": 29,
+        "branchesTotal": 33
+      },
+      "lib/negotiate/budget.ts": {
+        "lines": 100,
+        "branches": 100,
+        "branchesCovered": 12,
+        "branchesTotal": 12
+      },
+      "lib/negotiate/lease.ts": {
+        "lines": 100,
+        "branches": 100,
+        "branchesCovered": 21,
+        "branchesTotal": 21
+      },
+      "lib/negotiate/routine.ts": {
+        "lines": 83.78,
+        "branches": 92.85,
+        "branchesCovered": 13,
+        "branchesTotal": 14
+      },
+      "lib/negotiate/safety.ts": {
+        "lines": 100,
+        "branches": 88.88,
+        "branchesCovered": 8,
+        "branchesTotal": 9
+      },
+      "lib/negotiate/scouts.ts": {
+        "lines": 100,
+        "branches": 83.33,
+        "branchesCovered": 15,
+        "branchesTotal": 18
+      },
+      "lib/parsers/offerLetter.ts": {
+        "lines": 90.87,
+        "branches": 88.34,
+        "branchesCovered": 91,
+        "branchesTotal": 103
+      },
+      "lib/sourcing/freshness.ts": {
+        "lines": 100,
+        "branches": 94.73,
+        "branchesCovered": 18,
+        "branchesTotal": 19
+      }
+    }
+  }
+}

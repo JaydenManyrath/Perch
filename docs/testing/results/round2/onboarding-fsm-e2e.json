@@ -1,0 +1,86 @@
+{
+  "base": "http://localhost:3100",
+  "ranAt": "2026-10-26T15:31:27.560Z",
+  "results": [
+    {
+      "id": "OB-T01",
+      "desc": "O1 --use sample--> O2",
+      "observed": "O2",
+      "expected": "O2",
+      "verdict": "PASS",
+      "ms": 280
+    },
+    {
+      "id": "OB-T02",
+      "desc": "O2 guard false (flags outstanding): Continue disabled",
+      "observed": true,
+      "expected": true,
+      "verdict": "PASS",
+      "ms": 284
+    },
+    {
+      "id": "OB-T03",
+      "desc": "O2 guard true after confirming flagged fields: Continue enabled",
+      "observed": true,
+      "expected": true,
+      "verdict": "PASS",
+      "ms": 297
+    },
+    {
+      "id": "OB-T04",
+      "desc": "O2 --continue--> O3 (fixture: visible fallback, no silent swap)",
+      "observed": "O3-fallback",
+      "expected": "O3-fallback",
+      "verdict": "PASS",
+      "ms": 367
+    },
+    {
+      "id": "OB-T05..T09",
+      "desc": "Skip path O3 -> O4 -> O5 -> O6 -> O7 -> O8",
+      "observed": "O3>O4>O5>O6>O7>O8",
+      "expected": "O3>O4>O5>O6>O7>O8",
+      "verdict": "PASS",
+      "ms": 3119
+    },
+    {
+      "id": "OB-T10",
+      "desc": "Continue path O6 -> O7 (no photo) and add a friend before O8",
+      "observed": "true:O8",
+      "expected": "true:O8",
+      "verdict": "PASS",
+      "ms": 3228
+    },
+    {
+      "id": "OB-T11",
+      "desc": "O2 guard: clearing Employer disables Continue",
+      "observed": true,
+      "expected": true,
+      "verdict": "PASS",
+      "ms": 380
+    },
+    {
+      "id": "OB-T12",
+      "desc": "O2 guard: End date before Start date must not be accepted",
+      "observed": true,
+      "expected": true,
+      "verdict": "PASS",
+      "ms": 357
+    },
+    {
+      "id": "OB-T13",
+      "desc": "O2 self-loop: editing salary recomputes take-home before leaving the state",
+      "observed": true,
+      "expected": true,
+      "verdict": "PASS",
+      "ms": 798
+    },
+    {
+      "id": "OB-T14",
+      "desc": "Reload in O5 (observation: spec does not say whether progress persists)",
+      "observed": "O1",
+      "expected": "O1 (progress lost)",
+      "verdict": "OBS",
+      "ms": 2209
+    }
+  ]
+}

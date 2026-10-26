@@ -22,6 +22,7 @@ export function BookingsInbox({ subletterId }: { subletterId: string }) {
   const [listings, setListings] = useState<ListingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -44,8 +45,13 @@ export function BookingsInbox({ subletterId }: { subletterId: string }) {
 
   async function onApprove(id: string) {
     setBusy(id);
+    setError(null);
     try {
       await approveBooking(id);
+    } catch {
+      setError("That request changed since you loaded it. The list has been refreshed.");
+    }
+    try {
       await load();
     } finally {
       setBusy(null);
@@ -53,8 +59,13 @@ export function BookingsInbox({ subletterId }: { subletterId: string }) {
   }
   async function onDecline(id: string) {
     setBusy(id);
+    setError(null);
     try {
       await declineBooking(id);
+    } catch {
+      setError("That request changed since you loaded it. The list has been refreshed.");
+    }
+    try {
       await load();
     } finally {
       setBusy(null);
@@ -73,6 +84,11 @@ export function BookingsInbox({ subletterId }: { subletterId: string }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {error ? (
+          <p role="alert" className="mb-2 text-caption font-semibold text-ink-strong">
+            {error}
+          </p>
+        ) : null}
         {loading ? (
           <p className="text-caption text-ink-soft">Loading...</p>
         ) : rows.length === 0 ? (

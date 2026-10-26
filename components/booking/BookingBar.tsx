@@ -37,6 +37,7 @@ export function BookingBar({
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showFriends, setShowFriends] = useState(false);
   const [friends, setFriends] = useState<Friend[]>([]);
 
@@ -71,9 +72,12 @@ export function BookingBar({
 
   async function onRequest() {
     setBusy(true);
+    setError(null);
     try {
       const b = await requestBooking(listing.id, {});
       setBooking(b);
+    } catch (err) {
+      setError(bookingErrorText(err));
     } finally {
       setBusy(false);
     }
@@ -82,12 +86,15 @@ export function BookingBar({
   async function onConfirm() {
     if (!booking) return;
     setBusy(true);
+    setError(null);
     try {
       const b = await confirmBooking(booking.id);
       if (b) {
         setBooking(b);
         if (b.status === "booked") onBooked?.(b);
       }
+    } catch (err) {
+      setError(bookingErrorText(err));
     } finally {
       setBusy(false);
     }
@@ -125,6 +132,11 @@ export function BookingBar({
         className,
       )}
     >
+      {error ? (
+        <p role="alert" className="mb-2 text-caption font-semibold text-ink-strong">
+          {error}
+        </p>
+      ) : null}
       {loading ? (
         <p className="text-caption text-ink-soft">Loading booking status...</p>
       ) : takenByOther ? (
@@ -397,4 +409,13 @@ function RoommateGroup({
       ) : null}
     </div>
   );
+}
+
+/** Plain-language text for a refused booking action (server or fixture rule). */
+function bookingErrorText(err: unknown): string {
+  const code = err instanceof Error ? err.message : "";
+  if (code === "listing_already_held") return "Someone else already has a request in on this place.";
+  if (code === "listing_not_available" || code === "listing_taken") return "This place is no longer available.";
+  if (code === "cannot_book_own_listing") return "You can't book your own listing.";
+  return "That didn't go through. Refresh and try again.";
 }

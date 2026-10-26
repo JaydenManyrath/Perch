@@ -8,16 +8,24 @@ import type { ScoutListing, ScoutConstraints } from "@/lib/negotiate/types";
 
 export const dynamic = "force-dynamic";
 
+// A real calendar date in YYYY-MM-DD form (rejects "June 8" and 2026-13-40).
+const IsoDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((v) => new Date(`${v}T00:00:00Z`).toISOString().startsWith(v), "invalid date");
+
 const RequestSchema = z.object({
   listingIds: z.array(z.string()).min(1).max(20),
-  constraints: z.object({
-    monthlyBudget: z.number().positive(),
-    moveIn: z.string(),
-    moveOut: z.string(),
-    routineAnchors: z
-      .array(z.object({ label: z.string(), lat: z.number(), lng: z.number() }))
-      .optional(),
-  }),
+  constraints: z
+    .object({
+      monthlyBudget: z.number().positive(),
+      moveIn: IsoDate,
+      moveOut: IsoDate,
+      routineAnchors: z
+        .array(z.object({ label: z.string(), lat: z.number(), lng: z.number() }))
+        .optional(),
+    })
+    .refine((c) => c.moveIn <= c.moveOut, "moveOut must not be before moveIn"),
 });
 
 // POST /api/negotiate - HERO streaming route (B10). Deterministic verdicts + numbers;
@@ -57,9 +65,11 @@ export async function POST(req: Request) {
         safety_flags: r.safety_flags ?? { scamSignals: [], notes: [] },
       }));
 
+    // The stated budget always applies; with a parsed salary the budget scout also caps
+    // it at the canonical COL-adjusted ceiling (affordableRent = min of the two).
     const constraints: ScoutConstraints = {
       monthlyBudget: finance.hasParsedSalary
-        ? finance.breakdown.monthlyBudget
+        ? Math.min(parsed.constraints.monthlyBudget, finance.breakdown.monthlyBudget)
         : parsed.constraints.monthlyBudget,
       moveIn: parsed.constraints.moveIn,
       moveOut: parsed.constraints.moveOut,

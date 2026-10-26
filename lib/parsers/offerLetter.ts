@@ -64,12 +64,34 @@ export const UNKNOWN_EMPLOYER = "Unknown employer";
 function matchConf(
   text: string,
   patterns: { re: RegExp; conf: number }[],
-): { value: string; conf: number } | null {
+): { value: string; conf: number; match: string; end: number } | null {
   for (const { re, conf } of patterns) {
     const m = text.match(re);
-    if (m && m[1]) return { value: m[1].trim(), conf };
+    if (m && m[1]) return { value: m[1].trim(), conf, match: m[0], end: (m.index ?? 0) + m[0].length };
   }
   return null;
+}
+
+/**
+ * Pay periods other than annual, with the multiplier that annualizes them (2,080 =
+ * 40 h x 52 weeks). Intern offers are often hourly; reading "$45/hr" as a $45 salary
+ * would zero out take-home and fail every listing on budget.
+ */
+const PAY_PERIODS: { re: RegExp; perYear: number }[] = [
+  { re: /(?:\/\s*h(?:ou)?r\b|per\s+hour|an\s+hour|hourly)/i, perYear: 2_080 },
+  { re: /(?:\/\s*wk\b|\/\s*week\b|per\s+week|a\s+week|weekly)/i, perYear: 52 },
+  { re: /(?:\/\s*mo(?:nth)?\b|per\s+month|a\s+month|monthly)/i, perYear: 12 },
+];
+
+/** Annualization factor for a matched amount, from the label before it or the unit after it. */
+function payPeriodFactor(text: string, match: { match: string; end: number }): number {
+  // The unit right after the amount, within the same clause ("$45.00 per hour, paid...").
+  const after = text.slice(match.end, match.end + 24).replace(/^\.\d{2}/, "").split(/[\n;,]|\.(?:\s|$)/)[0];
+  const unitAfter = after.match(/^\s*(\S+(?:\s+\S+)?)/)?.[1] ?? "";
+  for (const { re, perYear } of PAY_PERIODS) {
+    if (re.test(match.match) || re.test(unitAfter)) return perYear;
+  }
+  return 1;
 }
 
 const MONEY = "\\$?\\s*([\\d,]+(?:\\.\\d{2})?)(?![\\d,])";
@@ -167,8 +189,10 @@ export function parseOfferText(text: string): OfferParse {
   if (salaryMatch) {
     const n = Number(salaryMatch.value.replace(/,/g, ""));
     if (Number.isFinite(n) && n > 0) {
-      salary = n;
-      salaryConf = salaryMatch.conf;
+      const perYear = payPeriodFactor(flat, salaryMatch);
+      salary = Math.round(n * perYear);
+      // An annualized figure rests on an assumed schedule: always ask the user to check it.
+      salaryConf = perYear === 1 ? salaryMatch.conf : Math.min(salaryMatch.conf, REVIEW_THRESHOLD - 0.1);
     }
   }
 

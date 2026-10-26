@@ -1,0 +1,15 @@
+id,title,module,technique,detected_by,round_found,odc_type,odc_trigger,severity,status,fixed_in,retest
+D01,Taken listing can be relisted while its booking is booked,app/api/listings/[id]/confirm/route.ts,FSM/BBT,I13 (live),1,Checking,Test Sequencing,3-Medium,Fixed,15ad94d,Pass (round 2)
+D02,Loser of a simultaneous booking race gets 500 instead of 409,app/api/listings/[id]/book/route.ts,FSM/BBT,C01 (live),1,Checking,Test Interaction,4-Low,Fixed,15ad94d,Pass (round 2)
+D03,Fixture approve/decline ignore current status (booked->approved; booked->declined; declined->approved),lib/data/source.ts,FSM/BBT,I04 I05 I07 (fixture),1,Checking,Test Sequencing,3-Medium,Fixed,15ad94d,Pass (round 2)
+D04,Fixture request ignores listing status and the one-live-hold rule,lib/data/source.ts,FSM/BBT,I09 I11 I12 (fixture),1,Checking,Test Interaction,3-Medium,Fixed,15ad94d,Pass (round 2)
+D05,Fixture relist of a taken listing flips it back to available,lib/data/source.ts,FSM/BBT,I13 (fixture),1,Checking,Test Sequencing,4-Low,Fixed,15ad94d,Pass (round 2)
+D06,Fixture relist uses a 14-day window instead of the 7-day freshness rule,lib/data/source.ts,FSM/BBT,T12 (fixture),1,Assignment,Test Coverage,4-Low,Fixed,15ad94d,Pass (round 2)
+D07,Booker cancel transition (T06-T08) is specified but has no API route or fixture method,app/api/bookings/*,FSM/BBT,model construction,1,Function,Test Coverage,3-Medium,Open (deferred),,Covered at library level only
+D08,Onboarding accepts an end date before the start date,app/onboarding/_steps/OfferStep.tsx,FSM/BBT,OB-T12 (e2e),1,Checking,Test Variation,3-Medium,Fixed,646fe01,Pass (round 2)
+D09,Hourly/weekly/monthly pay read as annual salary ($45/hr -> $45/yr) with high confidence,lib/parsers/offerLetter.ts,PT/BBT,PF-23 PF-24 PF-25 PF-26,1,Algorithm,Test Variation,2-High,Fixed,fd5f75e,Pass (round 2)
+D10,Negotiate route discards the stated budget when a salary is parsed,app/api/negotiate/route.ts,PT/BBT,PN-01,1,Algorithm,Test Interaction,3-Medium,Fixed,fd5f75e,Pass (round 2)
+D11,Negotiate route accepts malformed and inverted stay dates,app/api/negotiate/route.ts,PT/BBT,PN-03 PN-04,1,Checking,Test Variation,3-Medium,Fixed,fd5f75e,Pass (round 2)
+D12,"Lease scout reports ""Gap of NaN days"" on bad dates and full coverage on an inverted stay",lib/negotiate/lease.ts,PT/BBT,PL-13 PL-14 PL-15,1,Checking,Test Variation,4-Low,Fixed,fd5f75e,Pass (round 2)
+D13,Live 4xx refusals on booking mutations fall back to a fabricated fixture success (phantom bookings),lib/data/source.ts,CFT/WBT,CF-35 CF-36 CF-37 CF-38,1,Interface,Complex Path,2-High,Fixed,15ad94d,Pass (round 2)
+D14,Negotiate screen sends hard-coded stay dates (2026-06-08..2026-08-14) instead of the intern's offer dates,app/negotiate/_components/NegotiateClient.tsx,Code walkthrough,inspection,1,Assignment,Design Conformance,3-Medium,Open,,Not yet tested

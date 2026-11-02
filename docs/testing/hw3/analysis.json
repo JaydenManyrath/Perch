@@ -288,11 +288,64 @@
   }
  ],
  "realTransitions": 44,
- "imputedTransitions": 3,
- "imputationRationale": {
-  "L10": "add-one: Perches back to Feed was never taken",
-  "L16": "add-one, +1: users often leave right after sending a request"
- },
+ "imputedTransitions": 20,
+ "imputedSessions": [
+  {
+   "id": "I1",
+   "userType": "Returning user who only checks events",
+   "path": [
+    "S1",
+    "S3",
+    "S3",
+    "S7"
+   ]
+  },
+  {
+   "id": "I2",
+   "userType": "Browses sublets, then goes back to events",
+   "path": [
+    "S1",
+    "S3",
+    "S4",
+    "S4",
+    "S3",
+    "S7"
+   ]
+  },
+  {
+   "id": "I3",
+   "userType": "Sends a booking request and leaves",
+   "path": [
+    "S1",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "S7"
+   ]
+  },
+  {
+   "id": "I4",
+   "userType": "New user who gives up during onboarding",
+   "path": [
+    "S1",
+    "S2",
+    "S7"
+   ]
+  },
+  {
+   "id": "I5",
+   "userType": "Window shopper who swipes and leaves",
+   "path": [
+    "S1",
+    "S3",
+    "S4",
+    "S4",
+    "S4",
+    "S7"
+   ]
+  }
+ ],
  "markov": [
   {
    "id": "L1",
@@ -300,9 +353,9 @@
    "to": "S2",
    "input": "tap Start onboarding",
    "real": 3,
-   "imputed": 0,
-   "rowTotal": 8,
-   "p": 0.375
+   "imputed": 1,
+   "rowTotal": 13,
+   "p": 0.308
   },
   {
    "id": "L2",
@@ -310,9 +363,9 @@
    "to": "S3",
    "input": "returning user opens app",
    "real": 5,
-   "imputed": 0,
-   "rowTotal": 8,
-   "p": 0.625
+   "imputed": 4,
+   "rowTotal": 13,
+   "p": 0.692
   },
   {
    "id": "L3",
@@ -321,8 +374,8 @@
    "input": "finish onboarding",
    "real": 2,
    "imputed": 0,
-   "rowTotal": 3,
-   "p": 0.667
+   "rowTotal": 4,
+   "p": 0.5
   },
   {
    "id": "L4",
@@ -330,9 +383,9 @@
    "to": "S7",
    "input": "abandon onboarding",
    "real": 1,
-   "imputed": 0,
-   "rowTotal": 3,
-   "p": 0.333
+   "imputed": 1,
+   "rowTotal": 4,
+   "p": 0.5
   },
   {
    "id": "L5",
@@ -340,9 +393,9 @@
    "to": "S3",
    "input": "open event comments",
    "real": 3,
-   "imputed": 0,
-   "rowTotal": 10,
-   "p": 0.3
+   "imputed": 1,
+   "rowTotal": 16,
+   "p": 0.25
   },
   {
    "id": "L6",
@@ -350,9 +403,9 @@
    "to": "S4",
    "input": "tap Perches tab",
    "real": 6,
-   "imputed": 0,
-   "rowTotal": 10,
-   "p": 0.6
+   "imputed": 3,
+   "rowTotal": 16,
+   "p": 0.562
   },
   {
    "id": "L7",
@@ -360,9 +413,9 @@
    "to": "S7",
    "input": "leave app",
    "real": 1,
-   "imputed": 0,
-   "rowTotal": 10,
-   "p": 0.1
+   "imputed": 2,
+   "rowTotal": 16,
+   "p": 0.188
   },
   {
    "id": "L8",
@@ -370,9 +423,9 @@
    "to": "S4",
    "input": "swipe to next card",
    "real": 3,
-   "imputed": 0,
-   "rowTotal": 15,
-   "p": 0.2
+   "imputed": 3,
+   "rowTotal": 20,
+   "p": 0.3
   },
   {
    "id": "L9",
@@ -380,9 +433,9 @@
    "to": "S5",
    "input": "tap Details",
    "real": 6,
-   "imputed": 0,
-   "rowTotal": 15,
-   "p": 0.4
+   "imputed": 1,
+   "rowTotal": 20,
+   "p": 0.35
   },
   {
    "id": "L10",
@@ -391,8 +444,8 @@
    "input": "tap Feed tab",
    "real": 0,
    "imputed": 1,
-   "rowTotal": 15,
-   "p": 0.067
+   "rowTotal": 20,
+   "p": 0.05
   },
   {
    "id": "L11",
@@ -400,9 +453,9 @@
    "to": "S7",
    "input": "leave app",
    "real": 5,
-   "imputed": 0,
-   "rowTotal": 15,
-   "p": 0.333
+   "imputed": 1,
+   "rowTotal": 20,
+   "p": 0.3
   },
   {
    "id": "L12",
@@ -411,8 +464,8 @@
    "input": "close sheet",
    "real": 2,
    "imputed": 0,
-   "rowTotal": 6,
-   "p": 0.333
+   "rowTotal": 7,
+   "p": 0.286
   },
   {
    "id": "L13",
@@ -420,9 +473,9 @@
    "to": "S6",
    "input": "tap Request to book",
    "real": 3,
-   "imputed": 0,
-   "rowTotal": 6,
-   "p": 0.5
+   "imputed": 1,
+   "rowTotal": 7,
+   "p": 0.571
   },
   {
    "id": "L14",
@@ -431,8 +484,8 @@
    "input": "leave app",
    "real": 1,
    "imputed": 0,
-   "rowTotal": 6,
-   "p": 0.167
+   "rowTotal": 7,
+   "p": 0.143
   },
   {
    "id": "L15",
@@ -441,8 +494,8 @@
    "input": "close sheet",
    "real": 3,
    "imputed": 0,
-   "rowTotal": 5,
-   "p": 0.6
+   "rowTotal": 4,
+   "p": 0.75
   },
   {
    "id": "L16",
@@ -450,42 +503,41 @@
    "to": "S7",
    "input": "leave app",
    "real": 0,
-   "imputed": 2,
-   "rowTotal": 5,
-   "p": 0.4
+   "imputed": 1,
+   "rowTotal": 4,
+   "p": 0.25
   }
  ],
- "expectedScreensPerSession": 4.222,
  "musa": [
   {
    "state": "S2",
    "name": "Onboarding",
-   "visits": 0.375,
-   "p": 0.089
+   "visits": 4,
+   "p": 0.078
   },
   {
    "state": "S3",
    "name": "Feed",
-   "visits": 1.396,
-   "p": 0.331
+   "visits": 16,
+   "p": 0.314
   },
   {
    "state": "S4",
    "name": "Perches deck",
-   "visits": 1.532,
-   "p": 0.363
+   "visits": 20,
+   "p": 0.392
   },
   {
    "state": "S5",
    "name": "Listing detail",
-   "visits": 0.613,
-   "p": 0.145
+   "visits": 7,
+   "p": 0.137
   },
   {
    "state": "S6",
    "name": "Booking",
-   "visits": 0.306,
-   "p": 0.073
+   "visits": 4,
+   "p": 0.078
   }
  ]
 }

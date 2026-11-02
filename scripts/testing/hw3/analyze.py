@@ -8,7 +8,6 @@ docs/testing/hw3/analysis.json and docs/testing/hw3/fsm-diagram.png.
 """
 import json
 from collections import Counter, deque
-from fractions import Fraction
 
 import matplotlib
 
@@ -112,47 +111,34 @@ for s in sessions:
     for a, b in zip(s["path"], s["path"][1:]):
         real[by_pair[(a, b)]["id"]] += 1
 
-# Rule-based imputation for links that exist but were never taken in the walkthroughs
-# (add-one), plus one more where task-driven walkthroughs are known to understate it.
-IMPUTED = {
-    "L10": (1, "add-one: Perches back to Feed was never taken"),
-    "L16": (2, "add-one, +1: users often leave right after sending a request"),
-}
+# Imputed (made-up) sessions for user types the walkthroughs did not represent.
+imputed_sessions = json.load(open(D + "imputed-sessions.json"))["sessions"]
+imp = Counter()
+for s in imputed_sessions:
+    for a, b in zip(s["path"], s["path"][1:]):
+        imp[by_pair[(a, b)]["id"]] += 1
+
 markov = []
 for s in ids:
     if s == EXIT:
         continue
-    total = sum(real[l["id"]] + IMPUTED.get(l["id"], (0,))[0] for l in out[s])
+    total = sum(real[l["id"]] + imp[l["id"]] for l in out[s])
     for l in out[s]:
-        r, i = real[l["id"]], IMPUTED.get(l["id"], (0,))[0]
+        r, i = real[l["id"]], imp[l["id"]]
         markov.append({"id": l["id"], "from": s, "to": l["to"], "input": l["input"], "real": r, "imputed": i,
                        "rowTotal": total, "p": round((r + i) / total, 3)})
-P = {(x["from"], x["to"]): Fraction(x["real"] + x["imputed"], x["rowTotal"]) for x in markov}
 
-# Expected visits per session: fundamental matrix N = (I - Q)^-1, row START (exact fractions).
-T = [s for s in ids if s != EXIT]
-n = len(T)
-A = [[(1 if i == j else 0) - P.get((T[i], T[j]), 0) for j in range(n)] + [Fraction(int(i == j)) for j in range(n)] for i in range(n)]
-for c in range(n):
-    piv = next(r for r in range(c, n) if A[r][c] != 0)
-    A[c], A[piv] = A[piv], A[c]
-    A[c] = [x / A[c][c] for x in A[c]]
-    for r in range(n):
-        if r != c and A[r][c] != 0:
-            f = A[r][c]
-            A[r] = [x - f * y for x, y in zip(A[r], A[c])]
-visits = {T[j]: A[T.index(START)][n + j] for j in range(n)}
-screens = [s for s in T if s != START]
-vsum = sum(visits[s] for s in screens)
-musa = [{"state": s, "name": S[s], "visits": round(float(visits[s]), 3), "p": round(float(visits[s] / vsum), 3)} for s in screens]
+# Musa-OP: how often each screen appears across all sessions (real + imputed), normalized.
+visits = Counter(st for s in sessions + imputed_sessions for st in s["path"] if st not in (START, EXIT))
+vsum = sum(visits.values())
+musa = [{"state": s, "name": S[s], "visits": visits[s], "p": round(visits[s] / vsum, 3)} for s in ids if s in visits]
 
 result = {
     "table": table, "matrixStates": ids, "matrix": matrix,
     "nodeTests": [{"id": f"N{i+1}", "path": p, "links": links_of(p)} for i, p in enumerate(nt)],
     "linkTests": [{"id": f"K{i+1}", "path": p, "links": links_of(p)} for i, p in enumerate(lt)],
-    "realTransitions": sum(real.values()), "imputedTransitions": sum(v[0] for v in IMPUTED.values()),
-    "imputationRationale": {k: v[1] for k, v in IMPUTED.items()},
-    "markov": markov, "expectedScreensPerSession": round(float(vsum), 3), "musa": musa,
+    "realTransitions": sum(real.values()), "imputedTransitions": sum(imp.values()),
+    "imputedSessions": imputed_sessions, "markov": markov, "musa": musa,
 }
 json.dump(result, open(D + "analysis.json", "w"), indent=1)
 
@@ -185,7 +171,7 @@ plt.savefig(D + "fsm-diagram.png", dpi=200)
 
 print("node", [" ".join(p) for p in nt])
 print("link", [" ".join(p) for p in lt])
-print("real", result["realTransitions"], "imputed", result["imputedTransitions"], "screens", result["expectedScreensPerSession"])
+print("real", result["realTransitions"], "imputed", result["imputedTransitions"])
 for x in markov:
     print(x["id"], x["from"], x["to"], x["real"], x["imputed"], x["p"])
 print(musa)

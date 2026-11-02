@@ -45,18 +45,26 @@ Table 4. Test cases for node coverage (N1) and link coverage (K1-K5).
 
 ## 5. Markov Operational Profile
 
-**Data collection.** The best data source for Perch would be navigation logs from real users, either page views recorded by the app or the web server's access logs, grouped into sessions. The probability of a link is the number of times it was taken divided by the number of times users left its source state. Perch does not have real users yet. My real data came from eight team walkthrough sessions, based on the app's documented walkthrough and our earlier test runs. I performed each one on the running app and recorded every screen change, which gave {{REAL_N}} transitions. Two links (L10 and L16) were never taken, so the real data alone would give them a probability of zero. I filled these gaps with imputed data, using a simple add-one rule: each missing link gets a count of one. L16 (leaving right after sending a booking request) gets one more, because our walkthroughs always continued after booking while real users often stop there. That gives {{IMP_N}} imputed transitions. Table 5 keeps the real and imputed counts in separate columns.
+**Data collection.** The best data source for Perch would be navigation logs from real users, either page views recorded by the app or the web server's access logs, grouped into sessions. The probability of a link is the number of times it was taken divided by the number of times users left its source state. Perch does not have real users yet, so I used two subsets of data.
+
+The real data comes from eight team walkthrough sessions, based on the app's documented walkthrough and our earlier test runs. Each one was performed on the running app while recording every screen change, which gave {{REAL_N}} transitions. These sessions came from the team, so they miss some kinds of users, and two links (L10 and L16) were never taken at all.
+
+The imputed data fills these gaps. Data imputation means filling in missing data with values that are reasonable given what is already known, not random guesses. I made up five sessions for user types the walkthroughs did not represent (Table 5). Each one only reuses steps that appear in the real sessions, and together they cover both missing links. They add {{IMP_N}} transitions. Table 6 keeps the real and imputed counts in separate columns, and each probability is (real + imputed) divided by the total for that state.
+
+{{IMP_SESSIONS}}
+
+Table 5. Imputed sessions.
 
 {{MARKOV}}
 
-Table 5. Markov-OP for Perch (probability = (real + imputed) / row total).
+Table 6. Markov-OP for Perch.
 
-Under this profile a typical session visits about {{SCREENS}} screens. Usage-based test cases are random walks from S1 that follow these probabilities until they reach Exit.
+Usage-based test cases are random walks from S1 that follow these probabilities until they reach Exit.
 
-**Karami-Tian method.** Karami and Tian update an existing Markov-OP after a web application changes, before usage data for the new version exists. They compare the initial Markov-OP with the activity diagrams of the updated application to add or remove states and transitions. They then re-estimate the transition probabilities using, in order of preference, partial usage data from a partly deployed version, analogy with a similar part of an existing Markov-OP, or a redistribution rule. It cannot be used to construct my first profile, because it needs an existing one. It can be used to update it, because Perch changes often. For example, if the Negotiate screen linked from the deck becomes part of the main flow, its activity diagram adds a new state and a link from the Perches deck. With no data, the method estimates the new link as 1/n', where n' is the deck's new number of outgoing links: 1/5 = 0.20. Proportional redistribution then multiplies each existing deck probability by (1 - 0.20). The deck's links become 0.160 (swipe), 0.320 (Details), 0.053 (Feed) and 0.267 (leave), so the row still sums to one.
+**Karami-Tian method.** Karami and Tian's method keeps a Markov-OP up to date when a web application changes, before any usage data for the new version exists. It compares the old Markov-OP with the activity diagrams of the new version and adds or removes the states and links that changed. It then estimates the new probabilities from partial usage data, from a similar existing model, or by spreading the probability across the links. It cannot be used to build my first Markov-OP, because it needs an existing one to start from. It can be used to update it later, because Perch changes often. For example, if the Negotiate screen becomes part of the main flow, I could add it as a new state and give it a share of the Perches deck's probability until real data is available.
 
-**Comparison with Musa-OP.** A Musa-OP is a flat list of operations and their probabilities, with no order. A Markov-OP gives the probability of the next action given the current screen, so it captures sequences such as deck to listing to booking. To convert the Markov-OP into a Musa-OP, I computed the expected number of visits to each screen per session, using the fundamental matrix N = (I - Q)^-1 where Q holds the transition probabilities between non-exit states, and normalized the visits (Table 6). The conversion keeps how often each screen is used but loses the order. For example, Booking is used 7.3% of the time, but the Musa-OP no longer shows that it can only follow Listing detail.
+**Comparison with Musa-OP.** A Musa-OP is a flat list of operations and their probabilities, with no order. A Markov-OP gives the probability of the next action based on the current screen, so it captures sequences such as deck to listing to booking. To convert the Markov-OP into a Musa-OP, I counted how many times each screen appears across all the sessions (real and imputed) and divided by the total (Table 7). The conversion keeps how often each screen is used but loses the order. For example, Booking is 7.8% of screen visits, but the Musa-OP no longer shows that Booking can only follow Listing detail.
 
 {{MUSA}}
 
-Table 6. Musa-OP converted from the Markov-OP.
+Table 7. Musa-OP converted from the Markov-OP.

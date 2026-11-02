@@ -23,11 +23,12 @@ fills = {
                  [[t["id"], kind, " > ".join(t["path"]), ", ".join(x[1:] for x in t["links"])] for kind, t in tests]),
     "MARKOV": tbl(["Link", "From", "To", "Real", "Imputed", "Probability"],
                   [[x["id"], S[x["from"]], S[x["to"]], x["real"], x["imputed"] or "", f'{x["p"]:.3f}'] for x in a["markov"]]),
-    "MUSA": tbl(["Operation (screen)", "Expected visits per session", "Musa-OP probability"],
-                [[f'{r["state"]} {r["name"]}', f'{r["visits"]:.2f}', f'{r["p"]:.3f}'] for r in sorted(a["musa"], key=lambda r: -r["p"])]),
+    "MUSA": tbl(["Operation (screen)", "Visits in all sessions", "Musa-OP probability"],
+                [[f'{r["state"]} {r["name"]}', r["visits"], f'{r["p"]:.3f}'] for r in sorted(a["musa"], key=lambda r: -r["p"])]),
+    "IMP_SESSIONS": tbl(["Imputed session", "User type", "Path"],
+                        [[x["id"], x["userType"], " > ".join(x["path"])] for x in a["imputedSessions"]]),
     "REAL_N": str(a["realTransitions"]),
     "IMP_N": str(a["imputedTransitions"]),
-    "SCREENS": f'{a["expectedScreensPerSession"]:.1f}',
 }
 src = open(D + "hw3-template.md").read()
 for k, v in fills.items():

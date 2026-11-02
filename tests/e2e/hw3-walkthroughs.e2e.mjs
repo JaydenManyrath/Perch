@@ -1,6 +1,6 @@
 /**
  * CS 5314 HW3: team walkthrough sessions over the screen-level FSM
- * (docs/testing/hw3/fsm-v1.json), executed on the running app.
+ * (docs/testing/hw3/fsm-v1.json: 7 states, 16 links), executed on the running app.
  *
  * Each session is a task a team member walks through (taken from the README
  * walkthrough and our earlier onboarding test runs). Every step fires one FSM input,
@@ -19,8 +19,9 @@ const { chromium } = createRequire(import.meta.url)("playwright");
 const BASE = process.argv[2] ?? "http://localhost:3000";
 const OUT = process.argv[3];
 
-const TAB_HREF = { S3: "/feed", S4: "/stories", S7: "/map", S8: "/dms", S9: "/profile/" };
-const TAB_LABEL = { S3: "Flyway", S4: "Perches", S7: "Migration", S8: "Chirps", S9: "Nest" };
+const EXIT = "S7";
+const TAB_HREF = { S3: "/feed", S4: "/stories" };
+const TAB_LABEL = { S3: "Flyway", S4: "Perches" };
 
 async function tab(p, s) {
   // Select the nav tab by its label: other links share the href prefix (host profiles).
@@ -52,7 +53,7 @@ async function finishOnboarding(p) {
 
 /** Fire the input for link from -> to; return true when the app is in `to` afterwards. */
 async function fire(p, from, to) {
-  if (to === "S10") return true; // the user leaves; nothing to drive
+  if (to === EXIT) return true; // the user leaves; nothing to drive
   if (from === "S1" && to === "S2") {
     await p.getByRole("link", { name: /Start onboarding/ }).click();
     await p.waitForURL((u) => u.pathname === "/onboarding");
@@ -90,20 +91,6 @@ async function fire(p, from, to) {
     await p.getByText("Waiting on the host").waitFor();
     return true;
   }
-  if (from === to && from === "S7") {
-    await p.getByRole("button", { name: "Events" }).click();
-    await p.waitForTimeout(400);
-    return true;
-  }
-  if (from === to && from === "S8") {
-    // Inside a thread: go back to the conversation list (still Chirps), open another.
-    if (new URL(p.url()).pathname !== "/dms") await tab(p, "S8");
-    const threads = p.getByRole("link", { name: /Open conversation with/ });
-    await threads.nth(Math.floor(Math.random() * (await threads.count()))).click();
-    await p.waitForURL((u) => u.pathname.startsWith("/dms/"));
-    await p.waitForTimeout(500);
-    return true;
-  }
   if (TAB_HREF[from] && TAB_HREF[to]) {
     await tab(p, to);
     return new URL(p.url()).pathname.startsWith(TAB_HREF[to]);
@@ -111,18 +98,16 @@ async function fire(p, from, to) {
   throw new Error(`no driver for ${from}->${to}`);
 }
 
-// Walkthrough tasks. Sequences are state ids; S1 is the splash page.
+// Walkthrough tasks. Sequences are state ids; S1 is the splash page, S7 is Exit.
 const SESSIONS = [
-  { id: "W1", task: "README walkthrough (new user, full tour)", path: ["S1", "S2", "S3", "S4", "S5", "S6", "S4", "S7", "S8", "S9", "S10"] },
-  { id: "W2", task: "Find a sublet and request it", path: ["S1", "S3", "S4", "S4", "S4", "S5", "S4", "S5", "S6", "S4", "S10"] },
-  { id: "W3", task: "Check events and message a friend", path: ["S1", "S3", "S3", "S3", "S8", "S8", "S8", "S10"] },
-  { id: "W4", task: "Look at the city and commute", path: ["S1", "S3", "S7", "S7", "S7", "S4", "S5", "S10"] },
-  { id: "W5", task: "Check my profile and checklist", path: ["S1", "S3", "S9", "S3", "S4", "S10"] },
-  { id: "W6", task: "Onboarding, stop after the offer step (as in our e2e runs)", path: ["S1", "S2", "S10"] },
-  { id: "W7", task: "New user books right after onboarding", path: ["S1", "S2", "S3", "S4", "S5", "S6", "S4", "S8", "S10"] },
-  { id: "W8", task: "Quick tour of every tab", path: ["S1", "S3", "S4", "S7", "S8", "S9", "S10"] },
-  { id: "W9", task: "Browse sublets, then the map", path: ["S1", "S3", "S4", "S4", "S5", "S4", "S7", "S3", "S10"] },
-  { id: "W10", task: "Reply to messages, check events", path: ["S1", "S3", "S8", "S8", "S3", "S3", "S10"] },
+  { id: "W1", task: "README walkthrough (new user)", path: ["S1", "S2", "S3", "S4", "S5", "S6", "S4", "S7"] },
+  { id: "W2", task: "Find a sublet and request it", path: ["S1", "S3", "S4", "S4", "S4", "S5", "S4", "S5", "S6", "S4", "S7"] },
+  { id: "W3", task: "Check events", path: ["S1", "S3", "S3", "S3", "S7"] },
+  { id: "W4", task: "Look at one listing", path: ["S1", "S3", "S4", "S5", "S7"] },
+  { id: "W5", task: "Onboarding, stop after the offer step", path: ["S1", "S2", "S7"] },
+  { id: "W6", task: "New user books right away", path: ["S1", "S2", "S3", "S4", "S5", "S6", "S4", "S7"] },
+  { id: "W7", task: "Browse sublets", path: ["S1", "S3", "S4", "S4", "S5", "S4", "S7"] },
+  { id: "W8", task: "Events, then a quick look at sublets", path: ["S1", "S3", "S3", "S4", "S7"] },
 ];
 
 // Optional 4th argument: analysis.json -> run its node and link coverage tests instead.

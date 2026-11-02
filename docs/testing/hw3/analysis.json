@@ -1,238 +1,100 @@
 {
  "table": [
   [
-   "L01",
+   "L1",
    "S1",
    "tap Start onboarding",
    "S2"
   ],
   [
-   "L02",
+   "L2",
    "S1",
-   "returning user opens the app",
+   "returning user opens app",
    "S3"
   ],
   [
-   "L03",
+   "L3",
    "S2",
    "finish onboarding",
    "S3"
   ],
   [
-   "L04",
+   "L4",
    "S2",
    "abandon onboarding",
-   "S10"
+   "S7"
   ],
   [
-   "L05",
+   "L5",
+   "S3",
+   "open event comments",
+   "S3"
+  ],
+  [
+   "L6",
    "S3",
    "tap Perches tab",
    "S4"
   ],
   [
-   "L06",
+   "L7",
    "S3",
-   "tap Migration tab",
+   "leave app",
    "S7"
   ],
   [
-   "L07",
-   "S3",
-   "tap Chirps tab",
-   "S8"
-  ],
-  [
-   "L08",
-   "S3",
-   "tap Nest tab",
-   "S9"
-  ],
-  [
-   "L09",
+   "L8",
    "S4",
-   "tap Flyway tab",
-   "S3"
-  ],
-  [
-   "L10",
-   "S4",
-   "tap Migration tab",
-   "S7"
-  ],
-  [
-   "L11",
-   "S4",
-   "tap Chirps tab",
-   "S8"
-  ],
-  [
-   "L12",
-   "S4",
-   "tap Nest tab",
-   "S9"
-  ],
-  [
-   "L13",
-   "S7",
-   "tap Flyway tab",
-   "S3"
-  ],
-  [
-   "L14",
-   "S7",
-   "tap Perches tab",
+   "swipe to next card",
    "S4"
   ],
   [
-   "L15",
-   "S7",
-   "tap Chirps tab",
-   "S8"
-  ],
-  [
-   "L16",
-   "S7",
-   "tap Nest tab",
-   "S9"
-  ],
-  [
-   "L17",
-   "S8",
-   "tap Flyway tab",
-   "S3"
-  ],
-  [
-   "L18",
-   "S8",
-   "tap Perches tab",
-   "S4"
-  ],
-  [
-   "L19",
-   "S8",
-   "tap Migration tab",
-   "S7"
-  ],
-  [
-   "L20",
-   "S8",
-   "tap Nest tab",
-   "S9"
-  ],
-  [
-   "L21",
-   "S9",
-   "tap Flyway tab",
-   "S3"
-  ],
-  [
-   "L22",
-   "S9",
-   "tap Perches tab",
-   "S4"
-  ],
-  [
-   "L23",
-   "S9",
-   "tap Migration tab",
-   "S7"
-  ],
-  [
-   "L24",
-   "S9",
-   "tap Chirps tab",
-   "S8"
-  ],
-  [
-   "L25",
-   "S3",
-   "open an event's comments",
-   "S3"
-  ],
-  [
-   "L26",
-   "S4",
-   "swipe/pass to next card",
-   "S4"
-  ],
-  [
-   "L27",
+   "L9",
    "S4",
    "tap Details",
    "S5"
   ],
   [
-   "L28",
+   "L10",
+   "S4",
+   "tap Feed tab",
+   "S3"
+  ],
+  [
+   "L11",
+   "S4",
+   "leave app",
+   "S7"
+  ],
+  [
+   "L12",
    "S5",
-   "close detail sheet",
+   "close sheet",
    "S4"
   ],
   [
-   "L29",
+   "L13",
    "S5",
    "tap Request to book",
    "S6"
   ],
   [
-   "L30",
+   "L14",
+   "S5",
+   "leave app",
+   "S7"
+  ],
+  [
+   "L15",
    "S6",
    "close sheet",
    "S4"
   ],
   [
-   "L31",
-   "S7",
-   "switch map layer",
-   "S7"
-  ],
-  [
-   "L32",
-   "S8",
-   "open a conversation",
-   "S8"
-  ],
-  [
-   "L33",
-   "S3",
-   "leave the app",
-   "S10"
-  ],
-  [
-   "L34",
-   "S4",
-   "leave the app",
-   "S10"
-  ],
-  [
-   "L35",
-   "S5",
-   "leave the app",
-   "S10"
-  ],
-  [
-   "L36",
+   "L16",
    "S6",
-   "leave the app",
-   "S10"
-  ],
-  [
-   "L37",
-   "S7",
-   "leave the app",
-   "S10"
-  ],
-  [
-   "L38",
-   "S8",
-   "leave the app",
-   "S10"
-  ],
-  [
-   "L39",
-   "S9",
-   "leave the app",
-   "S10"
+   "leave app",
+   "S7"
   ]
  ],
  "matrixStates": [
@@ -242,19 +104,13 @@
   "S4",
   "S5",
   "S6",
-  "S7",
-  "S8",
-  "S9",
-  "S10"
+  "S7"
  ],
  "matrix": [
   [
    "",
-   "L01",
-   "L02",
-   "",
-   "",
-   "",
+   "L1",
+   "L2",
    "",
    "",
    "",
@@ -263,103 +119,49 @@
   [
    "",
    "",
-   "L03",
+   "L3",
    "",
    "",
    "",
-   "",
-   "",
-   "",
-   "L04"
+   "L4"
   ],
   [
    "",
    "",
-   "L25",
-   "L05",
+   "L5",
+   "L6",
    "",
    "",
-   "L06",
-   "L07",
-   "L08",
-   "L33"
+   "L7"
   ],
   [
    "",
-   "",
-   "L09",
-   "L26",
-   "L27",
    "",
    "L10",
-   "L11",
+   "L8",
+   "L9",
+   "",
+   "L11"
+  ],
+  [
+   "",
+   "",
+   "",
    "L12",
-   "L34"
-  ],
-  [
-   "",
-   "",
-   "",
-   "L28",
-   "",
-   "L29",
-   "",
-   "",
-   "",
-   "L35"
-  ],
-  [
-   "",
-   "",
-   "",
-   "L30",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "L36"
-  ],
-  [
-   "",
    "",
    "L13",
-   "L14",
+   "L14"
+  ],
+  [
    "",
    "",
-   "L31",
+   "",
    "L15",
-   "L16",
-   "L37"
+   "",
+   "",
+   "L16"
   ],
   [
-   "",
-   "",
-   "L17",
-   "L18",
-   "",
-   "",
-   "L19",
-   "L32",
-   "L20",
-   "L38"
-  ],
-  [
-   "",
-   "",
-   "L21",
-   "L22",
-   "",
-   "",
-   "L23",
-   "L24",
-   "",
-   "L39"
-  ],
-  [
-   "",
-   "",
-   "",
    "",
    "",
    "",
@@ -377,41 +179,17 @@
     "S2",
     "S3",
     "S4",
-    "S7",
-    "S8",
-    "S9",
-    "S4",
-    "S5",
-    "S10"
-   ],
-   "links": [
-    "L01",
-    "L03",
-    "L05",
-    "L10",
-    "L15",
-    "L20",
-    "L22",
-    "L27",
-    "L35"
-   ]
-  },
-  {
-   "id": "N2",
-   "path": [
-    "S1",
-    "S3",
-    "S4",
     "S5",
     "S6",
-    "S10"
+    "S7"
    ],
    "links": [
-    "L02",
-    "L05",
-    "L27",
-    "L29",
-    "L36"
+    "L1",
+    "L3",
+    "L6",
+    "L9",
+    "L13",
+    "L16"
    ]
   }
  ],
@@ -426,30 +204,28 @@
     "S4",
     "S4",
     "S3",
-    "S7",
-    "S7",
-    "S3",
-    "S8",
-    "S8",
-    "S3",
-    "S9",
-    "S10"
+    "S4",
+    "S5",
+    "S4",
+    "S5",
+    "S6",
+    "S4",
+    "S7"
    ],
    "links": [
-    "L01",
-    "L03",
-    "L25",
-    "L05",
-    "L26",
-    "L09",
-    "L06",
-    "L31",
+    "L1",
+    "L3",
+    "L5",
+    "L6",
+    "L8",
+    "L10",
+    "L6",
+    "L9",
+    "L12",
+    "L9",
     "L13",
-    "L07",
-    "L32",
-    "L17",
-    "L08",
-    "L39"
+    "L15",
+    "L11"
    ]
   },
   {
@@ -457,63 +233,23 @@
    "path": [
     "S1",
     "S3",
-    "S4",
-    "S7",
-    "S4",
-    "S8",
-    "S4",
-    "S9",
-    "S3",
-    "S4",
-    "S5",
-    "S4",
-    "S10"
+    "S7"
    ],
    "links": [
-    "L02",
-    "L05",
-    "L10",
-    "L14",
-    "L11",
-    "L18",
-    "L12",
-    "L21",
-    "L05",
-    "L27",
-    "L28",
-    "L34"
+    "L2",
+    "L7"
    ]
   },
   {
    "id": "K3",
    "path": [
     "S1",
-    "S3",
-    "S7",
-    "S8",
-    "S7",
-    "S9",
-    "S4",
-    "S8",
-    "S9",
-    "S7",
-    "S9",
-    "S8",
-    "S10"
+    "S2",
+    "S7"
    ],
    "links": [
-    "L02",
-    "L06",
-    "L15",
-    "L19",
-    "L16",
-    "L22",
-    "L11",
-    "L20",
-    "L23",
-    "L16",
-    "L24",
-    "L38"
+    "L1",
+    "L4"
    ]
   },
   {
@@ -523,628 +259,233 @@
     "S3",
     "S4",
     "S5",
-    "S6",
-    "S4",
-    "S3",
-    "S10"
+    "S7"
    ],
    "links": [
-    "L02",
-    "L05",
-    "L27",
-    "L29",
-    "L30",
-    "L09",
-    "L33"
+    "L2",
+    "L6",
+    "L9",
+    "L14"
    ]
   },
   {
    "id": "K5",
    "path": [
     "S1",
-    "S2",
-    "S10"
-   ],
-   "links": [
-    "L01",
-    "L04"
-   ]
-  },
-  {
-   "id": "K6",
-   "path": [
-    "S1",
-    "S3",
-    "S7",
-    "S10"
-   ],
-   "links": [
-    "L02",
-    "L06",
-    "L37"
-   ]
-  },
-  {
-   "id": "K7",
-   "path": [
-    "S1",
-    "S3",
-    "S4",
-    "S5",
-    "S10"
-   ],
-   "links": [
-    "L02",
-    "L05",
-    "L27",
-    "L35"
-   ]
-  },
-  {
-   "id": "K8",
-   "path": [
-    "S1",
     "S3",
     "S4",
     "S5",
     "S6",
-    "S10"
+    "S7"
    ],
    "links": [
-    "L02",
-    "L05",
-    "L27",
-    "L29",
-    "L36"
+    "L2",
+    "L6",
+    "L9",
+    "L13",
+    "L16"
    ]
   }
  ],
- "realTransitions": 69,
- "imputedTransitions": 13,
+ "realTransitions": 44,
+ "imputedTransitions": 3,
  "imputationRationale": {
-  "L09": "Perches -> Flyway: core screen, back to events after browsing",
-  "L12": "Perches -> Nest: add-one",
-  "L16": "Migration -> Nest: add-one",
-  "L18": "Chirps -> Perches: core screen, check a place a friend sent",
-  "L19": "Chirps -> Migration: add-one",
-  "L22": "Nest -> Perches: add-one",
-  "L23": "Nest -> Migration: add-one",
-  "L24": "Nest -> Chirps: add-one",
-  "L36": "Booking -> Exit: add-one (walkthroughs always closed the sheet)",
-  "L37": "Migration -> Exit: map is often a last stop; walkthroughs understate it"
+  "L10": "add-one: Perches back to Feed was never taken",
+  "L16": "add-one, +1: users often leave right after sending a request"
  },
  "markov": [
   {
-   "id": "L01",
+   "id": "L1",
    "from": "S1",
    "to": "S2",
    "input": "tap Start onboarding",
    "real": 3,
    "imputed": 0,
-   "total": 3,
-   "rowTotal": 10,
-   "p": 0.3
+   "rowTotal": 8,
+   "p": 0.375
   },
   {
-   "id": "L02",
+   "id": "L2",
    "from": "S1",
    "to": "S3",
-   "input": "returning user opens the app",
-   "real": 7,
+   "input": "returning user opens app",
+   "real": 5,
    "imputed": 0,
-   "total": 7,
-   "rowTotal": 10,
-   "p": 0.7
+   "rowTotal": 8,
+   "p": 0.625
   },
   {
-   "id": "L03",
+   "id": "L3",
    "from": "S2",
    "to": "S3",
    "input": "finish onboarding",
    "real": 2,
    "imputed": 0,
-   "total": 2,
    "rowTotal": 3,
    "p": 0.667
   },
   {
-   "id": "L04",
+   "id": "L4",
    "from": "S2",
-   "to": "S10",
+   "to": "S7",
    "input": "abandon onboarding",
    "real": 1,
    "imputed": 0,
-   "total": 1,
    "rowTotal": 3,
    "p": 0.333
   },
   {
-   "id": "L05",
+   "id": "L5",
+   "from": "S3",
+   "to": "S3",
+   "input": "open event comments",
+   "real": 3,
+   "imputed": 0,
+   "rowTotal": 10,
+   "p": 0.3
+  },
+  {
+   "id": "L6",
    "from": "S3",
    "to": "S4",
    "input": "tap Perches tab",
    "real": 6,
    "imputed": 0,
-   "total": 6,
-   "rowTotal": 15,
-   "p": 0.4
+   "rowTotal": 10,
+   "p": 0.6
   },
   {
-   "id": "L06",
+   "id": "L7",
    "from": "S3",
    "to": "S7",
-   "input": "tap Migration tab",
+   "input": "leave app",
    "real": 1,
    "imputed": 0,
-   "total": 1,
-   "rowTotal": 15,
-   "p": 0.067
+   "rowTotal": 10,
+   "p": 0.1
   },
   {
-   "id": "L07",
-   "from": "S3",
-   "to": "S8",
-   "input": "tap Chirps tab",
-   "real": 2,
-   "imputed": 0,
-   "total": 2,
-   "rowTotal": 15,
-   "p": 0.133
-  },
-  {
-   "id": "L08",
-   "from": "S3",
-   "to": "S9",
-   "input": "tap Nest tab",
-   "real": 1,
-   "imputed": 0,
-   "total": 1,
-   "rowTotal": 15,
-   "p": 0.067
-  },
-  {
-   "id": "L25",
-   "from": "S3",
-   "to": "S3",
-   "input": "open an event's comments",
+   "id": "L8",
+   "from": "S4",
+   "to": "S4",
+   "input": "swipe to next card",
    "real": 3,
    "imputed": 0,
-   "total": 3,
    "rowTotal": 15,
    "p": 0.2
   },
   {
-   "id": "L33",
-   "from": "S3",
-   "to": "S10",
-   "input": "leave the app",
-   "real": 2,
-   "imputed": 0,
-   "total": 2,
-   "rowTotal": 15,
-   "p": 0.133
-  },
-  {
-   "id": "L09",
-   "from": "S4",
-   "to": "S3",
-   "input": "tap Flyway tab",
-   "real": 0,
-   "imputed": 2,
-   "total": 2,
-   "rowTotal": 18,
-   "p": 0.111
-  },
-  {
-   "id": "L10",
-   "from": "S4",
-   "to": "S7",
-   "input": "tap Migration tab",
-   "real": 3,
-   "imputed": 0,
-   "total": 3,
-   "rowTotal": 18,
-   "p": 0.167
-  },
-  {
-   "id": "L11",
-   "from": "S4",
-   "to": "S8",
-   "input": "tap Chirps tab",
-   "real": 1,
-   "imputed": 0,
-   "total": 1,
-   "rowTotal": 18,
-   "p": 0.056
-  },
-  {
-   "id": "L12",
-   "from": "S4",
-   "to": "S9",
-   "input": "tap Nest tab",
-   "real": 0,
-   "imputed": 1,
-   "total": 1,
-   "rowTotal": 18,
-   "p": 0.056
-  },
-  {
-   "id": "L26",
-   "from": "S4",
-   "to": "S4",
-   "input": "swipe/pass to next card",
-   "real": 3,
-   "imputed": 0,
-   "total": 3,
-   "rowTotal": 18,
-   "p": 0.167
-  },
-  {
-   "id": "L27",
+   "id": "L9",
    "from": "S4",
    "to": "S5",
    "input": "tap Details",
    "real": 6,
    "imputed": 0,
-   "total": 6,
-   "rowTotal": 18,
+   "rowTotal": 15,
+   "p": 0.4
+  },
+  {
+   "id": "L10",
+   "from": "S4",
+   "to": "S3",
+   "input": "tap Feed tab",
+   "real": 0,
+   "imputed": 1,
+   "rowTotal": 15,
+   "p": 0.067
+  },
+  {
+   "id": "L11",
+   "from": "S4",
+   "to": "S7",
+   "input": "leave app",
+   "real": 5,
+   "imputed": 0,
+   "rowTotal": 15,
    "p": 0.333
   },
   {
-   "id": "L34",
-   "from": "S4",
-   "to": "S10",
-   "input": "leave the app",
-   "real": 2,
-   "imputed": 0,
-   "total": 2,
-   "rowTotal": 18,
-   "p": 0.111
-  },
-  {
-   "id": "L28",
+   "id": "L12",
    "from": "S5",
    "to": "S4",
-   "input": "close detail sheet",
+   "input": "close sheet",
    "real": 2,
    "imputed": 0,
-   "total": 2,
    "rowTotal": 6,
    "p": 0.333
   },
   {
-   "id": "L29",
+   "id": "L13",
    "from": "S5",
    "to": "S6",
    "input": "tap Request to book",
    "real": 3,
    "imputed": 0,
-   "total": 3,
    "rowTotal": 6,
    "p": 0.5
   },
   {
-   "id": "L35",
+   "id": "L14",
    "from": "S5",
-   "to": "S10",
-   "input": "leave the app",
+   "to": "S7",
+   "input": "leave app",
    "real": 1,
    "imputed": 0,
-   "total": 1,
    "rowTotal": 6,
    "p": 0.167
   },
   {
-   "id": "L30",
+   "id": "L15",
    "from": "S6",
    "to": "S4",
    "input": "close sheet",
    "real": 3,
    "imputed": 0,
-   "total": 3,
-   "rowTotal": 4,
-   "p": 0.75
-  },
-  {
-   "id": "L36",
-   "from": "S6",
-   "to": "S10",
-   "input": "leave the app",
-   "real": 0,
-   "imputed": 1,
-   "total": 1,
-   "rowTotal": 4,
-   "p": 0.25
-  },
-  {
-   "id": "L13",
-   "from": "S7",
-   "to": "S3",
-   "input": "tap Flyway tab",
-   "real": 1,
-   "imputed": 0,
-   "total": 1,
-   "rowTotal": 9,
-   "p": 0.111
-  },
-  {
-   "id": "L14",
-   "from": "S7",
-   "to": "S4",
-   "input": "tap Perches tab",
-   "real": 1,
-   "imputed": 0,
-   "total": 1,
-   "rowTotal": 9,
-   "p": 0.111
-  },
-  {
-   "id": "L15",
-   "from": "S7",
-   "to": "S8",
-   "input": "tap Chirps tab",
-   "real": 2,
-   "imputed": 0,
-   "total": 2,
-   "rowTotal": 9,
-   "p": 0.222
+   "rowTotal": 5,
+   "p": 0.6
   },
   {
    "id": "L16",
-   "from": "S7",
-   "to": "S9",
-   "input": "tap Nest tab",
-   "real": 0,
-   "imputed": 1,
-   "total": 1,
-   "rowTotal": 9,
-   "p": 0.111
-  },
-  {
-   "id": "L31",
-   "from": "S7",
+   "from": "S6",
    "to": "S7",
-   "input": "switch map layer",
-   "real": 2,
-   "imputed": 0,
-   "total": 2,
-   "rowTotal": 9,
-   "p": 0.222
-  },
-  {
-   "id": "L37",
-   "from": "S7",
-   "to": "S10",
-   "input": "leave the app",
+   "input": "leave app",
    "real": 0,
    "imputed": 2,
-   "total": 2,
-   "rowTotal": 9,
-   "p": 0.222
-  },
-  {
-   "id": "L17",
-   "from": "S8",
-   "to": "S3",
-   "input": "tap Flyway tab",
-   "real": 1,
-   "imputed": 0,
-   "total": 1,
-   "rowTotal": 11,
-   "p": 0.091
-  },
-  {
-   "id": "L18",
-   "from": "S8",
-   "to": "S4",
-   "input": "tap Perches tab",
-   "real": 0,
-   "imputed": 2,
-   "total": 2,
-   "rowTotal": 11,
-   "p": 0.182
-  },
-  {
-   "id": "L19",
-   "from": "S8",
-   "to": "S7",
-   "input": "tap Migration tab",
-   "real": 0,
-   "imputed": 1,
-   "total": 1,
-   "rowTotal": 11,
-   "p": 0.091
-  },
-  {
-   "id": "L20",
-   "from": "S8",
-   "to": "S9",
-   "input": "tap Nest tab",
-   "real": 2,
-   "imputed": 0,
-   "total": 2,
-   "rowTotal": 11,
-   "p": 0.182
-  },
-  {
-   "id": "L32",
-   "from": "S8",
-   "to": "S8",
-   "input": "open a conversation",
-   "real": 3,
-   "imputed": 0,
-   "total": 3,
-   "rowTotal": 11,
-   "p": 0.273
-  },
-  {
-   "id": "L38",
-   "from": "S8",
-   "to": "S10",
-   "input": "leave the app",
-   "real": 2,
-   "imputed": 0,
-   "total": 2,
-   "rowTotal": 11,
-   "p": 0.182
-  },
-  {
-   "id": "L21",
-   "from": "S9",
-   "to": "S3",
-   "input": "tap Flyway tab",
-   "real": 1,
-   "imputed": 0,
-   "total": 1,
-   "rowTotal": 6,
-   "p": 0.167
-  },
-  {
-   "id": "L22",
-   "from": "S9",
-   "to": "S4",
-   "input": "tap Perches tab",
-   "real": 0,
-   "imputed": 1,
-   "total": 1,
-   "rowTotal": 6,
-   "p": 0.167
-  },
-  {
-   "id": "L23",
-   "from": "S9",
-   "to": "S7",
-   "input": "tap Migration tab",
-   "real": 0,
-   "imputed": 1,
-   "total": 1,
-   "rowTotal": 6,
-   "p": 0.167
-  },
-  {
-   "id": "L24",
-   "from": "S9",
-   "to": "S8",
-   "input": "tap Chirps tab",
-   "real": 0,
-   "imputed": 1,
-   "total": 1,
-   "rowTotal": 6,
-   "p": 0.167
-  },
-  {
-   "id": "L39",
-   "from": "S9",
-   "to": "S10",
-   "input": "leave the app",
-   "real": 2,
-   "imputed": 0,
-   "total": 2,
-   "rowTotal": 6,
-   "p": 0.333
+   "rowTotal": 5,
+   "p": 0.4
   }
  ],
- "expectedScreensPerSession": 5.741,
- "musaStates": [
+ "expectedScreensPerSession": 4.222,
+ "musa": [
   {
    "state": "S2",
    "name": "Onboarding",
-   "visits": 0.3,
-   "p": 0.052
+   "visits": 0.375,
+   "p": 0.089
   },
   {
    "state": "S3",
-   "name": "Flyway (feed)",
-   "visits": 1.57,
-   "p": 0.273
+   "name": "Feed",
+   "visits": 1.396,
+   "p": 0.331
   },
   {
    "state": "S4",
-   "name": "Perches (deck)",
-   "visits": 1.475,
-   "p": 0.257
+   "name": "Perches deck",
+   "visits": 1.532,
+   "p": 0.363
   },
   {
    "state": "S5",
    "name": "Listing detail",
-   "visits": 0.492,
-   "p": 0.086
+   "visits": 0.613,
+   "p": 0.145
   },
   {
    "state": "S6",
-   "name": "Booking requested",
-   "visits": 0.246,
-   "p": 0.043
-  },
-  {
-   "state": "S7",
-   "name": "Migration (map)",
-   "visits": 0.61,
-   "p": 0.106
-  },
-  {
-   "state": "S8",
-   "name": "Chirps (DMs)",
-   "visits": 0.673,
-   "p": 0.117
-  },
-  {
-   "state": "S9",
-   "name": "Nest (profile)",
-   "visits": 0.377,
-   "p": 0.066
-  }
- ],
- "musaOperations": [
-  {
-   "operation": "switch tab (bottom nav)",
-   "perSession": 2.577,
-   "p": 0.544
-  },
-  {
-   "operation": "tap Details",
-   "perSession": 0.492,
-   "p": 0.104
-  },
-  {
-   "operation": "open an event's comments",
-   "perSession": 0.314,
-   "p": 0.066
-  },
-  {
-   "operation": "swipe/pass to next card",
-   "perSession": 0.246,
-   "p": 0.052
-  },
-  {
-   "operation": "tap Request to book",
-   "perSession": 0.246,
-   "p": 0.052
-  },
-  {
-   "operation": "finish onboarding",
-   "perSession": 0.2,
-   "p": 0.042
-  },
-  {
-   "operation": "close sheet",
-   "perSession": 0.184,
-   "p": 0.039
-  },
-  {
-   "operation": "open a conversation",
-   "perSession": 0.184,
-   "p": 0.039
-  },
-  {
-   "operation": "close detail sheet",
-   "perSession": 0.164,
-   "p": 0.035
-  },
-  {
-   "operation": "switch map layer",
-   "perSession": 0.136,
-   "p": 0.029
+   "name": "Booking",
+   "visits": 0.306,
+   "p": 0.073
   }
  ]
 }

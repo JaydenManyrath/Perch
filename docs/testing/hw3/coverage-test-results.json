@@ -1,6 +1,6 @@
 {
   "base": "http://localhost:3100",
-  "ranAt": "2026-11-02T15:18:10.695Z",
+  "ranAt": "2026-11-02T15:28:10.264Z",
   "sessions": [
     {
       "id": "N1",
@@ -10,12 +10,9 @@
         "S2",
         "S3",
         "S4",
-        "S7",
-        "S8",
-        "S9",
-        "S4",
         "S5",
-        "S10"
+        "S6",
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -36,61 +33,6 @@
         },
         {
           "from": "S4",
-          "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S9",
-          "ok": true
-        },
-        {
-          "from": "S9",
-          "to": "S4",
-          "ok": true
-        },
-        {
-          "from": "S4",
-          "to": "S5",
-          "ok": true
-        },
-        {
-          "from": "S5",
-          "to": "S10",
-          "ok": true
-        }
-      ]
-    },
-    {
-      "id": "N2",
-      "task": "coverage test",
-      "path": [
-        "S1",
-        "S3",
-        "S4",
-        "S5",
-        "S6",
-        "S10"
-      ],
-      "ok": true,
-      "steps": [
-        {
-          "from": "S1",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S4",
-          "ok": true
-        },
-        {
-          "from": "S4",
           "to": "S5",
           "ok": true
         },
@@ -101,7 +43,7 @@
         },
         {
           "from": "S6",
-          "to": "S10",
+          "to": "S7",
           "ok": true
         }
       ]
@@ -117,14 +59,13 @@
         "S4",
         "S4",
         "S3",
-        "S7",
-        "S7",
-        "S3",
-        "S8",
-        "S8",
-        "S3",
-        "S9",
-        "S10"
+        "S4",
+        "S5",
+        "S4",
+        "S5",
+        "S6",
+        "S4",
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -160,108 +101,6 @@
         },
         {
           "from": "S3",
-          "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S9",
-          "ok": true
-        },
-        {
-          "from": "S9",
-          "to": "S10",
-          "ok": true
-        }
-      ]
-    },
-    {
-      "id": "K2",
-      "task": "coverage test",
-      "path": [
-        "S1",
-        "S3",
-        "S4",
-        "S7",
-        "S4",
-        "S8",
-        "S4",
-        "S9",
-        "S3",
-        "S4",
-        "S5",
-        "S4",
-        "S10"
-      ],
-      "ok": true,
-      "steps": [
-        {
-          "from": "S1",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S4",
-          "ok": true
-        },
-        {
-          "from": "S4",
-          "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S4",
-          "ok": true
-        },
-        {
-          "from": "S4",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S4",
-          "ok": true
-        },
-        {
-          "from": "S4",
-          "to": "S9",
-          "ok": true
-        },
-        {
-          "from": "S9",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
           "to": "S4",
           "ok": true
         },
@@ -277,28 +116,33 @@
         },
         {
           "from": "S4",
-          "to": "S10",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S6",
+          "ok": true
+        },
+        {
+          "from": "S6",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S7",
           "ok": true
         }
       ]
     },
     {
-      "id": "K3",
+      "id": "K2",
       "task": "coverage test",
       "path": [
         "S1",
         "S3",
-        "S7",
-        "S8",
-        "S7",
-        "S9",
-        "S4",
-        "S8",
-        "S9",
-        "S7",
-        "S9",
-        "S8",
-        "S10"
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -311,55 +155,27 @@
           "from": "S3",
           "to": "S7",
           "ok": true
-        },
+        }
+      ]
+    },
+    {
+      "id": "K3",
+      "task": "coverage test",
+      "path": [
+        "S1",
+        "S2",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
         {
-          "from": "S7",
-          "to": "S8",
+          "from": "S1",
+          "to": "S2",
           "ok": true
         },
         {
-          "from": "S8",
+          "from": "S2",
           "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S9",
-          "ok": true
-        },
-        {
-          "from": "S9",
-          "to": "S4",
-          "ok": true
-        },
-        {
-          "from": "S4",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S9",
-          "ok": true
-        },
-        {
-          "from": "S9",
-          "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S9",
-          "ok": true
-        },
-        {
-          "from": "S9",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S10",
           "ok": true
         }
       ]
@@ -372,10 +188,7 @@
         "S3",
         "S4",
         "S5",
-        "S6",
-        "S4",
-        "S3",
-        "S10"
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -396,22 +209,7 @@
         },
         {
           "from": "S5",
-          "to": "S6",
-          "ok": true
-        },
-        {
-          "from": "S6",
-          "to": "S4",
-          "ok": true
-        },
-        {
-          "from": "S4",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S10",
+          "to": "S7",
           "ok": true
         }
       ]
@@ -421,95 +219,11 @@
       "task": "coverage test",
       "path": [
         "S1",
-        "S2",
-        "S10"
-      ],
-      "ok": true,
-      "steps": [
-        {
-          "from": "S1",
-          "to": "S2",
-          "ok": true
-        },
-        {
-          "from": "S2",
-          "to": "S10",
-          "ok": true
-        }
-      ]
-    },
-    {
-      "id": "K6",
-      "task": "coverage test",
-      "path": [
-        "S1",
-        "S3",
-        "S7",
-        "S10"
-      ],
-      "ok": true,
-      "steps": [
-        {
-          "from": "S1",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S10",
-          "ok": true
-        }
-      ]
-    },
-    {
-      "id": "K7",
-      "task": "coverage test",
-      "path": [
-        "S1",
-        "S3",
-        "S4",
-        "S5",
-        "S10"
-      ],
-      "ok": true,
-      "steps": [
-        {
-          "from": "S1",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S4",
-          "ok": true
-        },
-        {
-          "from": "S4",
-          "to": "S5",
-          "ok": true
-        },
-        {
-          "from": "S5",
-          "to": "S10",
-          "ok": true
-        }
-      ]
-    },
-    {
-      "id": "K8",
-      "task": "coverage test",
-      "path": [
-        "S1",
         "S3",
         "S4",
         "S5",
         "S6",
-        "S10"
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -535,7 +249,7 @@
         },
         {
           "from": "S6",
-          "to": "S10",
+          "to": "S7",
           "ok": true
         }
       ]

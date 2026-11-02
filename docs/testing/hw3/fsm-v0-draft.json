@@ -1,139 +1,94 @@
 {
  "version": "v0 (first draft)",
  "start": "S1",
- "exit": "S10",
+ "exit": "S7",
  "states": {
   "S1": "Splash",
   "S2": "Onboarding",
-  "S3": "Flyway (feed)",
-  "S4": "Perches (deck)",
+  "S3": "Feed",
+  "S4": "Perches deck",
   "S5": "Listing detail",
-  "S6": "Booking requested",
-  "S7": "Migration (map)",
-  "S8": "Chirps (DMs)",
-  "S9": "Nest (profile)",
-  "S10": "Exit"
+  "S6": "Booking",
+  "S7": "Exit"
  },
  "links": [
   {
+   "id": "D1",
    "from": "S1",
    "to": "S2",
-   "input": "tap Start onboarding",
-   "id": "D01"
+   "input": "tap Start onboarding"
   },
   {
+   "id": "D2",
    "from": "S2",
    "to": "S3",
-   "input": "finish onboarding",
-   "id": "D02"
+   "input": "finish onboarding"
   },
   {
+   "id": "D3",
    "from": "S2",
-   "to": "S10",
-   "input": "abandon onboarding",
-   "id": "D03"
+   "to": "S7",
+   "input": "abandon onboarding"
   },
   {
+   "id": "D4",
+   "from": "S3",
+   "to": "S3",
+   "input": "open event comments"
+  },
+  {
+   "id": "D5",
    "from": "S3",
    "to": "S4",
-   "input": "tap Perches tab",
-   "id": "D04"
+   "input": "tap Perches tab"
   },
   {
+   "id": "D6",
    "from": "S3",
    "to": "S7",
-   "input": "tap Migration tab",
-   "id": "D05"
+   "input": "leave app"
   },
   {
-   "from": "S3",
-   "to": "S8",
-   "input": "tap Chirps tab",
-   "id": "D06"
-  },
-  {
-   "from": "S3",
-   "to": "S3",
-   "input": "open an event's comments",
-   "id": "D07"
-  },
-  {
+   "id": "D7",
    "from": "S4",
    "to": "S4",
-   "input": "swipe/pass to next card",
-   "id": "D08"
+   "input": "swipe to next card"
   },
   {
+   "id": "D8",
    "from": "S4",
    "to": "S5",
-   "input": "tap card",
-   "id": "D09"
+   "input": "tap card"
   },
   {
+   "id": "D9",
    "from": "S4",
    "to": "S5",
-   "input": "tap Details",
-   "id": "D10"
+   "input": "tap Details"
   },
   {
+   "id": "D10",
+   "from": "S4",
+   "to": "S7",
+   "input": "leave app"
+  },
+  {
+   "id": "D11",
    "from": "S5",
    "to": "S4",
-   "input": "close detail sheet",
-   "id": "D11"
+   "input": "close sheet"
   },
   {
+   "id": "D12",
    "from": "S5",
    "to": "S6",
-   "input": "tap Request to book",
-   "id": "D12"
+   "input": "tap Request to book"
   },
   {
+   "id": "D13",
    "from": "S6",
    "to": null,
-   "input": "close sheet",
-   "id": "D13"
-  },
-  {
-   "from": "S4",
-   "to": "S3",
-   "input": "tap Flyway tab",
-   "id": "D14"
-  },
-  {
-   "from": "S7",
-   "to": "S7",
-   "input": "switch map layer",
-   "id": "D15"
-  },
-  {
-   "from": "S8",
-   "to": "S8",
-   "input": "open a conversation",
-   "id": "D16"
-  },
-  {
-   "from": "S8",
-   "to": "S3",
-   "input": "tap Flyway tab",
-   "id": "D17"
-  },
-  {
-   "from": "S3",
-   "to": "S10",
-   "input": "leave the app",
-   "id": "D18"
-  },
-  {
-   "from": "S4",
-   "to": "S10",
-   "input": "leave the app",
-   "id": "D19"
-  },
-  {
-   "from": "S8",
-   "to": "S10",
-   "input": "leave the app",
-   "id": "D20"
+   "input": "close sheet"
   }
  ]
 }

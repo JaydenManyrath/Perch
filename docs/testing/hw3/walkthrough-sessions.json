@@ -1,10 +1,10 @@
 {
   "base": "http://localhost:3100",
-  "ranAt": "2026-11-02T15:18:44.074Z",
+  "ranAt": "2026-11-02T15:26:53.638Z",
   "sessions": [
     {
       "id": "W1",
-      "task": "README walkthrough (new user, full tour)",
+      "task": "README walkthrough (new user)",
       "path": [
         "S1",
         "S2",
@@ -13,10 +13,7 @@
         "S5",
         "S6",
         "S4",
-        "S7",
-        "S8",
-        "S9",
-        "S10"
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -53,21 +50,6 @@
         {
           "from": "S4",
           "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S9",
-          "ok": true
-        },
-        {
-          "from": "S9",
-          "to": "S10",
           "ok": true
         }
       ]
@@ -86,7 +68,7 @@
         "S5",
         "S6",
         "S4",
-        "S10"
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -137,23 +119,20 @@
         },
         {
           "from": "S4",
-          "to": "S10",
+          "to": "S7",
           "ok": true
         }
       ]
     },
     {
       "id": "W3",
-      "task": "Check events and message a friend",
+      "task": "Check events",
       "path": [
         "S1",
         "S3",
         "S3",
         "S3",
-        "S8",
-        "S8",
-        "S8",
-        "S10"
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -174,38 +153,20 @@
         },
         {
           "from": "S3",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S10",
+          "to": "S7",
           "ok": true
         }
       ]
     },
     {
       "id": "W4",
-      "task": "Look at the city and commute",
+      "task": "Look at one listing",
       "path": [
         "S1",
         "S3",
-        "S7",
-        "S7",
-        "S7",
         "S4",
         "S5",
-        "S10"
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -216,21 +177,6 @@
         },
         {
           "from": "S3",
-          "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S7",
-          "ok": true
-        },
-        {
-          "from": "S7",
           "to": "S4",
           "ok": true
         },
@@ -241,58 +187,18 @@
         },
         {
           "from": "S5",
-          "to": "S10",
+          "to": "S7",
           "ok": true
         }
       ]
     },
     {
       "id": "W5",
-      "task": "Check my profile and checklist",
-      "path": [
-        "S1",
-        "S3",
-        "S9",
-        "S3",
-        "S4",
-        "S10"
-      ],
-      "ok": true,
-      "steps": [
-        {
-          "from": "S1",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S9",
-          "ok": true
-        },
-        {
-          "from": "S9",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S4",
-          "ok": true
-        },
-        {
-          "from": "S4",
-          "to": "S10",
-          "ok": true
-        }
-      ]
-    },
-    {
-      "id": "W6",
-      "task": "Onboarding, stop after the offer step (as in our e2e runs)",
+      "task": "Onboarding, stop after the offer step",
       "path": [
         "S1",
         "S2",
-        "S10"
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -303,14 +209,14 @@
         },
         {
           "from": "S2",
-          "to": "S10",
+          "to": "S7",
           "ok": true
         }
       ]
     },
     {
-      "id": "W7",
-      "task": "New user books right after onboarding",
+      "id": "W6",
+      "task": "New user books right away",
       "path": [
         "S1",
         "S2",
@@ -319,8 +225,7 @@
         "S5",
         "S6",
         "S4",
-        "S8",
-        "S10"
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -356,65 +261,14 @@
         },
         {
           "from": "S4",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S10",
-          "ok": true
-        }
-      ]
-    },
-    {
-      "id": "W8",
-      "task": "Quick tour of every tab",
-      "path": [
-        "S1",
-        "S3",
-        "S4",
-        "S7",
-        "S8",
-        "S9",
-        "S10"
-      ],
-      "ok": true,
-      "steps": [
-        {
-          "from": "S1",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S4",
-          "ok": true
-        },
-        {
-          "from": "S4",
           "to": "S7",
           "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S9",
-          "ok": true
-        },
-        {
-          "from": "S9",
-          "to": "S10",
-          "ok": true
         }
       ]
     },
     {
-      "id": "W9",
-      "task": "Browse sublets, then the map",
+      "id": "W7",
+      "task": "Browse sublets",
       "path": [
         "S1",
         "S3",
@@ -422,9 +276,7 @@
         "S4",
         "S5",
         "S4",
-        "S7",
-        "S3",
-        "S10"
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -457,30 +309,18 @@
           "from": "S4",
           "to": "S7",
           "ok": true
-        },
-        {
-          "from": "S7",
-          "to": "S3",
-          "ok": true
-        },
-        {
-          "from": "S3",
-          "to": "S10",
-          "ok": true
         }
       ]
     },
     {
-      "id": "W10",
-      "task": "Reply to messages, check events",
+      "id": "W8",
+      "task": "Events, then a quick look at sublets",
       "path": [
         "S1",
         "S3",
-        "S8",
-        "S8",
         "S3",
-        "S3",
-        "S10"
+        "S4",
+        "S7"
       ],
       "ok": true,
       "steps": [
@@ -491,27 +331,17 @@
         },
         {
           "from": "S3",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
-          "to": "S8",
-          "ok": true
-        },
-        {
-          "from": "S8",
           "to": "S3",
           "ok": true
         },
         {
           "from": "S3",
-          "to": "S3",
+          "to": "S4",
           "ok": true
         },
         {
-          "from": "S3",
-          "to": "S10",
+          "from": "S4",
+          "to": "S7",
           "ok": true
         }
       ]

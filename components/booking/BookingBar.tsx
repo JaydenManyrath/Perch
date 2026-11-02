@@ -10,6 +10,7 @@ import {
   getBookings,
   requestBooking,
   confirmBooking,
+  cancelBooking,
   inviteRoommate,
   acceptRoommateInvite,
   getFriends,
@@ -17,6 +18,7 @@ import {
 import { useCurrentUser } from "@/lib/auth/session";
 import type { Booking, Friend, PerchCard } from "@/lib/types/contract";
 import { cn } from "@/lib/utils";
+import { logScreen } from "@/lib/pilot/navlog";
 
 /**
  * BookingBar (RA34 + RA33) - sits on the perch detail sheet.
@@ -76,6 +78,7 @@ export function BookingBar({
     try {
       const b = await requestBooking(listing.id, {});
       setBooking(b);
+      logScreen("BOOKING");
     } catch (err) {
       setError(bookingErrorText(err));
     } finally {
@@ -93,6 +96,20 @@ export function BookingBar({
         setBooking(b);
         if (b.status === "booked") onBooked?.(b);
       }
+    } catch (err) {
+      setError(bookingErrorText(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onCancel() {
+    if (!booking) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const b = await cancelBooking(booking.id);
+      if (b) setBooking(b);
     } catch (err) {
       setError(bookingErrorText(err));
     } finally {
@@ -247,6 +264,15 @@ export function BookingBar({
           </p>
         </div>
       )}
+      {booking &&
+      booking.viewerRole === "booker" &&
+      ["requested", "approved", "booked"].includes(booking.status) ? (
+        <div className="mt-2">
+          <Button variant="ghost" onClick={onCancel} disabled={busy}>
+            <X className="h-4 w-4" aria-hidden /> Cancel booking
+          </Button>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -130,12 +130,17 @@ async function verdicts(res: Response) {
 describe("PT-N negotiate route constraint inputs", () => {
   beforeEach(() => {
     vi.resetModules();
+    // These cases drive the live (Supabase) path of the route.
+    vi.stubEnv("NEXT_PUBLIC_DATA_SOURCE", "live");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://project.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "public-anon-key");
     __resetBuckets();
     process.env.RATE_LIMIT_MAX = "100";
     process.env.LLM_DISABLED = "1";
     getCallerId.mockResolvedValue("11111111-1111-4111-8111-111111111111");
   });
   afterEach(() => {
+    vi.unstubAllEnvs();
     delete process.env.RATE_LIMIT_MAX;
     delete process.env.LLM_DISABLED;
   });

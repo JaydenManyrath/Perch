@@ -1,4 +1,4 @@
-import { getSavedPerches, getPerchDeck } from "@/lib/data/server-source";
+import { getMe, getSavedPerches, getPerchDeck } from "@/lib/data/server-source";
 import { NegotiateClient, type PickablePerch } from "./_components/NegotiateClient";
 import { BackButton } from "@/components/ui/BackButton";
 
@@ -16,6 +16,8 @@ export default async function NegotiatePage() {
   const saved = await getSavedPerches();
   // Fall back to the fresh deck so the hero always has something to scout in the demo.
   const source = saved.length > 0 ? saved : (await getPerchDeck()).deck;
+  // The stay starts on the intern's own move-in date (D14: these used to be hard-coded).
+  const me = await getMe();
   const perches: PickablePerch[] = source.map((p) => ({
     id: p.id,
     title: p.title,
@@ -34,7 +36,7 @@ export default async function NegotiatePage() {
         the waiting; the verdicts stay serious.
       </p>
 
-      <NegotiateClient perches={perches} />
+      <NegotiateClient perches={perches} moveInDate={me.move_in_date} />
     </main>
   );
 }

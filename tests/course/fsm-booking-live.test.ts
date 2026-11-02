@@ -23,7 +23,7 @@ import { POST as approve } from "@/app/api/bookings/[id]/approve/route";
 import { POST as decline } from "@/app/api/bookings/[id]/decline/route";
 import { POST as confirm } from "@/app/api/bookings/[id]/confirm/route";
 import { POST as relist } from "@/app/api/listings/[id]/confirm/route";
-import { bookingErrorStatus, performTransition } from "@/lib/bookings";
+import { POST as cancelRoute } from "@/app/api/bookings/[id]/cancel/route";
 import { runFreshnessPass } from "@/lib/sourcing/freshness";
 import type { FakeDb } from "./helpers/fakeSupabase";
 
@@ -33,13 +33,11 @@ const routes = {
   decline,
   confirm,
   relist,
+  // D07 fixed: cancel now has its own route (round 1 had to call the library directly).
   async cancel(db: FakeDb, callerId: string, bookingId: string) {
-    try {
-      await performTransition(db.client as never, db.client as never, callerId, bookingId, "cancel");
-      return 200;
-    } catch (err) {
-      return bookingErrorStatus(err)?.status ?? 500;
-    }
+    h.world.caller = callerId;
+    const res = await cancelRoute(new Request("http://t/api", { method: "POST" }), { params: { id: bookingId } });
+    return res.status;
   },
   expire: (db: FakeDb, now: number) => runFreshnessPass(db.client as never, now),
 };

@@ -1631,6 +1631,35 @@ export async function confirmBooking(id: string): Promise<Booking | null> {
   return b;
 }
 
+/**
+ * Booker cancels a live booking (D07). A booked stay releases the listing back to
+ * available with a fresh freshness window, mirroring performTransition.
+ */
+export async function cancelBooking(id: string): Promise<Booking | null> {
+  if (canUseLiveData()) {
+    const r = await liveMutation<Booking>(`/api/bookings/${id}/cancel`, { method: "POST" }, isBooking);
+    if (r) return r;
+  }
+  const b = fx.bookingsFixture.find((x) => x.id === id);
+  if (!b) return null;
+  const wasBooked = b.status === "booked";
+  try {
+    const next = transitionBooking(b.status, "cancel", "booker");
+    b.status = next.status;
+    b.decidedAt = new Date().toISOString();
+  } catch (err) {
+    if (!(err instanceof BookingConflictError)) throw err;
+    return b;
+  }
+  const listing = fx.listingsFixture.find((l) => l.id === b.listingId);
+  if (listing && wasBooked) {
+    listing.status = "available";
+    listing.last_confirmed_at = new Date().toISOString();
+    listing.expires_at = freshnessExpiry();
+  }
+  return b;
+}
+
 // Round 3 - Roommate invite (section 13.3)
 export async function inviteRoommate(
   bookingId: string,

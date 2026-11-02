@@ -59,7 +59,7 @@ type Routes = {
   decline: (req: Request, ctx: { params: { id: string } }) => Promise<Response>;
   confirm: (req: Request, ctx: { params: { id: string } }) => Promise<Response>;
   relist: (req: Request, ctx: { params: { id: string } }) => Promise<Response>;
-  /** No HTTP route exists for cancel; the library entry point is used instead. */
+  /** POST /api/bookings/{id}/cancel (added for D07). */
   cancel: (db: FakeDb, callerId: string, bookingId: string) => Promise<number>;
   expire: (db: FakeDb, now: number) => Promise<unknown>;
 };

@@ -5,11 +5,13 @@
  * in-memory fixture in lib/data/source.ts. The same model applies: the fixture must
  * accept exactly the valid transitions and leave state unchanged on invalid ones.
  * Role-based sneak paths (I01, I14-I16) do not apply here because the fixture has a
- * single actor; cancel and expire have no fixture implementation and are N/A.
+ * single actor; expire has no fixture implementation and is N/A. Cancel (T06-T08) was
+ * N/A in round 1 because no fixture method existed (D07).
  */
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   approveBooking,
+  cancelBooking,
   confirmBooking,
   confirmListing,
   declineBooking,
@@ -74,6 +76,32 @@ describe("FSM booking model - fixture source - valid transitions", () => {
     expect(listing().status).toBe("taken");
     const { deck } = await getPerchDeck();
     expect(deck.some((c) => c.id === L)).toBe(false);
+  });
+  it("T06: S1 --cancel--> S5", async () => {
+    const b = await toRequested();
+    expect((await cancelBooking(b.id))!.status).toBe("cancelled");
+    expect(listing().status).toBe("available");
+  });
+  it("T07: S2 --cancel--> S5", async () => {
+    const b = await toApproved();
+    expect((await cancelBooking(b.id))!.status).toBe("cancelled");
+  });
+  it("T08: S3 --cancel--> S5 and the listing is released with a fresh window", async () => {
+    const b = await toBooked();
+    const before = Date.now();
+    expect((await cancelBooking(b.id))!.status).toBe("cancelled");
+    expect(listing().status).toBe("available");
+    expect(Date.parse(listing().expires_at as string)).toBeGreaterThan(before);
+  });
+  it("T10: S5 --request--> S1 (new booking after a cancel)", async () => {
+    const b = await toRequested();
+    await cancelBooking(b.id);
+    expect((await requestBooking(L, {})).status).toBe("requested");
+  });
+  it("I17: S5 --cancel--> no change", async () => {
+    const b = await toRequested();
+    await cancelBooking(b.id);
+    expect((await cancelBooking(b.id))!.status).toBe("cancelled");
   });
   it("T09: S4 --request--> S1 (new booking)", async () => {
     await toDeclined();

@@ -115,9 +115,3 @@ Under this profile a typical session visits about 4.2 screens. Usage-based test 
 | S6 Booking | 0.31 | 0.073 |
 
 Table 6. Musa-OP converted from the Markov-OP.
-
-## References
-
-J. Tian, Software Quality Engineering: Testing, Quality Assurance, and Quantifiable Improvement, Wiley and IEEE Computer Society Press, 2005.
-
-G. Karami and J. Tian, "Maintaining accurate web usage models using updates from activity diagrams," Information and Software Technology, vol. 96, 2018.

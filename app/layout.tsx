@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import "@/styles/mascot-keyframes.css";
+import { PilotNavLogger } from "@/components/pilot/PilotNavLogger";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -30,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={nunito.variable}>
       <body className="font-sans text-body text-ink-strong bg-sky-50">
+        <PilotNavLogger />
         {children}
       </body>
     </html>

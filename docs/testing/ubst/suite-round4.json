@@ -1,0 +1,914 @@
+{
+  "profile": "projected-v1",
+  "seed": 404,
+  "count": 60,
+  "expectedSessionLength": 5.31,
+  "meanDrawnSessionLength": 4.417,
+  "screens": [
+    {
+      "screen": "ONBOARDING",
+      "expectedVisitsPerSession": 0.6,
+      "drawnVisitsPerSession": 0.533
+    },
+    {
+      "screen": "FEED",
+      "expectedVisitsPerSession": 1.499,
+      "drawnVisitsPerSession": 1.35
+    },
+    {
+      "screen": "PERCHES",
+      "expectedVisitsPerSession": 1.244,
+      "drawnVisitsPerSession": 0.75
+    },
+    {
+      "screen": "LISTING",
+      "expectedVisitsPerSession": 0.61,
+      "drawnVisitsPerSession": 0.4
+    },
+    {
+      "screen": "BOOKING",
+      "expectedVisitsPerSession": 0.183,
+      "drawnVisitsPerSession": 0.133
+    },
+    {
+      "screen": "NEGOTIATE",
+      "expectedVisitsPerSession": 0.124,
+      "drawnVisitsPerSession": 0.083
+    },
+    {
+      "screen": "MAP",
+      "expectedVisitsPerSession": 0.264,
+      "drawnVisitsPerSession": 0.317
+    },
+    {
+      "screen": "CHIRPS",
+      "expectedVisitsPerSession": 0.529,
+      "drawnVisitsPerSession": 0.633
+    },
+    {
+      "screen": "NEST",
+      "expectedVisitsPerSession": 0.257,
+      "drawnVisitsPerSession": 0.217
+    }
+  ],
+  "distinctPaths": 41,
+  "topPaths": [
+    {
+      "path": "START > ONBOARDING > EXIT",
+      "probability": 0.09,
+      "drawn": 8
+    },
+    {
+      "path": "START > ONBOARDING > FEED > EXIT",
+      "probability": 0.0765,
+      "drawn": 3
+    },
+    {
+      "path": "START > FEED > EXIT",
+      "probability": 0.06,
+      "drawn": 5
+    },
+    {
+      "path": "START > ONBOARDING > FEED > PERCHES > EXIT",
+      "probability": 0.0268,
+      "drawn": 3
+    },
+    {
+      "path": "START > ONBOARDING > FEED > MAP > EXIT",
+      "probability": 0.0229,
+      "drawn": 1
+    },
+    {
+      "path": "START > FEED > CHIRPS > EXIT",
+      "probability": 0.018,
+      "drawn": 1
+    },
+    {
+      "path": "START > FEED > MAP > EXIT",
+      "probability": 0.018,
+      "drawn": 2
+    },
+    {
+      "path": "START > ONBOARDING > FEED > NEST > EXIT",
+      "probability": 0.0153,
+      "drawn": 1
+    },
+    {
+      "path": "START > ONBOARDING > FEED > PERCHES > LISTING > EXIT",
+      "probability": 0.012,
+      "drawn": 1
+    },
+    {
+      "path": "START > FEED > NEST > EXIT",
+      "probability": 0.012,
+      "drawn": 1
+    }
+  ],
+  "cases": [
+    {
+      "id": "UB-001",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.09
+    },
+    {
+      "id": "UB-002",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "MAP",
+        "EXIT"
+      ],
+      "steps": 4,
+      "probability": 0.0034425
+    },
+    {
+      "id": "UB-003",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 3,
+      "probability": 0.026774999999999997
+    },
+    {
+      "id": "UB-004",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "steps": 5,
+      "probability": 0.00240975
+    },
+    {
+      "id": "UB-005",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "NEST",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "steps": 9,
+      "probability": 0.000008539551562499997
+    },
+    {
+      "id": "UB-006",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "LISTING",
+        "CHIRPS",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "steps": 10,
+      "probability": 6.889049999999999e-7
+    },
+    {
+      "id": "UB-007",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "steps": 4,
+      "probability": 0.00189
+    },
+    {
+      "id": "UB-008",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "steps": 4,
+      "probability": 0.0006749999999999999
+    },
+    {
+      "id": "UB-009",
+      "path": [
+        "START",
+        "FEED",
+        "MAP",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "steps": 6,
+      "probability": 0.00007441874999999999
+    },
+    {
+      "id": "UB-010",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 3,
+      "probability": 0.026774999999999997
+    },
+    {
+      "id": "UB-011",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "EXIT"
+      ],
+      "steps": 2,
+      "probability": 0.012000000000000002
+    },
+    {
+      "id": "UB-012",
+      "path": [
+        "START",
+        "FEED",
+        "MAP",
+        "FEED",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 5,
+      "probability": 0.00011024999999999997
+    },
+    {
+      "id": "UB-013",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 7,
+      "probability": 0.00020332265624999998
+    },
+    {
+      "id": "UB-014",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 2,
+      "probability": 0.0765
+    },
+    {
+      "id": "UB-015",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "steps": 4,
+      "probability": 0.012048749999999999
+    },
+    {
+      "id": "UB-016",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.09
+    },
+    {
+      "id": "UB-017",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.06
+    },
+    {
+      "id": "UB-018",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 7,
+      "probability": 0.000015946875000000003
+    },
+    {
+      "id": "UB-019",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 14,
+      "probability": 4.3587294433593744e-10
+    },
+    {
+      "id": "UB-020",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "steps": 4,
+      "probability": 0.00189
+    },
+    {
+      "id": "UB-021",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 3,
+      "probability": 0.0012000000000000003
+    },
+    {
+      "id": "UB-022",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.09
+    },
+    {
+      "id": "UB-023",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "steps": 4,
+      "probability": 0.002295
+    },
+    {
+      "id": "UB-024",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.09
+    },
+    {
+      "id": "UB-025",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "steps": 3,
+      "probability": 0.022949999999999998
+    },
+    {
+      "id": "UB-026",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "FEED",
+        "FEED",
+        "MAP",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "NEGOTIATE",
+        "EXIT"
+      ],
+      "steps": 9,
+      "probability": 2.5515000000000006e-7
+    },
+    {
+      "id": "UB-027",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "NEST",
+        "EXIT"
+      ],
+      "steps": 4,
+      "probability": 0.0008099999999999998
+    },
+    {
+      "id": "UB-028",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 3,
+      "probability": 0.026774999999999997
+    },
+    {
+      "id": "UB-029",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.06
+    },
+    {
+      "id": "UB-030",
+      "path": [
+        "START",
+        "FEED",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 2,
+      "probability": 0.006000000000000001
+    },
+    {
+      "id": "UB-031",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "EXIT"
+      ],
+      "steps": 13,
+      "probability": 4.843863281249998e-9
+    },
+    {
+      "id": "UB-032",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.06
+    },
+    {
+      "id": "UB-033",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.06
+    },
+    {
+      "id": "UB-034",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "LISTING",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 5,
+      "probability": 0.000378
+    },
+    {
+      "id": "UB-035",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "steps": 2,
+      "probability": 0.018
+    },
+    {
+      "id": "UB-036",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "NEST",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "steps": 6,
+      "probability": 0.00012757499999999997
+    },
+    {
+      "id": "UB-037",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "steps": 9,
+      "probability": 0.000011481749999999997
+    },
+    {
+      "id": "UB-038",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 3,
+      "probability": 0.0012000000000000003
+    },
+    {
+      "id": "UB-039",
+      "path": [
+        "START",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "steps": 2,
+      "probability": 0.018
+    },
+    {
+      "id": "UB-040",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 2,
+      "probability": 0.0765
+    },
+    {
+      "id": "UB-041",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "FEED",
+        "MAP",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 5,
+      "probability": 0.000401625
+    },
+    {
+      "id": "UB-042",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.09
+    },
+    {
+      "id": "UB-043",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "NEST",
+        "EXIT"
+      ],
+      "steps": 3,
+      "probability": 0.015300000000000001
+    },
+    {
+      "id": "UB-044",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 4,
+      "probability": 0.004016249999999999
+    },
+    {
+      "id": "UB-045",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "steps": 12,
+      "probability": 4.940740546874999e-7
+    },
+    {
+      "id": "UB-046",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 4,
+      "probability": 0.004016249999999999
+    },
+    {
+      "id": "UB-047",
+      "path": [
+        "START",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "steps": 2,
+      "probability": 0.018
+    },
+    {
+      "id": "UB-048",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 2,
+      "probability": 0.0765
+    },
+    {
+      "id": "UB-049",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 5,
+      "probability": 0.000147
+    },
+    {
+      "id": "UB-050",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "CHIRPS",
+        "FEED",
+        "MAP",
+        "FEED",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "steps": 9,
+      "probability": 0.0000010166132812499996
+    },
+    {
+      "id": "UB-051",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 11,
+      "probability": 0.0000024703702734375
+    },
+    {
+      "id": "UB-052",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "NEGOTIATE",
+        "EXIT"
+      ],
+      "steps": 5,
+      "probability": 0.0010710000000000001
+    },
+    {
+      "id": "UB-053",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "FEED",
+        "NEST",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "steps": 9,
+      "probability": 0.0000017364375
+    },
+    {
+      "id": "UB-054",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.06
+    },
+    {
+      "id": "UB-055",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.09
+    },
+    {
+      "id": "UB-056",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.09
+    },
+    {
+      "id": "UB-057",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "EXIT"
+      ],
+      "steps": 5,
+      "probability": 0.007229249999999999
+    },
+    {
+      "id": "UB-058",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "steps": 1,
+      "probability": 0.09
+    },
+    {
+      "id": "UB-059",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "EXIT"
+      ],
+      "steps": 5,
+      "probability": 0.00024300000000000005
+    },
+    {
+      "id": "UB-060",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "steps": 8,
+      "probability": 0.00036598078125
+    }
+  ]
+}

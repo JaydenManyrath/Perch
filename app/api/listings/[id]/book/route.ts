@@ -74,6 +74,10 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
       })
       .select(BOOKING_SELECT)
       .single();
+    // A concurrent request won the race: the unique live-hold index rejected this one.
+    if (insertError?.code === "23505") {
+      return NextResponse.json({ error: "listing_already_held" }, { status: 409, headers: g.headers });
+    }
     if (insertError) throw insertError;
 
     const booking = await toBooking(supabase, inserted as BookingRow);

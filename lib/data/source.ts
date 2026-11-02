@@ -70,6 +70,8 @@ import {
   type FinanceBreakdown,
 } from "@/lib/types/contract";
 import * as fx from "@/lib/fixtures";
+import { BookingConflictError, LIVE_HOLD_STATUSES, transitionBooking } from "@/lib/bookings";
+import { freshnessExpiry, listingsHeldByOthers } from "@/lib/perches";
 
 const MODE = env.dataSource;
 
@@ -262,6 +264,59 @@ function isRouteResponse(value: unknown): value is RouteResponse {
     typeof value.distanceMeters === "number" &&
     typeof value.durationSeconds === "number"
   );
+}
+
+/**
+ * A live route deliberately refused a mutation (400/403/404/409...). That is an answer,
+ * not an outage, so it must reach the caller instead of degrading to a fixture write
+ * that would fake a success the server never granted.
+ */
+export class LiveRejectedError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+/**
+ * safeFetchJson for mutations: null on an outage (network error, 5xx, unusable body) so
+ * the caller can still degrade to the fixture, but a 4xx refusal throws
+ * LiveRejectedError. 401 and 429 stay outages: the demo keeps working signed out or
+ * throttled, as it always has.
+ */
+async function liveMutation<T>(url: string, init: RequestInit, usable: Usable<T>): Promise<T | null> {
+  let res: Response;
+  try {
+    res = await fetch(url, init);
+  } catch {
+    return null;
+  }
+  if (res.status >= 400 && res.status < 500 && res.status !== 401 && res.status !== 429) {
+    const body: unknown = await res.json().catch(() => null);
+    const message = isRecord(body) && typeof body.error === "string" ? body.error : `request rejected (${res.status})`;
+    throw new LiveRejectedError(res.status, message);
+  }
+  if (!res.ok) return null;
+  try {
+    const value: unknown = await res.json();
+    return usable(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Fixture mirror of the owner/booker state machine: illegal transitions change nothing. */
+function fixtureTransition(b: Booking, action: "approve" | "decline"): Booking {
+  try {
+    const next = transitionBooking(b.status, action, "owner");
+    b.status = next.status;
+    b.decidedAt = new Date().toISOString();
+  } catch (err) {
+    if (!(err instanceof BookingConflictError)) throw err;
+  }
+  return b;
 }
 
 function canUseLiveData(): boolean {
@@ -922,8 +977,20 @@ export async function getPerchDeck(context?: LiveDataContext): Promise<PerchDeck
   // Rebuild the deck on every call so a listing that just went to status='taken'
   // (via a confirmed booking, RA34) drops out immediately - the pre-computed
   // fixture only sees the initial state.
+  // D16: hide listings another intern already holds (one live hold per listing).
+  const held = listingsHeldByOthers(
+    fx.bookingsFixture
+      .filter((b) => LIVE_HOLD_STATUSES.includes(b.status))
+      .map((b) => ({
+        listingId: b.listingId,
+        bookerId: b.booker.id,
+        roommateIds: b.roommates.map((r) => r.id),
+        inviteIds: b.pendingRoommates.map((r) => r.id),
+      })),
+    fx.meFixture.id,
+  );
   const freshCards = fx.listingsFixture
-    .filter((l) => (l.status ?? "available") === "available")
+    .filter((l) => (l.status ?? "available") === "available" && !held.has(l.id))
     .map((l) => fx.buildPerchCard(l));
   return {
     deck: freshCards.filter((c) => !swipedRight.has(c.id) && !swipedLeft.has(c.id)),
@@ -1037,7 +1104,7 @@ export async function postListing(input: PostListingInput): Promise<ListingRow> 
 
 export async function confirmListing(id: string): Promise<{ status: ListingStatus }> {
   if (canUseLiveData()) {
-    const r = await safeFetchJson<{ status: ListingStatus }>(
+    const r = await liveMutation<{ status: ListingStatus }>(
       `/api/listings/${id}/confirm`,
       { method: "POST" },
       hasString<{ status: ListingStatus }>("status"),
@@ -1046,9 +1113,11 @@ export async function confirmListing(id: string): Promise<{ status: ListingStatu
   }
   const l = fx.listingsFixture.find((x) => x.id === id);
   if (l) {
+    // Same rule as the live route: a taken listing is released only by cancelling its booking.
+    if (l.status === "taken") throw new BookingConflictError("listing_taken");
     l.status = "available";
     l.last_confirmed_at = new Date().toISOString();
-    l.expires_at = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+    l.expires_at = freshnessExpiry();
   }
   return { status: "available" };
 }
@@ -1494,7 +1563,7 @@ export async function requestBooking(
   input: BookRequestInput,
 ): Promise<Booking> {
   if (canUseLiveData()) {
-    const r = await safeFetchJson<Booking>(
+    const r = await liveMutation<Booking>(
       `/api/listings/${listingId}/book`,
       {
         method: "POST",
@@ -1504,6 +1573,14 @@ export async function requestBooking(
       isBooking,
     );
     if (r) return r;
+  }
+  // Mirror the live route's guards: only an available listing with no live hold.
+  const target = fx.listingsFixture.find((l) => l.id === listingId);
+  if (target && (target.status ?? "available") !== "available") {
+    throw new BookingConflictError("listing_not_available");
+  }
+  if (fx.bookingsFixture.some((b) => b.listingId === listingId && LIVE_HOLD_STATUSES.includes(b.status))) {
+    throw new BookingConflictError("listing_already_held");
   }
   const me = fx.meFixture;
   const acceptedFriendIds = new Set(fx.friendsFixture.filter((f) => f.status === "accepted").map((f) => f.user.id));
@@ -1531,44 +1608,28 @@ export async function requestBooking(
 
 export async function approveBooking(id: string): Promise<Booking | null> {
   if (canUseLiveData()) {
-    const r = await safeFetchJson<Booking>(
-      `/api/bookings/${id}/approve`,
-      { method: "POST" },
-      isBooking,
-    );
+    const r = await liveMutation<Booking>(`/api/bookings/${id}/approve`, { method: "POST" }, isBooking);
     if (r) return r;
   }
   const b = fx.bookingsFixture.find((x) => x.id === id);
   if (!b) return null;
-  b.status = "approved";
-  b.decidedAt = new Date().toISOString();
-  return b;
+  return fixtureTransition(b, "approve");
 }
 
 export async function declineBooking(id: string): Promise<Booking | null> {
   if (canUseLiveData()) {
-    const r = await safeFetchJson<Booking>(
-      `/api/bookings/${id}/decline`,
-      { method: "POST" },
-      isBooking,
-    );
+    const r = await liveMutation<Booking>(`/api/bookings/${id}/decline`, { method: "POST" }, isBooking);
     if (r) return r;
   }
   const b = fx.bookingsFixture.find((x) => x.id === id);
   if (!b) return null;
-  b.status = "declined";
-  b.decidedAt = new Date().toISOString();
-  return b;
+  return fixtureTransition(b, "decline");
 }
 
 /** Booker confirms an approved booking. Booked -> listing.status='taken'. */
 export async function confirmBooking(id: string): Promise<Booking | null> {
   if (canUseLiveData()) {
-    const r = await safeFetchJson<Booking>(
-      `/api/bookings/${id}/confirm`,
-      { method: "POST" },
-      isBooking,
-    );
+    const r = await liveMutation<Booking>(`/api/bookings/${id}/confirm`, { method: "POST" }, isBooking);
     if (r) return r;
   }
   const b = fx.bookingsFixture.find((x) => x.id === id);
@@ -1579,6 +1640,35 @@ export async function confirmBooking(id: string): Promise<Booking | null> {
   // Server-side effect mirror: mark the listing taken so the deck drops it.
   const listing = fx.listingsFixture.find((l) => l.id === b.listingId);
   if (listing) listing.status = "taken";
+  return b;
+}
+
+/**
+ * Booker cancels a live booking (D07). A booked stay releases the listing back to
+ * available with a fresh freshness window, mirroring performTransition.
+ */
+export async function cancelBooking(id: string): Promise<Booking | null> {
+  if (canUseLiveData()) {
+    const r = await liveMutation<Booking>(`/api/bookings/${id}/cancel`, { method: "POST" }, isBooking);
+    if (r) return r;
+  }
+  const b = fx.bookingsFixture.find((x) => x.id === id);
+  if (!b) return null;
+  const wasBooked = b.status === "booked";
+  try {
+    const next = transitionBooking(b.status, "cancel", "booker");
+    b.status = next.status;
+    b.decidedAt = new Date().toISOString();
+  } catch (err) {
+    if (!(err instanceof BookingConflictError)) throw err;
+    return b;
+  }
+  const listing = fx.listingsFixture.find((l) => l.id === b.listingId);
+  if (listing && wasBooked) {
+    listing.status = "available";
+    listing.last_confirmed_at = new Date().toISOString();
+    listing.expires_at = freshnessExpiry();
+  }
   return b;
 }
 

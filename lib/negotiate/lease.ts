@@ -25,6 +25,16 @@ export function leaseScout(
     return { check: "lease_fit", verdict: "fail", value: "Lease dates unknown" };
   }
 
+  const span = [lease_start, lease_end, constraints.moveIn, constraints.moveOut].map((d) =>
+    Date.parse(`${d}T00:00:00Z`),
+  );
+  if (span.slice(0, 2).some(Number.isNaN) || span[0] > span[1]) {
+    return { check: "lease_fit", verdict: "fail", value: "Lease dates unknown" };
+  }
+  if (span.slice(2).some(Number.isNaN) || span[2] > span[3]) {
+    return { check: "lease_fit", verdict: "fail", value: "Stay dates invalid" };
+  }
+
   // Uncovered days at each end (0 when the lease covers that side).
   const uncoveredStart = Math.max(0, dayDiff(constraints.moveIn, lease_start)); // lease starts after you need it
   const uncoveredEnd = Math.max(0, dayDiff(lease_end, constraints.moveOut)); // you leave after the lease ends

@@ -1,0 +1,112 @@
+{
+ "version": "v1 (validated)",
+ "start": "S1",
+ "exit": "S7",
+ "states": {
+  "S1": "Splash",
+  "S2": "Onboarding",
+  "S3": "Feed",
+  "S4": "Perches deck",
+  "S5": "Listing detail",
+  "S6": "Booking",
+  "S7": "Exit"
+ },
+ "links": [
+  {
+   "id": "L1",
+   "from": "S1",
+   "to": "S2",
+   "input": "tap Start onboarding"
+  },
+  {
+   "id": "L2",
+   "from": "S1",
+   "to": "S3",
+   "input": "returning user opens app"
+  },
+  {
+   "id": "L3",
+   "from": "S2",
+   "to": "S3",
+   "input": "finish onboarding"
+  },
+  {
+   "id": "L4",
+   "from": "S2",
+   "to": "S7",
+   "input": "abandon onboarding"
+  },
+  {
+   "id": "L5",
+   "from": "S3",
+   "to": "S3",
+   "input": "open event comments"
+  },
+  {
+   "id": "L6",
+   "from": "S3",
+   "to": "S4",
+   "input": "tap Perches tab"
+  },
+  {
+   "id": "L7",
+   "from": "S3",
+   "to": "S7",
+   "input": "leave app"
+  },
+  {
+   "id": "L8",
+   "from": "S4",
+   "to": "S4",
+   "input": "swipe to next card"
+  },
+  {
+   "id": "L9",
+   "from": "S4",
+   "to": "S5",
+   "input": "tap Details"
+  },
+  {
+   "id": "L10",
+   "from": "S4",
+   "to": "S3",
+   "input": "tap Feed tab"
+  },
+  {
+   "id": "L11",
+   "from": "S4",
+   "to": "S7",
+   "input": "leave app"
+  },
+  {
+   "id": "L12",
+   "from": "S5",
+   "to": "S4",
+   "input": "close sheet"
+  },
+  {
+   "id": "L13",
+   "from": "S5",
+   "to": "S6",
+   "input": "tap Request to book"
+  },
+  {
+   "id": "L14",
+   "from": "S5",
+   "to": "S7",
+   "input": "leave app"
+  },
+  {
+   "id": "L15",
+   "from": "S6",
+   "to": "S4",
+   "input": "close sheet"
+  },
+  {
+   "id": "L16",
+   "from": "S6",
+   "to": "S7",
+   "input": "leave app"
+  }
+ ]
+}

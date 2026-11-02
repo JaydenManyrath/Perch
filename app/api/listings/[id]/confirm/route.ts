@@ -33,7 +33,7 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
 
     const { data: owned, error: ownedError } = await supabase
       .from("listings")
-      .select("id,sourced,source_name,created_by")
+      .select("id,sourced,source_name,created_by,status")
       .eq("id", listingId)
       .maybeSingle();
     if (ownedError) throw ownedError;
@@ -42,6 +42,12 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     }
     if (owned.created_by !== g.callerId || owned.sourced !== false || owned.source_name !== "subletter") {
       return NextResponse.json({ error: "not_listing_owner" }, { status: 403, headers: g.headers });
+    }
+
+    // A taken listing has a booked stay behind it; relisting would resurface it in the
+    // deck while it cannot be booked. It is released only by cancelling that booking.
+    if (owned.status === "taken") {
+      return NextResponse.json({ error: "listing_taken" }, { status: 409, headers: g.headers });
     }
 
     const now = new Date();

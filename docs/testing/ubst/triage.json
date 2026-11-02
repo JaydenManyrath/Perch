@@ -1,0 +1,16 @@
+{
+ "note": "Failures from UBST runs that were investigated and found NOT to be application defects. Keyed by round number (1-based), then test case id.",
+ "falsePositives": {
+  "1": {
+   "UB-015": "Test driver: the session reopened a listing it had already requested; the app correctly shows the existing request (one request per listing) instead of a second 'Request to book' button. Driver fixed to accept the existing request as the BOOKING screen."
+  },
+  "2": {
+   "UB-032": "Test driver/model: the negotiate page has no tab bar, only a Back button; the driver tried the Perches tab. Driver fixed to use Back (the model's NEGOTIATE->LISTING path goes back through the deck)."
+  }
+ },
+ "defects": {
+  "2": {
+   "UB-002": "D16: the deck offers 'Request to book' on a listing another intern already holds; the app refuses with 'Someone else already has a request in on this place.'"
+  }
+ }
+}

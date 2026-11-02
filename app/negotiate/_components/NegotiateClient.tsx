@@ -22,11 +22,29 @@ const usd = (n: number): string => `$${Math.round(n).toLocaleString("en-US")}`;
  * are preselected so the hero is one click for the demo. Deterministic scout verdicts
  * then stream in via ScoutStream.
  */
-export function NegotiateClient({ perches }: { perches: PickablePerch[] }) {
+/** Default stay length when only the move-in date is known (a typical 10-week internship). */
+const DEFAULT_STAY_DAYS = 70;
+
+const isIsoDate = (v: string | null | undefined): v is string => !!v && /^\d{4}-\d{2}-\d{2}$/.test(v);
+
+/** ISO date plus whole days, at UTC midnight. */
+export function addDays(iso: string, days: number): string {
+  return new Date(Date.parse(`${iso}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+}
+
+/** The stay the scouts check: from the intern's move-in date, editable on the form. */
+export function defaultStay(moveInDate: string | null | undefined, today = new Date()): { moveIn: string; moveOut: string } {
+  const moveIn = isIsoDate(moveInDate) ? moveInDate : today.toISOString().slice(0, 10);
+  return { moveIn, moveOut: addDays(moveIn, DEFAULT_STAY_DAYS) };
+}
+
+export function NegotiateClient({ perches, moveInDate }: { perches: PickablePerch[]; moveInDate?: string | null }) {
   const [selected, setSelected] = useState<string[]>(() =>
     perches.slice(0, 3).map((p) => p.id),
   );
   const [budget, setBudget] = useState(2000);
+  const [stay, setStay] = useState(() => defaultStay(moveInDate));
+  const stayValid = isIsoDate(stay.moveIn) && isIsoDate(stay.moveOut) && stay.moveIn <= stay.moveOut;
   const [request, setRequest] = useState<NegotiateRequest | null>(null);
 
   const toggle = (id: string) =>
@@ -42,13 +60,13 @@ export function NegotiateClient({ perches }: { perches: PickablePerch[] }) {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (orderedIds.length === 0) return;
+    if (orderedIds.length === 0 || !stayValid) return;
     setRequest({
       listingIds: orderedIds,
       constraints: {
         monthlyBudget: budget,
-        moveIn: "2026-06-08",
-        moveOut: "2026-08-14",
+        moveIn: stay.moveIn,
+        moveOut: stay.moveOut,
         routineAnchors: [{ label: "usual coffee spot", lat: 47.615, lng: -122.34 }],
       },
     });
@@ -160,18 +178,44 @@ export function NegotiateClient({ perches }: { perches: PickablePerch[] }) {
         />
       </label>
 
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <label style={{ display: "grid", gap: 4 }}>
+          <span style={{ fontSize: 13, color: INK_SOFT }}>Move in</span>
+          <input
+            type="date"
+            value={stay.moveIn}
+            onChange={(e) => setStay((s) => ({ ...s, moveIn: e.target.value }))}
+            style={{ padding: "10px 12px", borderRadius: 8, border: `1px solid ${SKY_300}` }}
+          />
+        </label>
+        <label style={{ display: "grid", gap: 4 }}>
+          <span style={{ fontSize: 13, color: INK_SOFT }}>Move out</span>
+          <input
+            type="date"
+            value={stay.moveOut}
+            onChange={(e) => setStay((s) => ({ ...s, moveOut: e.target.value }))}
+            style={{ padding: "10px 12px", borderRadius: 8, border: `1px solid ${SKY_300}` }}
+          />
+        </label>
+      </div>
+      {!stayValid ? (
+        <p role="alert" style={{ color: INK_STRONG, fontSize: 13, margin: 0 }}>
+          Move out can't be before move in.
+        </p>
+      ) : null}
+
       <button
         type="submit"
-        disabled={orderedIds.length === 0}
+        disabled={orderedIds.length === 0 || !stayValid}
         style={{
           justifySelf: "start",
-          background: orderedIds.length === 0 ? SKY_300 : SKY_500,
+          background: orderedIds.length === 0 || !stayValid ? SKY_300 : SKY_500,
           color: "#FFFFFF",
           border: "none",
           borderRadius: 10,
           padding: "10px 18px",
           fontWeight: 700,
-          cursor: orderedIds.length === 0 ? "not-allowed" : "pointer",
+          cursor: orderedIds.length === 0 || !stayValid ? "not-allowed" : "pointer",
         }}
       >
         Send the scouts{orderedIds.length ? ` (${orderedIds.length})` : ""}

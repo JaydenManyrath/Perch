@@ -87,6 +87,10 @@ function budgetVerdict(events: NegotiateStreamEvent[]) {
 describe("POST /api/negotiate canonical affordability", () => {
   beforeEach(() => {
     vi.resetModules();
+    // These cases drive the live (Supabase) path of the route.
+    vi.stubEnv("NEXT_PUBLIC_DATA_SOURCE", "live");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://project.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "public-anon-key");
     vi.clearAllMocks();
     __resetBuckets();
     process.env.RATE_LIMIT_MAX = "50";
@@ -96,6 +100,7 @@ describe("POST /api/negotiate canonical affordability", () => {
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     delete process.env.RATE_LIMIT_MAX;
     delete process.env.RATE_LIMIT_WINDOW_MS;
     delete process.env.LLM_DISABLED;

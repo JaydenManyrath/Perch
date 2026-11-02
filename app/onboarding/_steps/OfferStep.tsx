@@ -142,6 +142,8 @@ function OfferCorrection({
   }
 
   const outstanding = Array.from(needsReview).filter((k) => !reviewed.has(k));
+  // ISO dates compare correctly as strings; an empty end date is allowed.
+  const datesInverted = !!values.startDate && !!values.endDate && values.endDate < values.startDate;
 
   const currentOffer: OfferParse = useMemo(
     () => ({
@@ -238,6 +240,7 @@ function OfferCorrection({
             !values.employer.trim() ||
             !values.role.trim() ||
             !values.startDate ||
+            datesInverted ||
             outstanding.length > 0
           }
         >
@@ -246,6 +249,11 @@ function OfferCorrection({
         {outstanding.length > 0 ? (
           <p className="mt-2 text-caption text-ink-soft text-center">
             Confirm each flagged field to enable Continue.
+          </p>
+        ) : null}
+        {datesInverted ? (
+          <p role="alert" className="mt-2 text-caption text-ink-strong text-center">
+            End date is before the start date.
           </p>
         ) : null}
       </div>

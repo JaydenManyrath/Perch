@@ -1,0 +1,11 @@
+date,member,technique,activity,hours,notes
+,Jayden Manyrath,FSM/BBT,model construction (booking + onboarding),,
+,Jayden Manyrath,FSM/BBT,test generation and execution,,
+,Jayden Manyrath,Markov-OP/UBST,profile construction and walk generator,,
+,Koen Gennis,PT/BBT,partition tables,,
+,Koen Gennis,PT/BBT,test generation and execution,,
+,Koen Gennis,CFT/WBT,control flow graphs,,
+,Koen Gennis,CFT/WBT,test generation and execution,,
+,Both,All,baseline measurement,,
+,Both,All,defect triage and ODC classification,,
+,Both,All,fix and retest (round 2),,

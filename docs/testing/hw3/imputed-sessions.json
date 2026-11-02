@@ -1,0 +1,10 @@
+{
+ "note": "Imputed (made-up) sessions for user types the team walkthroughs did not represent. Each path reuses steps seen in the real sessions.",
+ "sessions": [
+  {"id": "I1", "userType": "Returning user who only checks events", "path": ["S1", "S3", "S3", "S7"]},
+  {"id": "I2", "userType": "Browses sublets, then goes back to events", "path": ["S1", "S3", "S4", "S4", "S3", "S7"]},
+  {"id": "I3", "userType": "Sends a booking request and leaves", "path": ["S1", "S3", "S4", "S5", "S6", "S7"]},
+  {"id": "I4", "userType": "New user who gives up during onboarding", "path": ["S1", "S2", "S7"]},
+  {"id": "I5", "userType": "Window shopper who swipes and leaves", "path": ["S1", "S3", "S4", "S4", "S4", "S7"]}
+ ]
+}

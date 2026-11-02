@@ -1,0 +1,258 @@
+{
+  "base": "http://localhost:3100",
+  "ranAt": "2026-11-02T15:28:10.264Z",
+  "sessions": [
+    {
+      "id": "N1",
+      "task": "coverage test",
+      "path": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S2",
+          "ok": true
+        },
+        {
+          "from": "S2",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S6",
+          "ok": true
+        },
+        {
+          "from": "S6",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "K1",
+      "task": "coverage test",
+      "path": [
+        "S1",
+        "S2",
+        "S3",
+        "S3",
+        "S4",
+        "S4",
+        "S3",
+        "S4",
+        "S5",
+        "S4",
+        "S5",
+        "S6",
+        "S4",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S2",
+          "ok": true
+        },
+        {
+          "from": "S2",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S6",
+          "ok": true
+        },
+        {
+          "from": "S6",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "K2",
+      "task": "coverage test",
+      "path": [
+        "S1",
+        "S3",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "K3",
+      "task": "coverage test",
+      "path": [
+        "S1",
+        "S2",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S2",
+          "ok": true
+        },
+        {
+          "from": "S2",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "K4",
+      "task": "coverage test",
+      "path": [
+        "S1",
+        "S3",
+        "S4",
+        "S5",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "K5",
+      "task": "coverage test",
+      "path": [
+        "S1",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S6",
+          "ok": true
+        },
+        {
+          "from": "S6",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

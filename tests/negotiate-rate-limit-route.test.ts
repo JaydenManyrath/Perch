@@ -23,6 +23,11 @@ function request() {
 
 describe("POST /api/negotiate route rate limit", () => {
   beforeEach(() => {
+    vi.resetModules();
+    // This case drives the live (Supabase) path of the route.
+    vi.stubEnv("NEXT_PUBLIC_DATA_SOURCE", "live");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://project.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "public-anon-key");
     __resetBuckets();
     process.env.RATE_LIMIT_MAX = "1";
     process.env.RATE_LIMIT_WINDOW_MS = "60000";
@@ -61,6 +66,7 @@ describe("POST /api/negotiate route rate limit", () => {
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     delete process.env.RATE_LIMIT_MAX;
     delete process.env.RATE_LIMIT_WINDOW_MS;
     delete process.env.LLM_DISABLED;

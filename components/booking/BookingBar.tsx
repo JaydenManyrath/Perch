@@ -10,6 +10,7 @@ import {
   getBookings,
   requestBooking,
   confirmBooking,
+  cancelBooking,
   inviteRoommate,
   acceptRoommateInvite,
   getFriends,
@@ -17,6 +18,7 @@ import {
 import { useCurrentUser } from "@/lib/auth/session";
 import type { Booking, Friend, PerchCard } from "@/lib/types/contract";
 import { cn } from "@/lib/utils";
+import { logScreen } from "@/lib/pilot/navlog";
 
 /**
  * BookingBar (RA34 + RA33) - sits on the perch detail sheet.
@@ -37,6 +39,7 @@ export function BookingBar({
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showFriends, setShowFriends] = useState(false);
   const [friends, setFriends] = useState<Friend[]>([]);
 
@@ -71,9 +74,13 @@ export function BookingBar({
 
   async function onRequest() {
     setBusy(true);
+    setError(null);
     try {
       const b = await requestBooking(listing.id, {});
       setBooking(b);
+      logScreen("BOOKING");
+    } catch (err) {
+      setError(bookingErrorText(err));
     } finally {
       setBusy(false);
     }
@@ -82,12 +89,29 @@ export function BookingBar({
   async function onConfirm() {
     if (!booking) return;
     setBusy(true);
+    setError(null);
     try {
       const b = await confirmBooking(booking.id);
       if (b) {
         setBooking(b);
         if (b.status === "booked") onBooked?.(b);
       }
+    } catch (err) {
+      setError(bookingErrorText(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onCancel() {
+    if (!booking) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const b = await cancelBooking(booking.id);
+      if (b) setBooking(b);
+    } catch (err) {
+      setError(bookingErrorText(err));
     } finally {
       setBusy(false);
     }
@@ -125,6 +149,11 @@ export function BookingBar({
         className,
       )}
     >
+      {error ? (
+        <p role="alert" className="mb-2 text-caption font-semibold text-ink-strong">
+          {error}
+        </p>
+      ) : null}
       {loading ? (
         <p className="text-caption text-ink-soft">Loading booking status...</p>
       ) : takenByOther ? (
@@ -235,6 +264,15 @@ export function BookingBar({
           </p>
         </div>
       )}
+      {booking &&
+      booking.viewerRole === "booker" &&
+      ["requested", "approved", "booked"].includes(booking.status) ? (
+        <div className="mt-2">
+          <Button variant="ghost" onClick={onCancel} disabled={busy}>
+            <X className="h-4 w-4" aria-hidden /> Cancel booking
+          </Button>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -397,4 +435,13 @@ function RoommateGroup({
       ) : null}
     </div>
   );
+}
+
+/** Plain-language text for a refused booking action (server or fixture rule). */
+function bookingErrorText(err: unknown): string {
+  const code = err instanceof Error ? err.message : "";
+  if (code === "listing_already_held") return "Someone else already has a request in on this place.";
+  if (code === "listing_not_available" || code === "listing_taken") return "This place is no longer available.";
+  if (code === "cannot_book_own_listing") return "You can't book your own listing.";
+  return "That didn't go through. Refresh and try again.";
 }

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { logScreen } from "@/lib/pilot/navlog";
 import type { PerchCard, ListingDetail } from "@/lib/types/contract";
 import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetHeader } from "@/components/ui/Sheet";
 import { Chip } from "@/components/ui/Chip";
@@ -76,6 +77,12 @@ export function PerchDetailSheet({
   useEffect(() => {
     setPhotoFailed(false);
   }, [perch?.id, photoUrl]);
+
+  // Usage pilot: the sheet is a LISTING screen; closing it returns to PERCHES.
+  useEffect(() => {
+    if (!perch) return;
+    logScreen(open ? "LISTING" : "PERCHES");
+  }, [open, perch]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

@@ -1,0 +1,350 @@
+{
+  "base": "http://localhost:3100",
+  "ranAt": "2026-11-02T15:26:53.638Z",
+  "sessions": [
+    {
+      "id": "W1",
+      "task": "README walkthrough (new user)",
+      "path": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S4",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S2",
+          "ok": true
+        },
+        {
+          "from": "S2",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S6",
+          "ok": true
+        },
+        {
+          "from": "S6",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "W2",
+      "task": "Find a sublet and request it",
+      "path": [
+        "S1",
+        "S3",
+        "S4",
+        "S4",
+        "S4",
+        "S5",
+        "S4",
+        "S5",
+        "S6",
+        "S4",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S6",
+          "ok": true
+        },
+        {
+          "from": "S6",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "W3",
+      "task": "Check events",
+      "path": [
+        "S1",
+        "S3",
+        "S3",
+        "S3",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "W4",
+      "task": "Look at one listing",
+      "path": [
+        "S1",
+        "S3",
+        "S4",
+        "S5",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "W5",
+      "task": "Onboarding, stop after the offer step",
+      "path": [
+        "S1",
+        "S2",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S2",
+          "ok": true
+        },
+        {
+          "from": "S2",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "W6",
+      "task": "New user books right away",
+      "path": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S4",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S2",
+          "ok": true
+        },
+        {
+          "from": "S2",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S6",
+          "ok": true
+        },
+        {
+          "from": "S6",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "W7",
+      "task": "Browse sublets",
+      "path": [
+        "S1",
+        "S3",
+        "S4",
+        "S4",
+        "S5",
+        "S4",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S5",
+          "ok": true
+        },
+        {
+          "from": "S5",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "W8",
+      "task": "Events, then a quick look at sublets",
+      "path": [
+        "S1",
+        "S3",
+        "S3",
+        "S4",
+        "S7"
+      ],
+      "ok": true,
+      "steps": [
+        {
+          "from": "S1",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S3",
+          "ok": true
+        },
+        {
+          "from": "S3",
+          "to": "S4",
+          "ok": true
+        },
+        {
+          "from": "S4",
+          "to": "S7",
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

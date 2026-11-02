@@ -1,0 +1,1110 @@
+{
+  "base": "http://localhost:3100",
+  "profile": "projected-v1",
+  "seed": 101,
+  "ranAt": "2026-11-02T16:49:40.273Z",
+  "minutes": 3.9,
+  "runs": 60,
+  "failures": 11,
+  "reliability": 0.8167,
+  "environmentNoise": {
+    "externalImage5xx": 1137
+  },
+  "byTransition": [
+    [
+      "PERCHES->NEGOTIATE feature-error",
+      10
+    ],
+    [
+      "LISTING->BOOKING action-failed",
+      1
+    ]
+  ],
+  "details": [
+    {
+      "id": "UB-001",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "MAP",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3784
+    },
+    {
+      "id": "UB-002",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 4,
+        "from": "PERCHES",
+        "to": "NEGOTIATE",
+        "kind": "feature-error",
+        "detail": "Negotiate failed: 401: is the backend seeded and are you signed in?"
+      },
+      "ms": 2379
+    },
+    {
+      "id": "UB-003",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "FEED",
+        "PERCHES",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "PERCHES",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 7,
+        "from": "PERCHES",
+        "to": "NEGOTIATE",
+        "kind": "feature-error",
+        "detail": "Negotiate failed: 401: is the backend seeded and are you signed in?"
+      },
+      "ms": 4083
+    },
+    {
+      "id": "UB-004",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1527
+    },
+    {
+      "id": "UB-005",
+      "path": [
+        "START",
+        "FEED",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 4815
+    },
+    {
+      "id": "UB-006",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "NEST",
+        "FEED",
+        "NEST",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 5152
+    },
+    {
+      "id": "UB-007",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2153
+    },
+    {
+      "id": "UB-008",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "NEST",
+        "FEED",
+        "NEST",
+        "CHIRPS",
+        "NEST",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 5925
+    },
+    {
+      "id": "UB-009",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "NEST",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "NEST",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 9,
+        "from": "PERCHES",
+        "to": "NEGOTIATE",
+        "kind": "feature-error",
+        "detail": "Negotiate failed: 401: is the backend seeded and are you signed in?"
+      },
+      "ms": 6108
+    },
+    {
+      "id": "UB-010",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 679
+    },
+    {
+      "id": "UB-011",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "CHIRPS",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 5624
+    },
+    {
+      "id": "UB-012",
+      "path": [
+        "START",
+        "FEED",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3251
+    },
+    {
+      "id": "UB-013",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3193
+    },
+    {
+      "id": "UB-014",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 708
+    },
+    {
+      "id": "UB-015",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "NEST",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "NEGOTIATE",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 10,
+        "from": "LISTING",
+        "to": "BOOKING",
+        "kind": "action-failed",
+        "detail": "locator.click: Timeout 8000ms exceeded."
+      },
+      "ms": 12944
+    },
+    {
+      "id": "UB-016",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 4831
+    },
+    {
+      "id": "UB-017",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2299
+    },
+    {
+      "id": "UB-018",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 570
+    },
+    {
+      "id": "UB-019",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "NEST",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3013
+    },
+    {
+      "id": "UB-020",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "NEGOTIATE",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 10,
+        "from": "PERCHES",
+        "to": "NEGOTIATE",
+        "kind": "feature-error",
+        "detail": "Negotiate failed: 401: is the backend seeded and are you signed in?"
+      },
+      "ms": 5696
+    },
+    {
+      "id": "UB-021",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1958
+    },
+    {
+      "id": "UB-022",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2419
+    },
+    {
+      "id": "UB-023",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1520
+    },
+    {
+      "id": "UB-024",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3068
+    },
+    {
+      "id": "UB-025",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "FEED",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 6420
+    },
+    {
+      "id": "UB-026",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3082
+    },
+    {
+      "id": "UB-027",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3125
+    },
+    {
+      "id": "UB-028",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 7333
+    },
+    {
+      "id": "UB-029",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 4837
+    },
+    {
+      "id": "UB-030",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "FEED",
+        "NEST",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 8203
+    },
+    {
+      "id": "UB-031",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "NEST",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 9299
+    },
+    {
+      "id": "UB-032",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "NEST",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3014
+    },
+    {
+      "id": "UB-033",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "NEST",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 4582
+    },
+    {
+      "id": "UB-034",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 607
+    },
+    {
+      "id": "UB-035",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1303
+    },
+    {
+      "id": "UB-036",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 519
+    },
+    {
+      "id": "UB-037",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "FEED",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 4578
+    },
+    {
+      "id": "UB-038",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1943
+    },
+    {
+      "id": "UB-039",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "MAP",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "NEGOTIATE",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 10,
+        "from": "PERCHES",
+        "to": "NEGOTIATE",
+        "kind": "feature-error",
+        "detail": "Negotiate failed: 401: is the backend seeded and are you signed in?"
+      },
+      "ms": 4866
+    },
+    {
+      "id": "UB-040",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2252
+    },
+    {
+      "id": "UB-041",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "PERCHES",
+        "FEED",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "LISTING",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 12295
+    },
+    {
+      "id": "UB-042",
+      "path": [
+        "START",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1332
+    },
+    {
+      "id": "UB-043",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "NEST",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "NEGOTIATE",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "FEED",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 16,
+        "from": "PERCHES",
+        "to": "NEGOTIATE",
+        "kind": "feature-error",
+        "detail": "Negotiate failed: 401: is the backend seeded and are you signed in?"
+      },
+      "ms": 7913
+    },
+    {
+      "id": "UB-044",
+      "path": [
+        "START",
+        "FEED",
+        "MAP",
+        "FEED",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3293
+    },
+    {
+      "id": "UB-045",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "NEGOTIATE",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 4,
+        "from": "PERCHES",
+        "to": "NEGOTIATE",
+        "kind": "feature-error",
+        "detail": "Negotiate failed: 401: is the backend seeded and are you signed in?"
+      },
+      "ms": 2222
+    },
+    {
+      "id": "UB-046",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1318
+    },
+    {
+      "id": "UB-047",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 5,
+        "from": "PERCHES",
+        "to": "NEGOTIATE",
+        "kind": "feature-error",
+        "detail": "Negotiate failed: 401: is the backend seeded and are you signed in?"
+      },
+      "ms": 2377
+    },
+    {
+      "id": "UB-048",
+      "path": [
+        "START",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1366
+    },
+    {
+      "id": "UB-049",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "NEGOTIATE",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 4,
+        "from": "PERCHES",
+        "to": "NEGOTIATE",
+        "kind": "feature-error",
+        "detail": "Negotiate failed: 401: is the backend seeded and are you signed in?"
+      },
+      "ms": 1711
+    },
+    {
+      "id": "UB-050",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "PERCHES",
+        "FEED",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "MAP",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 6489
+    },
+    {
+      "id": "UB-051",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2213
+    },
+    {
+      "id": "UB-052",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2317
+    },
+    {
+      "id": "UB-053",
+      "path": [
+        "START",
+        "FEED",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2063
+    },
+    {
+      "id": "UB-054",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 615
+    },
+    {
+      "id": "UB-055",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 6166
+    },
+    {
+      "id": "UB-056",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1551
+    },
+    {
+      "id": "UB-057",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "NEST",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 4300
+    },
+    {
+      "id": "UB-058",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "NEST",
+        "CHIRPS",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "PERCHES",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 9945
+    },
+    {
+      "id": "UB-059",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "FEED",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3894
+    },
+    {
+      "id": "UB-060",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 3,
+        "from": "PERCHES",
+        "to": "NEGOTIATE",
+        "kind": "feature-error",
+        "detail": "Negotiate failed: 401: is the backend seeded and are you signed in?"
+      },
+      "ms": 1290
+    }
+  ]
+}

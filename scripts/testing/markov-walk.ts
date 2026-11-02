@@ -1,7 +1,7 @@
 /**
  * CS 7314 Markov-OP/UBST test generator.
  *
- *   npx tsx scripts/testing/markov-walk.ts [count=200] [seed=2026] [out.json]
+ *   npx tsx scripts/testing/markov-walk.ts [count=200] [seed=2026] [out.json] [profile.json]
  *
  * Draws `count` usage-based test cases (random walks START -> EXIT) from the projected
  * profile in tests/course/models/usageProfile.ts and reports the profile's analytic
@@ -9,22 +9,26 @@
  * frequencies of the drawn suite, and the most probable distinct paths. The executor
  * that replays these walks in a browser and the reliability analysis come next.
  */
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { P, PROFILE_VERSION, SCREENS, expectedVisits, rng, walk, type Screen } from "../../tests/course/models/usageProfile";
 
 const count = Number(process.argv[2] ?? 200);
 const seed = Number(process.argv[3] ?? 2026);
 const out = process.argv[4];
+// Optional refined profile (e.g. pilot-v1 from pilot-profile.ts); default projected-v1.
+const loaded = process.argv[5] ? JSON.parse(readFileSync(process.argv[5], "utf8")) : null;
+const profile: typeof P = loaded?.profile ?? P;
+const version: string = loaded?.version ?? PROFILE_VERSION;
 
 const next = rng(seed);
 const cases = Array.from({ length: count }, (_, i) => {
-  const path = walk(next);
+  const path = walk(next, 40, profile);
   let probability = 1;
-  for (let k = 1; k < path.length; k++) probability *= P[path[k - 1]][path[k]] ?? 0;
+  for (let k = 1; k < path.length; k++) probability *= profile[path[k - 1]][path[k]] ?? 0;
   return { id: `UB-${String(i + 1).padStart(3, "0")}`, path, steps: path.length - 2, probability };
 });
 
-const analytic = expectedVisits();
+const analytic = expectedVisits(profile);
 const visits: Record<string, number> = {};
 for (const c of cases) for (const s of c.path) visits[s] = (visits[s] ?? 0) + 1;
 
@@ -41,7 +45,7 @@ for (const c of cases) {
 const topPaths = [...distinct.values()].sort((a, b) => b.probability - a.probability).slice(0, 10);
 
 const report = {
-  profile: PROFILE_VERSION,
+  profile: version,
   seed,
   count,
   expectedSessionLength: Number(expectedSessionLength.toFixed(3)),
@@ -56,7 +60,7 @@ const report = {
   cases,
 };
 
-console.log(`profile ${PROFILE_VERSION} seed ${seed}: ${count} walks, ${distinct.size} distinct paths`);
+console.log(`profile ${version} seed ${seed}: ${count} walks, ${distinct.size} distinct paths`);
 console.log(`expected screens/session ${report.expectedSessionLength}, drawn ${report.meanDrawnSessionLength}`);
 for (const s of report.screens) console.log(`  ${s.screen.padEnd(11)} expected ${s.expectedVisitsPerSession}  drawn ${s.drawnVisitsPerSession}`);
 if (out) writeFileSync(out, JSON.stringify(report, null, 2));

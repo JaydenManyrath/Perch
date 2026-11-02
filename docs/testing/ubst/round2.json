@@ -1,0 +1,949 @@
+{
+  "base": "http://localhost:3100",
+  "profile": "projected-v1",
+  "seed": 202,
+  "ranAt": "2026-11-02T16:54:55.592Z",
+  "minutes": 3.6,
+  "runs": 60,
+  "failures": 2,
+  "reliability": 0.9667,
+  "environmentNoise": {
+    "externalImage5xx": 1007
+  },
+  "byTransition": [
+    [
+      "LISTING->BOOKING action-failed",
+      1
+    ],
+    [
+      "NEGOTIATE->LISTING action-failed",
+      1
+    ]
+  ],
+  "details": [
+    {
+      "id": "UB-001",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 653
+    },
+    {
+      "id": "UB-002",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "NEST",
+        "FEED",
+        "MAP",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 11,
+        "from": "LISTING",
+        "to": "BOOKING",
+        "kind": "action-failed",
+        "detail": "locator.waitFor: Timeout 8000ms exceeded."
+      },
+      "ms": 13018
+    },
+    {
+      "id": "UB-003",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "NEST",
+        "FEED",
+        "MAP",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 5428
+    },
+    {
+      "id": "UB-004",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1302
+    },
+    {
+      "id": "UB-005",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2218
+    },
+    {
+      "id": "UB-006",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2122
+    },
+    {
+      "id": "UB-007",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1313
+    },
+    {
+      "id": "UB-008",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2740
+    },
+    {
+      "id": "UB-009",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 10135
+    },
+    {
+      "id": "UB-010",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2167
+    },
+    {
+      "id": "UB-011",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3025
+    },
+    {
+      "id": "UB-012",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 561
+    },
+    {
+      "id": "UB-013",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 590
+    },
+    {
+      "id": "UB-014",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1384
+    },
+    {
+      "id": "UB-015",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 565
+    },
+    {
+      "id": "UB-016",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "MAP",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2914
+    },
+    {
+      "id": "UB-017",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 593
+    },
+    {
+      "id": "UB-018",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1423
+    },
+    {
+      "id": "UB-019",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 4107
+    },
+    {
+      "id": "UB-020",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 5125
+    },
+    {
+      "id": "UB-021",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 5372
+    },
+    {
+      "id": "UB-022",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "FEED",
+        "FEED",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 7907
+    },
+    {
+      "id": "UB-023",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2061
+    },
+    {
+      "id": "UB-024",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "FEED",
+        "MAP",
+        "MAP",
+        "MAP",
+        "FEED",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 5283
+    },
+    {
+      "id": "UB-025",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 524
+    },
+    {
+      "id": "UB-026",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 4289
+    },
+    {
+      "id": "UB-027",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 554
+    },
+    {
+      "id": "UB-028",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 510
+    },
+    {
+      "id": "UB-029",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 5216
+    },
+    {
+      "id": "UB-030",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2029
+    },
+    {
+      "id": "UB-031",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2128
+    },
+    {
+      "id": "UB-032",
+      "path": [
+        "START",
+        "FEED",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "NEST",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": false,
+      "failure": {
+        "step": 6,
+        "from": "NEGOTIATE",
+        "to": "LISTING",
+        "kind": "action-failed",
+        "detail": "locator.click: Timeout 8000ms exceeded."
+      },
+      "ms": 10949
+    },
+    {
+      "id": "UB-033",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "MAP",
+        "MAP",
+        "FEED",
+        "MAP",
+        "MAP",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 5722
+    },
+    {
+      "id": "UB-034",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 497
+    },
+    {
+      "id": "UB-035",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 506
+    },
+    {
+      "id": "UB-036",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1355
+    },
+    {
+      "id": "UB-037",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2836
+    },
+    {
+      "id": "UB-038",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3073
+    },
+    {
+      "id": "UB-039",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2468
+    },
+    {
+      "id": "UB-040",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 3621
+    },
+    {
+      "id": "UB-041",
+      "path": [
+        "START",
+        "FEED",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1353
+    },
+    {
+      "id": "UB-042",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2793
+    },
+    {
+      "id": "UB-043",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "NEST",
+        "CHIRPS",
+        "FEED",
+        "NEST",
+        "FEED",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 12917
+    },
+    {
+      "id": "UB-044",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2350
+    },
+    {
+      "id": "UB-045",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 5030
+    },
+    {
+      "id": "UB-046",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 586
+    },
+    {
+      "id": "UB-047",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "CHIRPS",
+        "NEST",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "PERCHES",
+        "LISTING",
+        "CHIRPS",
+        "NEST",
+        "FEED",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 11411
+    },
+    {
+      "id": "UB-048",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2272
+    },
+    {
+      "id": "UB-049",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2719
+    },
+    {
+      "id": "UB-050",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 4313
+    },
+    {
+      "id": "UB-051",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 573
+    },
+    {
+      "id": "UB-052",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 615
+    },
+    {
+      "id": "UB-053",
+      "path": [
+        "START",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "BOOKING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 1835
+    },
+    {
+      "id": "UB-054",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "CHIRPS",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2835
+    },
+    {
+      "id": "UB-055",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "CHIRPS",
+        "FEED",
+        "PERCHES",
+        "LISTING",
+        "PERCHES",
+        "NEGOTIATE",
+        "PERCHES",
+        "LISTING",
+        "CHIRPS",
+        "CHIRPS",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 14202
+    },
+    {
+      "id": "UB-056",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2101
+    },
+    {
+      "id": "UB-057",
+      "path": [
+        "START",
+        "FEED",
+        "CHIRPS",
+        "FEED",
+        "NEST",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 2817
+    },
+    {
+      "id": "UB-058",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "FEED",
+        "MAP",
+        "FEED",
+        "PERCHES",
+        "FEED",
+        "PERCHES",
+        "NEGOTIATE",
+        "PERCHES",
+        "PERCHES",
+        "LISTING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 14531
+    },
+    {
+      "id": "UB-059",
+      "path": [
+        "START",
+        "ONBOARDING",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 563
+    },
+    {
+      "id": "UB-060",
+      "path": [
+        "START",
+        "FEED",
+        "EXIT"
+      ],
+      "ok": true,
+      "failure": null,
+      "ms": 522
+    }
+  ]
+}

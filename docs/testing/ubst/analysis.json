@@ -1,0 +1,199 @@
+{
+  "perRound": [
+    {
+      "round": 1,
+      "file": "docs/testing/ubst/round1.json",
+      "runs": 60,
+      "failures": 11,
+      "falsePositives": [
+        "UB-015"
+      ],
+      "defectFailures": 10,
+      "reliability": 0.8167,
+      "adjustedReliability": 0.8333,
+      "ci95": [
+        0.7197,
+        0.9069
+      ],
+      "failuresPer100": 16.7,
+      "byCause": {
+        "PERCHES->NEGOTIATE feature-error": 10
+      }
+    },
+    {
+      "round": 2,
+      "file": "docs/testing/ubst/round2.json",
+      "runs": 60,
+      "failures": 2,
+      "falsePositives": [
+        "UB-032"
+      ],
+      "defectFailures": 1,
+      "reliability": 0.9667,
+      "adjustedReliability": 0.9833,
+      "ci95": [
+        0.9114,
+        0.9971
+      ],
+      "failuresPer100": 1.7,
+      "byCause": {
+        "LISTING->BOOKING action-failed": 1
+      }
+    },
+    {
+      "round": 3,
+      "file": "docs/testing/ubst/round3.json",
+      "runs": 60,
+      "failures": 0,
+      "falsePositives": [],
+      "defectFailures": 0,
+      "reliability": 1,
+      "adjustedReliability": 1,
+      "ci95": [
+        0.9398,
+        1
+      ],
+      "failuresPer100": 0,
+      "byCause": {}
+    }
+  ],
+  "growth": {
+    "model": "Goel-Okumoto",
+    "points": [
+      {
+        "t": 60,
+        "m": 10
+      },
+      {
+        "t": 120,
+        "m": 11
+      },
+      {
+        "t": 180,
+        "m": 11
+      }
+    ],
+    "a": 11.05,
+    "b": 0.0395,
+    "expectedRemaining": 0.05,
+    "failureIntensityPerSessionNow": 0.00036
+  },
+  "sensitivityByRound": [
+    {
+      "round": 1,
+      "failingTransitions": [
+        {
+          "transition": "PERCHES->NEGOTIATE",
+          "failures": 10,
+          "attempts": 10,
+          "f": 1
+        }
+      ],
+      "variants": [
+        {
+          "variant": "projected profile",
+          "predictedReliability": 0.8901
+        },
+        {
+          "variant": "booking x0.5 (LISTING->BOOKING)",
+          "predictedReliability": 0.886
+        },
+        {
+          "variant": "booking x1.5",
+          "predictedReliability": 0.8938
+        },
+        {
+          "variant": "abandonment x0.5 (ONBOARDING->EXIT)",
+          "predictedReliability": 0.8846
+        },
+        {
+          "variant": "abandonment x1.5",
+          "predictedReliability": 0.8955
+        },
+        {
+          "variant": "negotiate x0.5 (PERCHES->NEGOTIATE)",
+          "predictedReliability": 0.9413
+        },
+        {
+          "variant": "negotiate x1.5",
+          "predictedReliability": 0.8449
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "failingTransitions": [
+        {
+          "transition": "LISTING->BOOKING",
+          "failures": 1,
+          "attempts": 14,
+          "f": 0.071
+        }
+      ],
+      "variants": [
+        {
+          "variant": "projected profile",
+          "predictedReliability": 0.9871
+        },
+        {
+          "variant": "booking x0.5 (LISTING->BOOKING)",
+          "predictedReliability": 0.9932
+        },
+        {
+          "variant": "booking x1.5",
+          "predictedReliability": 0.9815
+        },
+        {
+          "variant": "abandonment x0.5 (ONBOARDING->EXIT)",
+          "predictedReliability": 0.9864
+        },
+        {
+          "variant": "abandonment x1.5",
+          "predictedReliability": 0.9877
+        },
+        {
+          "variant": "negotiate x0.5 (PERCHES->NEGOTIATE)",
+          "predictedReliability": 0.9869
+        },
+        {
+          "variant": "negotiate x1.5",
+          "predictedReliability": 0.9873
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "failingTransitions": [],
+      "variants": [
+        {
+          "variant": "projected profile",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "booking x0.5 (LISTING->BOOKING)",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "booking x1.5",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "abandonment x0.5 (ONBOARDING->EXIT)",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "abandonment x1.5",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "negotiate x0.5 (PERCHES->NEGOTIATE)",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "negotiate x1.5",
+          "predictedReliability": 1
+        }
+      ]
+    }
+  ]
+}

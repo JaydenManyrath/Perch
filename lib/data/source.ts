@@ -71,7 +71,7 @@ import {
 } from "@/lib/types/contract";
 import * as fx from "@/lib/fixtures";
 import { BookingConflictError, LIVE_HOLD_STATUSES, transitionBooking } from "@/lib/bookings";
-import { freshnessExpiry } from "@/lib/perches";
+import { freshnessExpiry, listingsHeldByOthers } from "@/lib/perches";
 
 const MODE = env.dataSource;
 
@@ -977,8 +977,20 @@ export async function getPerchDeck(context?: LiveDataContext): Promise<PerchDeck
   // Rebuild the deck on every call so a listing that just went to status='taken'
   // (via a confirmed booking, RA34) drops out immediately - the pre-computed
   // fixture only sees the initial state.
+  // D16: hide listings another intern already holds (one live hold per listing).
+  const held = listingsHeldByOthers(
+    fx.bookingsFixture
+      .filter((b) => LIVE_HOLD_STATUSES.includes(b.status))
+      .map((b) => ({
+        listingId: b.listingId,
+        bookerId: b.booker.id,
+        roommateIds: b.roommates.map((r) => r.id),
+        inviteIds: b.pendingRoommates.map((r) => r.id),
+      })),
+    fx.meFixture.id,
+  );
   const freshCards = fx.listingsFixture
-    .filter((l) => (l.status ?? "available") === "available")
+    .filter((l) => (l.status ?? "available") === "available" && !held.has(l.id))
     .map((l) => fx.buildPerchCard(l));
   return {
     deck: freshCards.filter((c) => !swipedRight.has(c.id) && !swipedLeft.has(c.id)),

@@ -35,7 +35,7 @@ const tally = (res, names) => {
   return { pass, fail };
 };
 const r1 = json("results/round1/course-suites.json");
-const latest = json("results/round3/course-suites.json") ?? json("results/round2/course-suites.json");
+const latest = json("results/round4/course-suites.json") ?? json("results/round3/course-suites.json") ?? json("results/round2/course-suites.json");
 
 line("PERCH TESTING PROJECT - SUMMARY");
 line("=".repeat(72));
@@ -59,7 +59,7 @@ line("DEFECTS by ODC type:     " + Object.entries(count("odc_type")).map(([k, v]
 line("DEFECTS by severity:     " + Object.entries(count("severity")).map(([k, v]) => `${k} ${v}`).join(", "));
 line("DEFECTS by status:       " + Object.entries(count("status")).map(([k, v]) => `${k} ${v}`).join(", "));
 
-const cov = json("results/round3/coverage-by-technique.json") ?? json("results/round2/coverage-by-technique.json");
+const cov = json("results/round4/coverage-by-technique.json") ?? json("results/round3/coverage-by-technique.json") ?? json("results/round2/coverage-by-technique.json");
 if (cov) line(`\nBRANCH COVERAGE (target modules): baseline ${cov.baseline.total.branches}% -> with course suites ${cov.all.total.branches}%`);
 
 if (ubst) {

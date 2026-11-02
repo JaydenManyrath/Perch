@@ -22,6 +22,7 @@ Perch". Everything here was produced specifically for the course.
 | Artifact | Path |
 | --- | --- |
 | Progress report (Part 2/4) | [progress-report.md](progress-report.md) |
+| Final report draft (Part 4/4) | [final-report.md](final-report.md) (template), [Perch_Testing_Final_Report.docx](Perch_Testing_Final_Report.docx) (filled by `python3 scripts/testing/render-final-report.py`) |
 | Cross-technique analysis | [analysis.md](analysis.md) |
 | Baseline measurement of the existing suite | [baseline.md](baseline.md) |
 | FSM model: booking lifecycle | [fsm/booking-fsm.md](fsm/booking-fsm.md) |
@@ -35,6 +36,7 @@ Perch". Everything here was produced specifically for the course.
 | Round 1 raw results (before fixes) | [results/round1](results/round1) |
 | Round 2 raw results (after fixes) | [results/round2](results/round2) |
 | Round 3 raw results (after D07, D14, D15 fixes) | [results/round3](results/round3) |
+| Round 4 raw results (after the D16 fix) | [results/round4](results/round4) |
 | UBST suites, runs, triage and reliability analysis | [ubst](ubst) |
 
 ## Test code
@@ -53,6 +55,7 @@ Perch". Everything here was produced specifically for the course.
 | UBST reliability analysis | `scripts/testing/ubst-analysis.ts` |
 | Usage pilot logger and converter | `/pilot`, `lib/pilot/navlog.ts`, `scripts/testing/pilot-profile.ts` |
 | Round 3 regression cases (D07, D14, D15) | `tests/course/regression-round3.test.ts` |
+| D16 regression cases | `tests/course/regression-d16.test.ts` |
 | Models | `tests/course/models/` |
 | Harness (in-memory Supabase, booking world) | `tests/course/helpers/` |
 
@@ -88,7 +91,7 @@ node tests/e2e/onboarding-fsm.e2e.mjs http://localhost:3100 out.json
 
 Round 1 results were recorded against the unmodified code (commit `bfad1d9`); the
 fixes are in `fd5f75e`, `15ad94d` and `646fe01`; round 2 was recorded after them.
-Round 3 covers the fixes for D07, D14 and D15 (`d95345b`). UBST rounds:
+Round 3 covers the fixes for D07, D14 and D15 (`d95345b`); round 4 covers the D16 fix. UBST rounds:
 `npx tsx scripts/testing/markov-walk.ts 60 <seed> suite.json`, then
 `node tests/e2e/ubst-executor.e2e.mjs <baseUrl> suite.json round.json`, then
 `npx tsx scripts/testing/ubst-analysis.ts analysis.json round1.json round2.json ...`.

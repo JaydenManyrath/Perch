@@ -62,7 +62,7 @@ which made every listing fail the budget check.
 drew control flow graphs and forced every branch." Run `npm run demo:cft`. Point at
 CF-35: when the server refused a booking, the client used to take the outage branch and
 show a fake success (D13). Branch coverage on the target modules: 76.6% baseline to
-82.7%.
+82.8%.
 
 **Markov-OP/UBST (9-12).** "UBST tests what users do most. We built a Markov chain over
 the 9 main screens, generated random sessions from it, and replayed them in a real
@@ -70,8 +70,9 @@ browser." Run `HEADED=1 npm run demo:ubst` (10 sessions, about a minute) and let
 watch. Explain the oracle: a session fails if a screen is not reached, the page throws,
 the server returns a 5xx, or a feature shows an error. Round 1 found D15 (the negotiate
 scouts failed with no keys); after the fix, reliability went from 0.83 (round 1) to 0.98
-(round 2) and 1.00 (round 3, 60 of 60 sessions). Round 2 also found D16: the deck offers
-"Request to book" on a listing another intern already holds, which the app then refuses.
+(round 2) and 1.00 (rounds 3 and 4, 60 of 60 sessions each). Round 2 also found D16: the
+deck offered "Request to book" on a listing another intern already held, which the app then
+refused; held listings are now hidden from the deck.
 
 **Results (12-14).** Run `npm run demo:summary`. It prints, per technique, the cases,
 failures in round 1 and now, defects found, the ODC breakdown, coverage, and the UBST
@@ -90,9 +91,9 @@ wrote anything: 499 cases, 76.6% branch coverage on the target modules, 0 defect
 
 **Is quality getting better?** Yes, measurably. Course-suite failures went from 25 in
 round 1 to 0. UBST reliability went from 0.83 (round 1) to 0.98 (round 2) and 1.00
-(round 3; 95% interval 0.94-1.00) after fixing D15. A Goel-Okumoto growth fit to the
-cumulative failures predicts almost no remaining failures, but that is optimistic: D16
-is still open and only shows up on rare paths. See `npm run demo:summary`.
+(rounds 3 and 4; 95% interval 0.94-1.00) after fixing D15 and D16. A Goel-Okumoto growth
+fit to the cumulative failures predicts about 0.05 remaining failures, indicative only with
+four rounds. See `npm run demo:summary`.
 
 **What about other techniques?** Boundary testing is built into our PT cases (every
 threshold has a case on each side). Data flow testing would suit the finance pipeline

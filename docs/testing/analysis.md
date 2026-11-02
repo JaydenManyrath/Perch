@@ -13,11 +13,12 @@ them.
 | FSM/BBT (onboarding, browser) | 10 | 1 | 0 | D08 | 0 |
 | PT/BBT | 78 | 10 | 0 | 4 (D09-D12) | 1 (D09) |
 | CFT/WBT | 37 | 4 | 0 | 1 (D13) | 1 (D13) |
-| Markov-OP/UBST | 180 sessions | 10 sessions | 0 sessions | 2 (D15, D16) | 1 (D15) |
+| Markov-OP/UBST | 240 sessions | 10 sessions | 0 sessions | 2 (D15, D16) | 1 (D15) |
 | Code walkthrough (not a technique) | - | - | - | 1 (D14) | 0 |
 
-Sixteen defects in total; 15 are fixed and retested, and D16 is open as a design
-decision (hide or label listings another intern already holds).
+Sixteen defects in total; all 16 are fixed and retested. D16 was fixed by hiding
+listings another intern already holds from the deck (their own booker, roommates and
+invitees still see them).
 
 ## 2. Applicability
 
@@ -41,12 +42,12 @@ was found by two techniques.
 
 By count FSM found the most defects. Weighted by severity, PT, CFT and UBST each found
 one of the three high-severity defects. Execution cost is small for every technique:
-the 195 course unit/integration cases run in a few seconds, the onboarding browser run
+the 200 course unit/integration cases run in a few seconds, the onboarding browser run
 in about a minute, and 60 UBST sessions in about 4 minutes. Model construction and
 triage dominate the cost; hours per technique are recorded in `effort-log.csv` (team to
 complete) for the defects-per-hour comparison.
 
-Coverage (branch, target modules, v8): baseline 76.6%, with the course suites 82.7%.
+Coverage (branch, target modules, v8): baseline 76.6%, with the course suites 82.8%.
 The largest gains are on code the baseline never ran: the expiry cron route (0% to
 87.5%), `lib/bookings.ts` (76% to 86%), the safety scout (63% to 89%) and the lease
 scout (81% to 100%).
@@ -72,12 +73,13 @@ the app uses by default.
 | 1 | before D15 fix | 60 | 10 | 0.833 | 0.720-0.907 |
 | 2 | D15 fixed | 60 | 1 (D16) | 0.983 | 0.911-0.997 |
 | 3 | same as round 2 | 60 | 0 | 1.000 | 0.940-1.000 |
+| 4 | D16 fixed | 60 | 0 | 1.000 | 0.940-1.000 |
 
 Two further failures (one in round 1, one in round 2) were investigated and found to be
 test-driver problems, not app defects; they are excluded above and listed in
 `ubst/triage.json`. A Goel-Okumoto model fitted to cumulative failures against
-cumulative sessions (a = 11.05, b = 0.0395) predicts almost no remaining failures, but
-that is optimistic because D16 is still open and appears only on rare paths.
+cumulative sessions (a = 11.05, b = 0.0395) predicts about 0.05 remaining failures;
+with four rounds this is indicative only.
 
 The course-suite failures fell from 25 in round 1 to 0, with no regression in the 499
 baseline tests.

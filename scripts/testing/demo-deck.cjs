@@ -14,7 +14,7 @@ const pptxgen = require("pptxgenjs");
 const SKILL = process.env.PPTX_SKILL_DIR;
 const D = "docs/testing/";
 const read = (p) => JSON.parse(fs.readFileSync(D + p, "utf8"));
-const cov = read("results/round3/coverage-by-technique.json");
+const cov = read("results/round4/coverage-by-technique.json");
 const ubst = read("ubst/analysis.json");
 
 const THEME = {
@@ -170,20 +170,20 @@ text(s, "Demo: HEADED=1 npm run demo:ubst", { x: 5.6, y: 4.55, w: 4, h: 0.4, fon
 pres.addSection({ title: "Results" });
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Results" });
 s.addText("Reliability grew from 0.83 to 1.00 after fixing what UBST found", { placeholder: "title" });
-s.addChart(pres.charts.BAR, [{ name: "Nelson reliability", labels: ubst.perRound.map((r) => `Round ${r.round}`), values: ubst.perRound.map((r) => r.adjustedReliability) }], {
-  x: 0.4, y: 1.15, w: 4.6, h: 3.4, barDir: "col", chartColors: [HEX.accent1], showTitle: true, title: "Sessions without failure (60 per round)",
+s.addChart(pres.charts.BAR, [{ name: "Nelson reliability", labels: ubst.perRound.map((r) => `R${r.round}`), values: ubst.perRound.map((r) => r.adjustedReliability) }], {
+  x: 0.4, y: 1.15, w: 4.6, h: 3.4, barDir: "col", chartColors: [HEX.accent1], showTitle: true, title: "Reliability per round (60 sessions each)",
   showLegend: false, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00", valAxisMinVal: 0.5, valAxisMaxVal: 1.05, valAxisHidden: true,
   valGridLine: { style: "none" }, catGridLine: { style: "none" }, ...chartText, objectName: "ubst-reliability-chart",
 });
 const rel = [
   ["Round 1", "10 of 60 failed on the negotiate scouts (D15, no keys)"],
-  ["Round 2", "D15 fixed; 1 failure: deck offers booking on a held listing (D16, open)"],
-  ["Round 3", "0 of 60 failed (95% interval 0.94 to 1.00)"],
+  ["Round 2", "D15 fixed; 1 failure: deck offered booking on a held listing (D16)"],
+  ["Rounds 3-4", "D16 fixed; 0 of 120 failed (95% interval 0.94 to 1.00 per round)"],
 ];
 rel.forEach(([r, t], i) => {
   card(s, 5.3, 1.2 + i * 0.85, 4.3, 0.75, `rel-card-${i}`);
-  text(s, r, { x: 5.45, y: 1.2 + i * 0.85, w: 0.9, h: 0.75, fontSize: 13, bold: true, color: C.accent1, valign: "middle", objectName: `rel-round-${i}` });
-  text(s, t, { x: 6.35, y: 1.2 + i * 0.85, w: 3.15, h: 0.75, fontSize: 11.5, valign: "middle", objectName: `rel-text-${i}` });
+  text(s, r, { x: 5.45, y: 1.2 + i * 0.85, w: 1.0, h: 0.75, fontSize: 12.5, bold: true, color: C.accent1, valign: "middle", objectName: `rel-round-${i}` });
+  text(s, t, { x: 6.5, y: 1.2 + i * 0.85, w: 3.0, h: 0.75, fontSize: 11.5, valign: "middle", objectName: `rel-text-${i}` });
 });
 const sens = ubst.sensitivityByRound[0].variants;
 const sv = (name) => sens.find((v) => v.variant.startsWith(name)).predictedReliability.toFixed(2);
@@ -198,13 +198,13 @@ const cmp = [
   ["FSM / BBT", "74", "8", "0", "Event order, two actors, missing transition"],
   ["PT / BBT", "78", "4", "1", "Unusual and invalid input classes"],
   ["CFT / WBT", "37", "1", "1", "Hidden fallback branch"],
-  ["Markov-OP / UBST", "180 sessions", "2", "1", "Failures on common user paths"],
+  ["Markov-OP / UBST", `${ubst.perRound.reduce((a, r) => a + r.runs, 0)} sessions`, "2", "1", "Failures on common user paths"],
   ["Walkthrough", "-", "1", "0", "Hard-coded stay dates"],
 ];
 s.addTable(cmp.map((r, i) => r.map((c) => ({ text: c, options: { bold: i === 0, color: i === 0 ? HEX.lt1 : HEX.dk1, fill: { color: i === 0 ? HEX.dk2 : (i % 2 ? HEX.lt2 : HEX.lt1) } } }))), {
   x: 0.5, y: 1.2, w: 9, colW: [1.9, 1.3, 0.9, 1.0, 3.9], fontSize: 12, fontFace: THEME.bodyFontFace, border: { type: "solid", pt: 0.5, color: "D5E3E5" }, rowH: 0.38, objectName: "cmp-table",
 });
-text(s, "ODC types: Checking 8, Function 3, Algorithm 2, Assignment 2, Interface 1.  15 fixed and retested; D16 open (design decision).  Course-suite failures: 25 in round 1, 0 now.", { x: 0.5, y: 4.15, w: 9, h: 0.7, fontSize: 12, color: C.accent6, objectName: "cmp-note" });
+text(s, "ODC types: Checking 8, Function 3, Algorithm 2, Assignment 2, Interface 1.  All 16 fixed and retested.  Course-suite failures: 25 in round 1, 0 now.", { x: 0.5, y: 4.15, w: 9, h: 0.7, fontSize: 12, color: C.accent6, objectName: "cmp-note" });
 
 // 10. Demo and next steps
 s = pres.addSlide({ masterName: "TITLE_DARK", sectionTitle: "Results" });

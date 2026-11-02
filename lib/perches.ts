@@ -323,6 +323,23 @@ export function toPerchCard(row: PerchListingRecord, reviews: ReviewRow[]): Perc
   };
 }
 
+/** A live booking hold, reduced to who is part of it. */
+export type ListingHold = { listingId: string; bookerId: string; roommateIds: string[]; inviteIds: string[] };
+
+/**
+ * Listings another intern already holds (requested, approved or booked) are hidden from
+ * the deck (D16): only one live hold is allowed per listing, so a request would be
+ * refused. The booker, roommates and invitees of the hold still see the listing.
+ */
+export function listingsHeldByOthers(holds: ListingHold[], viewerId: string): Set<string> {
+  const hidden = new Set<string>();
+  for (const h of holds) {
+    const party = h.bookerId === viewerId || h.roommateIds.includes(viewerId) || h.inviteIds.includes(viewerId);
+    if (!party) hidden.add(h.listingId);
+  }
+  return hidden;
+}
+
 export function buildDeckCards(rows: PerchListingRecord[], reviews: ReviewRow[], now = new Date()): PerchCard[] {
   return rankDeckRows(rows.filter((row) => isCompleteFreshListing(row, now))).map((row) =>
     toPerchCard(row, reviews),

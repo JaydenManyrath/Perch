@@ -30,7 +30,7 @@
     "demo:fsm:onboarding": "node tests/e2e/onboarding-fsm.e2e.mjs http://localhost:3100",
     "demo:pt": "vitest run tests/course/pt-verdict-rules.test.ts tests/course/pt-finance.test.ts --reporter=verbose",
     "demo:cft": "vitest run tests/course/cft-branches.test.ts tests/course/cft-source-fallback.test.ts --reporter=verbose",
-    "demo:regression": "vitest run tests/course/regression-round3.test.ts --reporter=verbose",
+    "demo:regression": "vitest run tests/course/regression-round3.test.ts tests/course/regression-d16.test.ts --reporter=verbose",
     "demo:coverage": "node scripts/testing/coverage-by-technique.mjs coverage-by-technique.json",
     "demo:ubst": "tsx scripts/testing/markov-walk.ts 10 7 ubst-demo-suite.json && node tests/e2e/ubst-executor.e2e.mjs http://localhost:3100 ubst-demo-suite.json ubst-demo-result.json",
     "demo:summary": "node scripts/testing/demo-summary.mjs"

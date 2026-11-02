@@ -55,6 +55,22 @@
       ],
       "failuresPer100": 0,
       "byCause": {}
+    },
+    {
+      "round": 4,
+      "file": "docs/testing/ubst/round4.json",
+      "runs": 60,
+      "failures": 0,
+      "falsePositives": [],
+      "defectFailures": 0,
+      "reliability": 1,
+      "adjustedReliability": 1,
+      "ci95": [
+        0.9398,
+        1
+      ],
+      "failuresPer100": 0,
+      "byCause": {}
     }
   ],
   "growth": {
@@ -71,12 +87,16 @@
       {
         "t": 180,
         "m": 11
+      },
+      {
+        "t": 240,
+        "m": 11
       }
     ],
     "a": 11.05,
     "b": 0.0395,
     "expectedRemaining": 0.05,
-    "failureIntensityPerSessionNow": 0.00036
+    "failureIntensityPerSessionNow": 0.00003
   },
   "sensitivityByRound": [
     {
@@ -163,6 +183,40 @@
     },
     {
       "round": 3,
+      "failingTransitions": [],
+      "variants": [
+        {
+          "variant": "projected profile",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "booking x0.5 (LISTING->BOOKING)",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "booking x1.5",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "abandonment x0.5 (ONBOARDING->EXIT)",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "abandonment x1.5",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "negotiate x0.5 (PERCHES->NEGOTIATE)",
+          "predictedReliability": 1
+        },
+        {
+          "variant": "negotiate x1.5",
+          "predictedReliability": 1
+        }
+      ]
+    },
+    {
+      "round": 4,
       "failingTransitions": [],
       "variants": [
         {

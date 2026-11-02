@@ -8,14 +8,18 @@ describe("fixture booking discovery state", () => {
   it("removes a confirmed booked listing from the fresh deck", async () => {
     const source = await import("@/lib/data/source");
 
-    expect((await source.getPerchDeck()).deck.some((p) => p.id === "L8")).toBe(true);
+    // L8 is held by another intern (Priya), so it is already hidden (D16); use a listing
+    // the viewer books themselves to check that a confirmed booking leaves the deck.
+    expect((await source.getPerchDeck()).deck.some((p) => p.id === "L8")).toBe(false);
+    expect((await source.getPerchDeck()).deck.some((p) => p.id === "L7")).toBe(true);
 
-    const approved = await source.approveBooking("book-priya-L8");
+    const requested = await source.requestBooking("L7", {});
+    const approved = await source.approveBooking(requested.id);
     expect(approved?.status).toBe("approved");
-    const booked = await source.confirmBooking("book-priya-L8");
+    const booked = await source.confirmBooking(requested.id);
 
     expect(booked?.status).toBe("booked");
-    expect((await source.getPerchDeck()).deck.some((p) => p.id === "L8")).toBe(false);
+    expect((await source.getPerchDeck()).deck.some((p) => p.id === "L7")).toBe(false);
   });
 
   it("keeps declined bookings discoverable", async () => {

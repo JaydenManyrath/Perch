@@ -2,6 +2,10 @@
  * CS 7314: build the TA demo slide deck from the saved results.
  *
  *   node scripts/testing/demo-deck.cjs   ->  docs/testing/demo/Perch_Testing_Demo.pptx
+ *
+ * The committed deck is final; rebuilding needs pptxgenjs (npm i --no-save pptxgenjs).
+ * PPTX_SKILL_DIR, when set, points at a helper that writes the theme colors into the
+ * file; without it the deck falls back to Office's stock palette.
  */
 const fs = require("fs");
 const path = require("path");
@@ -210,7 +214,11 @@ s.addText("npm run demo:summary prints every result on one screen.\nNext: run th
 (async () => {
   const out = path.join(D, "demo/Perch_Testing_Demo.pptx");
   await pres.writeFile({ fileName: out });
-  const { applyTheme } = require(path.join(SKILL, "scripts/apply_theme.js"));
-  await applyTheme(out, THEME);
+  if (SKILL) {
+    const { applyTheme } = require(path.join(SKILL, "scripts/apply_theme.js"));
+    await applyTheme(out, THEME);
+  } else {
+    console.warn("PPTX_SKILL_DIR not set: theme colors not applied");
+  }
   console.log("wrote", out);
 })();

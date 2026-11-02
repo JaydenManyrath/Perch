@@ -165,7 +165,8 @@ const cases = [
   },
 ];
 
-const browser = await chromium.launch();
+// HEADED=1 shows the browser (slowed down) so a demo audience can watch each step.
+const browser = await chromium.launch(process.env.HEADED ? { headless: false, slowMo: 250 } : {});
 const results = [];
 for (const c of cases) {
   const page = await browser.newPage();

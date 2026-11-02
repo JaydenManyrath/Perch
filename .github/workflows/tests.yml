@@ -1,0 +1,24 @@
+name: Tests
+
+# Regression gate: typecheck, lint and the full Vitest suite, which includes the
+# CS 7314 model-based suites in tests/course (FSM, PT, CFT, Markov-OP checks and the
+# regression cases for every fixed defect). Needs no secrets: everything runs on the
+# fixture data source and in-memory fakes.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test

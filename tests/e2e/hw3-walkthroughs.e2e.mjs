@@ -117,7 +117,8 @@ if (process.argv[4]) {
   RUN = [...a.nodeTests, ...a.linkTests].map((t) => ({ id: t.id, task: "coverage test", path: t.path }));
 }
 
-const browser = await chromium.launch();
+// HEADED=1 shows the browser (slowed down) so a demo audience can watch each step.
+const browser = await chromium.launch(process.env.HEADED ? { headless: false, slowMo: 250 } : {});
 const results = [];
 for (const s of RUN) {
   const page = await browser.newPage({ viewport: { width: 420, height: 900 } });

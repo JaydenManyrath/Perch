@@ -8,11 +8,21 @@ This folder holds the models, test suites, raw results and analysis for the cour
 project "Comparing Black-Box, White-Box, and Usage-Based Testing Techniques on
 Perch". Everything here was produced specifically for the course.
 
+## Start here for the demo
+
+- [DEMO.md](DEMO.md): the 15-minute TA demo script, with commands and talking points.
+- [demo/Perch_Testing_Demo.pptx](demo/Perch_Testing_Demo.pptx): the slide deck
+  (rebuild with `node scripts/testing/demo-deck.cjs`).
+- `npm run demo:summary`: every result on one screen.
+- [analysis.md](analysis.md): the cross-technique analysis (applicability,
+  effectiveness, cost, ODC, reliability, sensitivity).
+
 ## Index
 
 | Artifact | Path |
 | --- | --- |
 | Progress report (Part 2/4) | [progress-report.md](progress-report.md) |
+| Cross-technique analysis | [analysis.md](analysis.md) |
 | Baseline measurement of the existing suite | [baseline.md](baseline.md) |
 | FSM model: booking lifecycle | [fsm/booking-fsm.md](fsm/booking-fsm.md) |
 | FSM model: onboarding steps | [fsm/onboarding-fsm.md](fsm/onboarding-fsm.md) |
@@ -24,6 +34,8 @@ Perch". Everything here was produced specifically for the course.
 | Effort log (team to fill) | [effort-log.csv](effort-log.csv) |
 | Round 1 raw results (before fixes) | [results/round1](results/round1) |
 | Round 2 raw results (after fixes) | [results/round2](results/round2) |
+| Round 3 raw results (after D07, D14, D15 fixes) | [results/round3](results/round3) |
+| UBST suites, runs, triage and reliability analysis | [ubst](ubst) |
 
 ## Test code
 
@@ -37,10 +49,31 @@ Perch". Everything here was produced specifically for the course.
 | CFT/WBT freshness, cron, transitions | `tests/course/cft-branches.test.ts` |
 | CFT/WBT fixture/live fallback | `tests/course/cft-source-fallback.test.ts` |
 | Markov-OP model checks | `tests/course/markov-profile.test.ts` |
+| Markov-OP/UBST executor (browser) | `tests/e2e/ubst-executor.e2e.mjs` |
+| UBST reliability analysis | `scripts/testing/ubst-analysis.ts` |
+| Usage pilot logger and converter | `/pilot`, `lib/pilot/navlog.ts`, `scripts/testing/pilot-profile.ts` |
+| Round 3 regression cases (D07, D14, D15) | `tests/course/regression-round3.test.ts` |
 | Models | `tests/course/models/` |
 | Harness (in-memory Supabase, booking world) | `tests/course/helpers/` |
 
 ## How to run
+
+One command per technique (see DEMO.md; start the app first with `npm run demo:app`
+for the browser ones, and add `HEADED=1` to watch them):
+
+```
+npm run demo:baseline          # the existing suite (the baseline)
+npm run demo:fsm               # FSM booking suites
+npm run demo:fsm:onboarding    # FSM onboarding in a browser
+npm run demo:pt                # partition suites
+npm run demo:cft               # control flow suites
+npm run demo:ubst              # 10 usage-based sessions in a browser
+npm run demo:regression        # regression cases for the round 3 fixes
+npm run demo:coverage          # branch coverage per technique
+npm run demo:summary           # all results on one screen
+```
+
+Lower-level commands:
 
 ```
 npm test                                   # whole suite, course suites included
@@ -55,3 +88,7 @@ node tests/e2e/onboarding-fsm.e2e.mjs http://localhost:3100 out.json
 
 Round 1 results were recorded against the unmodified code (commit `bfad1d9`); the
 fixes are in `fd5f75e`, `15ad94d` and `646fe01`; round 2 was recorded after them.
+Round 3 covers the fixes for D07, D14 and D15 (`d95345b`). UBST rounds:
+`npx tsx scripts/testing/markov-walk.ts 60 <seed> suite.json`, then
+`node tests/e2e/ubst-executor.e2e.mjs <baseUrl> suite.json round.json`, then
+`npx tsx scripts/testing/ubst-analysis.ts analysis.json round1.json round2.json ...`.

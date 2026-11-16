@@ -4,36 +4,40 @@ Jayden Manyrath and Koen Gennis. CS 7314/5314, Fall 2026.
 
 Docs style: plain ASCII only (matches the repo README).
 
-## Before the call (10 minutes)
+## The short version
 
-1. `npm ci` (once).
-2. Start the app with no keys (fixture data): `npm run demo:app`. Leave it running on
-   http://localhost:3100.
-3. In a second terminal, run `npm run demo:summary` once to make sure the saved results
-   load.
-4. Open these tabs so you can switch quickly:
-   - the slide deck (`docs/testing/demo/Perch_Testing_Demo.pptx`),
-   - `docs/testing/fsm/booking-fsm.md` (FSM model and diagram),
-   - `docs/testing/pt/partitions.md` (partition tables),
-   - `docs/testing/cft/cfg.md` (control flow graphs),
-   - `docs/testing/markov/usage-profile.md` (Markov chain),
-   - `docs/testing/defect-log.csv`,
-   - http://localhost:3100 (the app).
-5. Share your whole screen on Zoom so the TA sees both the terminal and the browser.
+| When | Do this |
+| --- | --- |
+| Once, the day before | `git pull`, `npm ci`, then `npm run demo:prepare`. It installs the test browser, builds the app in demo mode and dry-runs every step. It ends with a PASS/FAIL list; all PASS means you are ready. |
+| Demo day, 5 minutes before | Open the slide deck (`docs/testing/demo/Perch_Testing_Demo.pptx`), then run `npm run demo` in a terminal. Share your whole screen on Zoom. |
+| During the call | `npm run demo` walks you through 9 steps. Each step shows its slide and what to say. Press Enter to run it, `s` to skip, `b` to go back, `q` to quit. Browser steps open a visible Chromium window so the TA can watch. |
+| After | Quitting stops the app. Nothing else to clean up. |
 
-## Agenda
+Works the same on macOS, Windows and Linux (plain Command Prompt or PowerShell is fine).
+Your own `.env.local` keys are ignored during the demo: it always runs on built-in
+fixture data, so no login and no live database.
 
-| Minute | Show | Command or file |
-| --- | --- | --- |
-| 0-2 | The app and what we test | Browser: splash, feed, Perches deck, a listing, request to book |
-| 2-3 | The problem and the four techniques | Slides 1-3 |
-| 3-5 | FSM/BBT: model, then run it | `booking-fsm.md`, then `npm run demo:fsm` |
-| 5-6 | FSM in a real browser | `HEADED=1 npm run demo:fsm:onboarding` |
-| 6-8 | PT/BBT: partition tables, then run | `partitions.md`, then `npm run demo:pt` |
-| 8-9 | CFT/WBT: control flow graph, then run | `cfg.md`, then `npm run demo:cft` |
-| 9-12 | Markov-OP/UBST: chain, live usage-based run | `usage-profile.md`, then `HEADED=1 npm run demo:ubst` |
-| 12-14 | Results and analysis | `npm run demo:summary`, slides 7-9 |
-| 14-15 | Questions | Q&A notes below |
+## The 9 steps (what `npm run demo` does)
+
+| # | Step | Slide | Runs |
+| --- | --- | --- | --- |
+| 1 | The app | 1-3 | Opens http://localhost:3100; click splash, feed, Perches deck, a listing, Request to book |
+| 2 | Baseline | 3 | The existing 499-case suite (all pass, 0 of 16 defects found) |
+| 3 | FSM booking | 4 | 64 state-machine tests (T.. valid, I.. invalid, P.. paths, C.. races) |
+| 4 | FSM onboarding | 4 | A visible browser walks all 8 onboarding screens |
+| 5 | PT | 5 | 78 partition tests (PF-23 is the $45/hr case) |
+| 6 | CFT | 6 | 37 branch tests (CF-35 is the fake-success case) |
+| 7 | UBST | 7 | 10 random user sessions replayed in a visible browser (about a minute) |
+| 8 | Regressions | 8 | Tests that keep D07, D14, D15 and D16 fixed |
+| 9 | Summary | 8-9 | Every result on one screen |
+
+Have these open in other tabs in case the TA asks for a model: `docs/testing/fsm/booking-fsm.md`,
+`docs/testing/pt/partitions.md`, `docs/testing/cft/cfg.md`,
+`docs/testing/markov/usage-profile.md` and `docs/testing/defect-log.csv`.
+
+Single steps can also be run on their own: `npm run demo:fsm`, `demo:pt`, `demo:cft`,
+`demo:fsm:onboarding`, `demo:ubst`, `demo:regression`, `demo:summary`, or
+`npm run demo:app` to just start the app.
 
 ## What to say at each step
 
@@ -47,7 +51,7 @@ derived every valid transition, 18 invalid ones (approve twice, confirm a taken 
 two interns requesting the same place), 5 longer paths and 2 race conditions. We ran it
 against both implementations of the rules: the live API code and the no-key fixture
 code." Run `npm run demo:fsm` and point at the test names (T01..., I01..., P01..., C01).
-Then run the onboarding machine in a visible browser: the TA watches it walk all 8
+Then run the onboarding machine in a visible browser (step 4): the TA watches it walk all 8
 onboarding screens and check the guard on the review screen. Defects found: 8 (D01-D08),
 for example a taken listing could be relisted, and the fixture let a booked booking be
 re-approved.
@@ -66,8 +70,7 @@ show a fake success (D13). Branch coverage on the target modules: 76.6% baseline
 
 **Markov-OP/UBST (9-12).** "UBST tests what users do most. We built a Markov chain over
 the 9 main screens, generated random sessions from it, and replayed them in a real
-browser." Run `HEADED=1 npm run demo:ubst` (10 sessions, about a minute) and let the TA
-watch. Explain the oracle: a session fails if a screen is not reached, the page throws,
+browser." Run step 7 (10 sessions, about a minute) and let the TA watch. Explain the oracle: a session fails if a screen is not reached, the page throws,
 the server returns a 5xx, or a feature shows an error. Round 1 found D15 (the negotiate
 scouts failed with no keys); after the fix, reliability went from 0.83 (round 1) to 0.98
 (round 2) and 1.00 (rounds 3 and 4, 60 of 60 sessions each). Round 2 also found D16: the
@@ -112,7 +115,9 @@ number is reported too).
 
 ## If something goes wrong live
 
-- Port in use: stop the other server or change 3100 in the `demo:*` commands.
-- A browser test times out on a slow machine: run it again without `HEADED=1`.
-- Everything is also saved: show `docs/testing/results/round*/` and
-  `docs/testing/ubst/round*.json` and run `npm run demo:summary`.
+- "Chromium for the tests is missing": run `npm run demo:prepare` once.
+- "The app did not start on port 3100": something else is using the port. Close the
+  other app (or an old demo terminal) and run `npm run demo` again.
+- A browser step fails on a slow machine: press `r` to run it again.
+- Everything is also saved: `npm run demo:summary` needs no app or browser, and the raw
+  results are in `docs/testing/results/` and `docs/testing/ubst/`.

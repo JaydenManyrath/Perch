@@ -10,7 +10,8 @@ Perch". Everything here was produced specifically for the course.
 
 ## Start here for the demo
 
-- [DEMO.md](DEMO.md): the 15-minute TA demo script, with commands and talking points.
+- [DEMO.md](DEMO.md): the 15-minute TA demo script. In short: `npm run demo:prepare`
+  once, then `npm run demo` on the day.
 - [demo/Perch_Testing_Demo.pptx](demo/Perch_Testing_Demo.pptx): the slide deck
   (rebuild with `node scripts/testing/demo-deck.cjs`).
 - `npm run demo:summary`: every result on one screen.
@@ -61,18 +62,19 @@ Perch". Everything here was produced specifically for the course.
 
 ## How to run
 
-One command per technique (see DEMO.md; start the app first with `npm run demo:app`
-for the browser ones, and add `HEADED=1` to watch them):
+For the TA demo (see DEMO.md): `npm run demo:prepare` once, then `npm run demo` for a
+guided walkthrough of every technique. Single steps, all cross-platform:
 
 ```
+npm run demo:app               # start the app in demo mode (fixture data, no keys)
 npm run demo:baseline          # the existing suite (the baseline)
 npm run demo:fsm               # FSM booking suites
-npm run demo:fsm:onboarding    # FSM onboarding in a browser
+npm run demo:fsm:onboarding    # FSM onboarding in a visible browser
 npm run demo:pt                # partition suites
 npm run demo:cft               # control flow suites
-npm run demo:ubst              # 10 usage-based sessions in a browser
-npm run demo:regression        # regression cases for the round 3 fixes
-npm run demo:coverage          # branch coverage per technique
+npm run demo:ubst              # 10 usage-based sessions in a visible browser
+npm run demo:regression        # regression cases for the later fixes
+npm run demo:check             # dry-run every step (PASS/FAIL list)
 npm run demo:summary           # all results on one screen
 ```
 

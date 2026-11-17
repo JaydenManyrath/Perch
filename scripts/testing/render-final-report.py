@@ -31,6 +31,7 @@ tail = (f"Rounds 3 and 4 found no failures; after the D16 fix, round 4 ran {last
         f"(95% interval {last['ci95'][0]:.2f} to {last['ci95'][1]:.2f}).")
 fills = {
     "COV_ALL": f"{cov['all']['total']['branches']:.1f}",
+    "COV_BASE": f"{cov['baseline']['total']['branches']:.1f}",
     "R_LAST": f"{last['adjustedReliability']:.2f}",
     "N_ROUNDS": str(len(rounds)),
     "UBST_TABLE": tbl(["Round", "Code", "Failed sessions", "Reliability", "95% interval", "Driver false positives", "Defects found"], ubst_rows),

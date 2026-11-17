@@ -1,0 +1,97 @@
+{
+ "screens": [
+  "START",
+  "ONBOARDING",
+  "FEED",
+  "PERCHES",
+  "LISTING",
+  "BOOKING",
+  "NEGOTIATE",
+  "MAP",
+  "CHIRPS",
+  "NEST",
+  "EXIT"
+ ],
+ "profile": {
+  "START": {
+   "ONBOARDING": 0.6,
+   "FEED": 0.4
+  },
+  "ONBOARDING": {
+   "FEED": 0.85,
+   "EXIT": 0.15
+  },
+  "FEED": {
+   "PERCHES": 0.35,
+   "MAP": 0.15,
+   "CHIRPS": 0.15,
+   "NEST": 0.1,
+   "FEED": 0.1,
+   "EXIT": 0.15
+  },
+  "PERCHES": {
+   "LISTING": 0.45,
+   "PERCHES": 0.2,
+   "NEGOTIATE": 0.1,
+   "FEED": 0.1,
+   "EXIT": 0.15
+  },
+  "LISTING": {
+   "BOOKING": 0.3,
+   "PERCHES": 0.45,
+   "CHIRPS": 0.1,
+   "EXIT": 0.15
+  },
+  "BOOKING": {
+   "PERCHES": 0.3,
+   "CHIRPS": 0.25,
+   "NEST": 0.15,
+   "EXIT": 0.3
+  },
+  "NEGOTIATE": {
+   "LISTING": 0.4,
+   "PERCHES": 0.3,
+   "EXIT": 0.3
+  },
+  "MAP": {
+   "FEED": 0.35,
+   "PERCHES": 0.2,
+   "MAP": 0.15,
+   "EXIT": 0.3
+  },
+  "CHIRPS": {
+   "CHIRPS": 0.3,
+   "FEED": 0.25,
+   "NEST": 0.15,
+   "EXIT": 0.3
+  },
+  "NEST": {
+   "FEED": 0.35,
+   "PERCHES": 0.2,
+   "CHIRPS": 0.15,
+   "EXIT": 0.3
+  },
+  "EXIT": {
+   "EXIT": 1
+  }
+ },
+ "expectedVisits": {
+  "START": 1,
+  "ONBOARDING": 0.6,
+  "FEED": 1.4988331565815969,
+  "PERCHES": 1.2441877226798734,
+  "LISTING": 0.6096519841131378,
+  "BOOKING": 0.1828955952339414,
+  "NEGOTIATE": 0.12441877226798732,
+  "MAP": 0.2644999688085171,
+  "CHIRPS": 0.5285781829498543,
+  "NEST": 0.25660438238572897,
+  "EXIT": 1
+ },
+ "fsm": {
+  "states": 7,
+  "valid": 13,
+  "invalid": 18,
+  "paths": 5
+ }
+}

@@ -47,7 +47,7 @@ in about a minute, and 60 UBST sessions in about 4 minutes. Model construction a
 triage dominate the cost; hours per technique are recorded in `effort-log.csv` (team to
 complete) for the defects-per-hour comparison.
 
-Coverage (branch, target modules, v8): baseline 76.6%, with the course suites 82.8%.
+Coverage (branch, target modules, v8, both measured in the same run on the final code): baseline 77.3%, with the course suites 82.8%.
 The largest gains are on code the baseline never ran: the expiry cron route (0% to
 87.5%), `lib/bookings.ts` (76% to 86%), the safety scout (63% to 89%) and the lease
 scout (81% to 100%).

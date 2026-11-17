@@ -12,8 +12,10 @@ Perch". Everything here was produced specifically for the course.
 
 - [DEMO.md](DEMO.md): the 15-minute TA demo script. In short: `npm run demo:prepare`
   once, then `npm run demo` on the day.
-- [demo/Perch_Testing_Demo.pptx](demo/Perch_Testing_Demo.pptx): the slide deck
-  (rebuild with `node scripts/testing/demo-deck.cjs`).
+- [demo/Perch_Testing_Demo.pptx](demo/Perch_Testing_Demo.pptx): the slide deck, ordered by
+  the TA's demo checklist (rebuild with `node scripts/testing/demo-deck.cjs`).
+- [demo/dashboard.html](demo/dashboard.html): offline demo dashboard with one section per
+  checklist item, generated from the saved results (`npx tsx scripts/testing/demo-dashboard.ts`).
 - `npm run demo:summary`: every result on one screen.
 - [analysis.md](analysis.md): the cross-technique analysis (applicability,
   effectiveness, cost, ODC, reliability, sensitivity).

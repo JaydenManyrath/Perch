@@ -10,34 +10,42 @@ Docs style: plain ASCII only (matches the repo README).
 | --- | --- |
 | Once, the day before | `git pull`, `npm ci`, then `npm run demo:prepare`. It installs the test browser, builds the app in demo mode and dry-runs every step. It ends with a PASS/FAIL list; all PASS means you are ready. |
 | Demo day, 5 minutes before | Open the slide deck (`docs/testing/demo/Perch_Testing_Demo.pptx`), then run `npm run demo` in a terminal. Share your whole screen on Zoom. |
-| During the call | `npm run demo` walks you through 9 steps. Each step shows its slide and what to say. Press Enter to run it, `s` to skip, `b` to go back, `q` to quit. Browser steps open a visible Chromium window so the TA can watch. |
+| During the call | `npm run demo` walks you through 13 steps in the order of the TA checklist. Each step shows its slide and what to say. Press Enter to run it, `s` to skip, `b` to go back, `q` to quit. Browser steps open a visible Chromium window so the TA can watch. |
 | After | Quitting stops the app. Nothing else to clean up. |
 
 Works the same on macOS, Windows and Linux (plain Command Prompt or PowerShell is fine).
 Your own `.env.local` keys are ignored during the demo: it always runs on built-in
 fixture data, so no login and no live database.
 
-## The 9 steps (what `npm run demo` does)
+## The 13 steps (what `npm run demo` does)
 
-| # | Step | Slide | Runs |
+The steps follow the TA's demo checklist in order. Steps 1-5 open the app or a section of
+the demo dashboard (`docs/testing/demo/dashboard.html`, works offline); steps 6a-7 run the
+tests live.
+
+| # | Checklist item | Slide | What happens |
 | --- | --- | --- | --- |
-| 1 | The app | 1-3 | Opens http://localhost:3100; click splash, feed, Perches deck, a listing, Request to book |
-| 2 | Baseline | 3 | The existing 499-case suite (all pass, 0 of 16 defects found) |
-| 3 | FSM booking | 4 | 64 state-machine tests (T.. valid, I.. invalid, P.. paths, C.. races) |
-| 4 | FSM onboarding | 4 | A visible browser walks all 8 onboarding screens |
-| 5 | PT | 5 | 78 partition tests (PF-23 is the $45/hr case) |
-| 6 | CFT | 6 | 37 branch tests (CF-35 is the fake-success case) |
-| 7 | UBST | 7 | 10 random user sessions replayed in a visible browser (about a minute) |
-| 8 | Regressions | 8 | Tests that keep D07, D14, D15 and D16 fixed |
-| 9 | Summary | 8-9 | Every result on one screen |
+| 1 | System under test | 1-4 | Opens the app; click splash, feed, Perches deck, a listing, Request to book |
+| 2 | Raw data and how it was collected | 5 | Dashboard: data behind each model and its source |
+| 3 | Analysis of that data | 6 | Dashboard: baseline coverage gaps, usage-profile visits |
+| 4 | Testing models | 7-10 | Dashboard: booking and onboarding FSMs, partition tables, control flow graphs, Markov matrix |
+| 5 | Test cases, individual and as a suite | 11 | Dashboard: every case by technique, with its result on the original code and now |
+| 6a | Execution: baseline | 12 | The existing 499-case suite (all pass, 0 of 16 defects found) |
+| 6b | Execution: FSM booking | 12 | 64 state-machine tests (T valid, I invalid, P paths, C races) |
+| 6c | Execution: FSM onboarding | 12 | A visible browser walks all 8 onboarding screens |
+| 6d | Execution: PT | 12 | 78 partition tests (PF-23 is the $45/hr case) |
+| 6e | Execution: CFT | 12 | 37 branch tests (CF-35 is the fake-success case) |
+| 6f | Execution: UBST | 12 | 10 random user sessions replayed in a visible browser (about a minute) |
+| 6g | Execution: regressions | 12 | Tests that keep D07, D14, D15 and D16 fixed |
+| 7 | Results and analysis | 13-15 | Summary on screen, then the dashboard's defect log and analysis |
 
-Have these open in other tabs in case the TA asks for a model: `docs/testing/fsm/booking-fsm.md`,
-`docs/testing/pt/partitions.md`, `docs/testing/cft/cfg.md`,
-`docs/testing/markov/usage-profile.md` and `docs/testing/defect-log.csv`.
+If the TA asks to see something in more depth, the dashboard has it: models (section 4),
+every individual test case (section 5), raw result files for every round (section 6, links)
+and the defect log with ODC classification (section 7).
 
 Single steps can also be run on their own: `npm run demo:fsm`, `demo:pt`, `demo:cft`,
 `demo:fsm:onboarding`, `demo:ubst`, `demo:regression`, `demo:summary`, or
-`npm run demo:app` to just start the app.
+`npm run demo:app` to just start the app, `npm run demo:dashboard` to open the dashboard.
 
 ## What to say at each step
 
@@ -65,7 +73,7 @@ which made every listing fail the budget check.
 **CFT/WBT (8-9).** "Error and fallback paths are rarely reached by black-box tests, so we
 drew control flow graphs and forced every branch." Run `npm run demo:cft`. Point at
 CF-35: when the server refused a booking, the client used to take the outage branch and
-show a fake success (D13). Branch coverage on the target modules: 76.6% baseline to
+show a fake success (D13). Branch coverage on the target modules: 77.3% baseline to
 82.8%.
 
 **Markov-OP/UBST (9-12).** "UBST tests what users do most. We built a Markov chain over
@@ -90,7 +98,7 @@ boundaries; CFT: hidden fallback paths; UBST: failures on common user paths), an
 defect was found by two techniques.
 
 **What is the baseline?** The repository's existing Vitest suite, measured before we
-wrote anything: 499 cases, 76.6% branch coverage on the target modules, 0 defects found.
+wrote anything: 499 cases, about 77% branch coverage on the target modules (76.7% first measured, 77.3% on the final code), 0 defects found.
 
 **Is quality getting better?** Yes, measurably. Course-suite failures went from 25 in
 round 1 to 0. UBST reliability went from 0.83 (round 1) to 0.98 (round 2) and 1.00

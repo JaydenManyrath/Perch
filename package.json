@@ -36,7 +36,8 @@
     "demo:ubst": "node scripts/testing/demo.mjs step ubst --show",
     "demo:regression": "node scripts/testing/demo.mjs step regression",
     "demo:summary": "node scripts/testing/demo-summary.mjs",
-    "demo:coverage": "node scripts/testing/coverage-by-technique.mjs coverage-by-technique.json"
+    "demo:coverage": "node scripts/testing/coverage-by-technique.mjs coverage-by-technique.json",
+    "demo:dashboard": "node scripts/testing/demo.mjs step models"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.0",

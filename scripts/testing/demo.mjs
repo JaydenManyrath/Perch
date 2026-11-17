@@ -18,6 +18,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const ROOT = process.cwd();
 const PORT = 3100;
@@ -58,12 +59,19 @@ function run(args, { env = {}, quiet = false } = {}) {
   });
 }
 
-// ---------------- the steps, in demo order ----------------
+// ---------------- the steps, in the order of the TA's demo checklist ----------------
+const DASHBOARD = path.join(ROOT, "docs/testing/demo/dashboard.html");
+const dashboard = (section) => async () => {
+  openBrowser(`${pathToFileURL(DASHBOARD).href}#${section}`);
+  return 0;
+};
+const vitest = (...files) => () => run([bin.vitest, "run", ...files, "--reporter=verbose"]);
+
 const STEPS = [
   {
     id: "app",
-    title: "The app and what we test",
-    slide: "slides 1-3",
+    title: "1. System under test: the app",
+    slide: "slides 1-4",
     say: [
       "Perch helps interns find sublets, friends and events in a new city.",
       "It runs here on built-in fixture data, no keys, which is how we test it.",
@@ -75,51 +83,88 @@ const STEPS = [
     },
   },
   {
+    id: "rawdata",
+    title: "2. Raw data for the models, and how it was collected",
+    slide: "slide 5",
+    say: [
+      "Each model's raw data and how we got it: the spec for the FSM, hand-computed constants for PT,",
+      "the code for CFT, a projected usage profile for Markov (no real users yet; /pilot collects them).",
+    ],
+    action: dashboard("rawdata"),
+  },
+  {
+    id: "analysis",
+    title: "3. Analysis of that data",
+    slide: "slide 6",
+    say: [
+      "Baseline coverage showed the gaps (expiry cron 0%, bookings, the data-source fallback).",
+      "The usage profile shows Feed and the deck dominate, so most UBST sessions go there.",
+    ],
+    action: dashboard("analysis-data"),
+  },
+  {
+    id: "models",
+    title: "4. Testing models (all four techniques)",
+    slide: "slides 7-10",
+    say: ["Booking FSM and onboarding FSM, PT partition tables, CFT graphs, the Markov transition matrix."],
+    action: dashboard("models"),
+  },
+  {
+    id: "testcases",
+    title: "5. Test cases and the organized suite",
+    slide: "slide 11",
+    say: [
+      "Every test case, grouped by technique and model element, with its result on the original code and now.",
+      "Open a suite to show individual cases (T/I/P/C for FSM, PB..PN for PT, CF for CFT).",
+    ],
+    action: dashboard("testcases"),
+  },
+  {
     id: "baseline",
-    title: "Baseline: the existing test suite",
-    slide: "slide 3",
+    title: "6a. Execution: the baseline suite",
+    slide: "slide 12",
     say: ["The repo already had 499 tests. They all pass, but they found none of our 16 defects."],
     action: () => run([bin.vitest, "run", "--exclude", "tests/course/**", "--reporter=dot"]),
   },
   {
     id: "fsm",
-    title: "FSM/BBT: the booking state machine",
-    slide: "slide 4",
+    title: "6b. Execution: FSM booking state machine",
+    slide: "slide 12",
     say: [
       "7 states, 13 valid transitions (T..), 18 invalid ones (I..), 5 paths (P..), 2 races (C..).",
       "Run against both the live API code and the no-key fixture code. Found 8 defects.",
     ],
-    action: () => run([bin.vitest, "run", "tests/course/fsm-booking-live.test.ts", "tests/course/fsm-booking-fixture.test.ts", "--reporter=verbose"]),
+    action: vitest("tests/course/fsm-booking-live.test.ts", "tests/course/fsm-booking-fixture.test.ts"),
   },
   {
     id: "onboarding",
-    title: "FSM/BBT: onboarding, in a real browser",
-    slide: "slide 4",
+    title: "6c. Execution: FSM onboarding, in a real browser",
+    slide: "slide 12",
     say: ["Watch the browser walk all 8 onboarding screens and test the review-screen guard."],
     browser: true,
     action: (show) => run(["tests/e2e/onboarding-fsm.e2e.mjs", APP_URL], { env: show ? { HEADED: "1" } : {} }),
   },
   {
     id: "pt",
-    title: "PT/BBT: partitions on salary, dates and budget",
-    slide: "slide 5",
+    title: "6d. Execution: PT partitions",
+    slide: "slide 12",
     say: [
       "Every input split into valid and invalid classes, both sides of every boundary.",
       "PF-23: \"$45.00 per hour\" used to be read as a $45 yearly salary (D09).",
     ],
-    action: () => run([bin.vitest, "run", "tests/course/pt-verdict-rules.test.ts", "tests/course/pt-finance.test.ts", "--reporter=verbose"]),
+    action: vitest("tests/course/pt-verdict-rules.test.ts", "tests/course/pt-finance.test.ts"),
   },
   {
     id: "cft",
-    title: "CFT/WBT: forcing every branch",
-    slide: "slide 6",
+    title: "6e. Execution: CFT branches",
+    slide: "slide 12",
     say: ["CF-35: a server refusal used to take the outage branch and fake a booking (D13)."],
-    action: () => run([bin.vitest, "run", "tests/course/cft-branches.test.ts", "tests/course/cft-source-fallback.test.ts", "--reporter=verbose"]),
+    action: vitest("tests/course/cft-branches.test.ts", "tests/course/cft-source-fallback.test.ts"),
   },
   {
     id: "ubst",
-    title: "Markov-OP/UBST: random user sessions in a browser",
-    slide: "slide 7",
+    title: "6f. Execution: UBST, random user sessions in a browser",
+    slide: "slide 12",
     say: [
       "10 sessions drawn from the Markov usage profile, replayed in Chromium.",
       "A session fails on a wrong screen, a page error, a 5xx or a feature error. Dots = passed sessions.",
@@ -133,17 +178,21 @@ const STEPS = [
   },
   {
     id: "regression",
-    title: "Regression tests for the later fixes",
-    slide: "slide 8",
+    title: "6g. Execution: regression tests for the later fixes",
+    slide: "slide 12",
     say: ["Each defect found later (D07, D14, D15, D16) got a regression test so it stays fixed."],
-    action: () => run([bin.vitest, "run", "tests/course/regression-round3.test.ts", "tests/course/regression-d16.test.ts", "--reporter=verbose"]),
+    action: vitest("tests/course/regression-round3.test.ts", "tests/course/regression-d16.test.ts"),
   },
   {
     id: "summary",
-    title: "Results on one screen",
-    slide: "slides 8-9",
-    say: ["Per technique: cases, round-1 failures, defects. Then ODC, coverage and UBST reliability."],
-    action: () => run(["scripts/testing/demo-summary.mjs"]),
+    title: "7. Results and analysis",
+    slide: "slides 13-15",
+    say: ["Per technique: cases, round-1 failures, defects. Then ODC, coverage and UBST reliability.", "The dashboard opens on the defect log and cross-technique analysis."],
+    action: async () => {
+      const code = await run(["scripts/testing/demo-summary.mjs"]);
+      await dashboard("results")();
+      return code;
+    },
   },
 ];
 
@@ -231,7 +280,7 @@ async function check() {
   await startApp();
   const results = [];
   for (const s of STEPS) {
-    if (s.id === "app") continue;
+    if (s.opensOnly || ["app", "rawdata", "analysis", "models", "testcases"].includes(s.id)) continue;
     console.log(c.bold(`\n--- ${s.title} ---`));
     const t0 = Date.now();
     const code = await s.action(false);

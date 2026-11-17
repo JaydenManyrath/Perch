@@ -4,7 +4,7 @@ Jayden Manyrath and Koen Gennis | CS 7314/5314, Fall 2026 | Prof. Jeff Tian | Fi
 
 ## Abstract
 
-We applied four formal testing techniques to Perch, a Next.js and Supabase web application that helps interns find sublets, friends and events in a new city. Finite state machine testing (FSM/BBT) covered the booking lifecycle and the onboarding flow, partition testing (PT/BBT) covered the affordability and housing-verdict rules, control flow testing (CFT/WBT) covered the expiry, transition and fallback code, and Markov chain operational profile testing (Markov-OP/UBST) replayed randomly generated user sessions in a real browser. The repository's existing 499-case test suite served as the baseline. The model-driven suites found 16 defects that the baseline missed completely, including three of high severity: hourly pay read as a yearly salary, a fabricated booking success when the server refused a request, and a negotiation feature that failed whenever the app ran without live keys. No defect was found by more than one technique. Each technique found the kind of defect its model targets, and branch coverage of the targeted modules rose from 76.6% to 82.8%. All 16 defects were fixed and retested. Usage-based reliability rose from 0.83 to 1.00 over 4 rounds of 60 sessions.
+We applied four formal testing techniques to Perch, a Next.js and Supabase web application that helps interns find sublets, friends and events in a new city. Finite state machine testing (FSM/BBT) covered the booking lifecycle and the onboarding flow, partition testing (PT/BBT) covered the affordability and housing-verdict rules, control flow testing (CFT/WBT) covered the expiry, transition and fallback code, and Markov chain operational profile testing (Markov-OP/UBST) replayed randomly generated user sessions in a real browser. The repository's existing 499-case test suite served as the baseline. The model-driven suites found 16 defects that the baseline missed completely, including three of high severity: hourly pay read as a yearly salary, a fabricated booking success when the server refused a request, and a negotiation feature that failed whenever the app ran without live keys. No defect was found by more than one technique. Each technique found the kind of defect its model targets, and branch coverage of the targeted modules rose from 77.3% to 82.8% (both measured in the same run on the final code). All 16 defects were fixed and retested. Usage-based reliability rose from 0.83 to 1.00 over 4 rounds of 60 sessions.
 
 ## 1. Introduction
 
@@ -22,7 +22,7 @@ Three decisions changed the plan after the code walkthrough, as reported in the 
 
 ## 4. Baseline
 
-Before writing any test we measured the existing suite: 499 test cases (492 passing, 7 skipped because they need live keys), about 12 seconds to run, and 76.6% branch coverage on the 14 modules we targeted. It never executed the listing-expiry job, the server-side booking transition or the booking fallback paths. Because it passed completely on the original code, it detected none of the defects reported below. It is the reference point for every comparison in Section 9.
+Before writing any test we measured the existing suite: 499 test cases (492 passing, 7 skipped because they need live keys), about 12 seconds to run, and 76.7% branch coverage on the 14 modules we targeted (77.3% when re-measured on the final code, the figure used for comparisons below). It never executed the listing-expiry job, the server-side booking transition or the booking fallback paths. Because it passed completely on the original code, it detected none of the defects reported below. It is the reference point for every comparison in Section 9.
 
 ## 5. FSM/BBT: Booking Lifecycle and Onboarding
 
@@ -117,7 +117,7 @@ Several follow-up items remain:
 
 ## 11. Summary
 
-Four formal techniques, each matched to one class of risk, found 16 defects in Perch that its existing test suite could not, with no overlap between techniques. All 16 were fixed and retested, branch coverage of the targeted code rose by about six percentage points, and usage-based reliability under the projected profile rose from 0.83 to 1.00. The models, test suites, raw results and the defect log are in the repository, and `npm run demo:summary` prints every result in this report from the saved data.
+Four formal techniques, each matched to one class of risk, found 16 defects in Perch that its existing test suite could not, with no overlap between techniques. All 16 were fixed and retested, branch coverage of the targeted code rose by about five and a half percentage points, and usage-based reliability under the projected profile rose from 0.83 to 1.00. The models, test suites, raw results and the defect log are in the repository, and `npm run demo:summary` prints every result in this report from the saved data.
 
 ## Appendix
 

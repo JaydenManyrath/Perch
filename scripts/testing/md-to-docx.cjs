@@ -11,15 +11,20 @@ const d = require('docx');
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, BorderStyle, ShadingType, Footer, PageNumber, LevelFormat, ImageRun } = d;
 const [src, out] = process.argv.slice(2);
 const lines = fs.readFileSync(src, 'utf8').split('\n');
-const FONT = 'Times New Roman', SZ = 24, DOUBLE = { line: 480 }, SINGLE = { line: 240 };
+// DOCX_STYLE=sheet: compact single-spaced Calibri for a study or prep sheet.
+const SHEET = process.env.DOCX_STYLE === 'sheet';
+const FONT = SHEET ? 'Calibri' : 'Times New Roman', SZ = SHEET ? 21 : 24;
+const DOUBLE = SHEET ? { line: 259, after: 80 } : { line: 480 }, SINGLE = { line: 240 };
+const INDENT = SHEET ? undefined : { firstLine: 720 };
 
 function runs(text, base = {}) {
   const out = [];
-  const re = /(\*\*[^*]+\*\*|`[^`]+`)/g; let last = 0, m;
+  const re = /(\*\*[^*]+\*\*|`[^`]+`|\*[^*\s][^*]*\*)/g; let last = 0, m;
   while ((m = re.exec(text))) {
     if (m.index > last) out.push(new TextRun({ text: text.slice(last, m.index), font: FONT, size: base.size || SZ, bold: base.bold }));
     const t = m[0];
     if (t.startsWith('**')) out.push(new TextRun({ text: t.slice(2, -2), font: FONT, size: base.size || SZ, bold: true }));
+    else if (t.startsWith('*')) out.push(new TextRun({ text: t.slice(1, -1), font: FONT, size: base.size || SZ, italics: true, bold: base.bold }));
     else out.push(new TextRun({ text: t.slice(1, -1), font: 'Courier New', size: (base.size || SZ) - 2, bold: base.bold }));
     last = m.index + t.length;
   }
@@ -31,7 +36,8 @@ const borders = { top: border, bottom: border, left: border, right: border };
 function table(rows) {
   const data = rows.filter(r => !/^\|\s*-/.test(r)).map(r => r.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim()));
   const n = data[0].length, total = 9360;
-  const weights = data[0].map((_, j) => Math.max(...data.map(r => (r[j] || "").length), 16) + 6);
+  // Sheet style caps long text columns so short label columns never break mid-word.
+  const weights = data[0].map((_, j) => Math.min(Math.max(...data.map(r => (r[j] || "").length), 16), SHEET ? 40 : Infinity) + 6);
   const sum = weights.reduce((a, b) => a + b, 0);
   let widths = weights.map(w => Math.floor(total * w / sum)); widths[n - 1] += total - widths.reduce((a, b) => a + b, 0);
   return new Table({ width: { size: total, type: WidthType.DXA }, columnWidths: widths,
@@ -68,7 +74,7 @@ while (i < lines.length) {
   if (l.startsWith('|')) { const rows = []; while (i < lines.length && lines[i].startsWith('|')) rows.push(lines[i++]); children.push(table(rows)); continue; }
   if (l.startsWith('- ')) { while (i < lines.length && lines[i].startsWith('- ')) children.push(new Paragraph({ numbering: { reference: 'b', level: 0 }, spacing: DOUBLE, children: runs(lines[i++].slice(2)) })); continue; }
   if (/^Table \d+\./.test(l)) { children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { ...SINGLE, before: 120, after: 120 }, children: runs(l, { size: 20 }) })); i++; continue; }
-  children.push(new Paragraph({ spacing: DOUBLE, indent: { firstLine: 720 }, children: runs(l) })); i++;
+  children.push(new Paragraph({ spacing: DOUBLE, indent: INDENT, children: runs(l) })); i++;
 }
 const doc = new Document({
   numbering: { config: [{ reference: 'b', levels: [{ level: 0, format: LevelFormat.BULLET, text: '•', alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 720, hanging: 360 } } } }] }] },

@@ -10,6 +10,8 @@ Perch". Everything here was produced specifically for the course.
 
 ## Start here for the demo
 
+- [demo/Demo_Prep_Sheet.docx](demo/Demo_Prep_Sheet.docx) (source [demo/demo-prep-sheet.md](demo/demo-prep-sheet.md)):
+  the prep sheet to review together, organized by the TA's demo checklist.
 - [DEMO.md](DEMO.md): the 15-minute TA demo script. In short: `npm run demo:prepare`
   once, then `npm run demo` on the day.
 - [demo/Perch_Testing_Demo.pptx](demo/Perch_Testing_Demo.pptx): the slide deck, ordered by

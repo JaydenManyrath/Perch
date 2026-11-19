@@ -62,9 +62,9 @@ scout (81% to 100%).
 | Assignment | 2 | D06, D14 |
 | Interface | 1 | D13 |
 
-Missing or wrong validation (Checking) dominates: most defects are rules that existed in
-the specification but were not enforced on every path, especially the fixture path that
-the app uses by default.
+Missing or wrong validation (Checking) is the largest group: half the defects are rules
+that existed in the specification but were not enforced on every path, three of them in
+the fixture path that the app uses by default.
 
 ## 5. Reliability and quality trend
 

@@ -357,7 +357,7 @@ text(s, `ODC types: Checking 8, Function 3, Algorithm 2, Assignment 2, Interface
 // 15. Close
 s = pres.addSlide({ masterName: "TITLE_DARK", sectionTitle: "Results" });
 s.addText("What we learned, and next steps", { placeholder: "title" });
-s.addText("Building the model found a defect before any test ran; the default fixture path held most FSM defects; CFT and UBST reached what black-box tests could not.\nNext: run the /pilot with 10-15 volunteers, re-run UBST on live Supabase, add data flow testing on the finance pipeline.", { placeholder: "body" });
+s.addText("Building the model found a defect before any test ran; the default fixture path held half the FSM defects; CFT and UBST reached what black-box tests could not.\nNext: run the /pilot with 10-15 volunteers, re-run UBST on live Supabase, add data flow testing on the finance pipeline.", { placeholder: "body" });
 
 (async () => {
   const out = path.join(D, "demo/Perch_Testing_Demo.pptx");

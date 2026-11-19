@@ -35,7 +35,7 @@ tests live.
 | 6c | Execution: FSM onboarding | 12 | A visible browser walks all 8 onboarding screens |
 | 6d | Execution: PT | 12 | 78 partition tests (PF-23 is the $45/hr case) |
 | 6e | Execution: CFT | 12 | 37 branch tests (CF-35 is the fake-success case) |
-| 6f | Execution: UBST | 12 | 10 random user sessions replayed in a visible browser (about a minute) |
+| 6f | Execution: UBST | 12 | 10 random user sessions replayed in a visible browser (about 70 seconds) |
 | 6g | Execution: regressions | 12 | Tests that keep D07, D14, D15 and D16 fixed |
 | 7 | Results and analysis | 13-15 | Summary on screen, then the dashboard's defect log and analysis |
 
@@ -78,7 +78,7 @@ show a fake success (D13). Branch coverage on the target modules: 77.3% baseline
 
 **Markov-OP/UBST (9-12).** "UBST tests what users do most. We built a Markov chain over
 the 9 main screens, generated random sessions from it, and replayed them in a real
-browser." Run step 7 (10 sessions, about a minute) and let the TA watch. Explain the oracle: a session fails if a screen is not reached, the page throws,
+browser." Run step 7 (10 sessions, about 70 seconds) and let the TA watch. Explain the oracle: a session fails if a screen is not reached, the page throws,
 the server returns a 5xx, or a feature shows an error. Round 1 found D15 (the negotiate
 scouts failed with no keys); after the fix, reliability went from 0.83 (round 1) to 0.98
 (round 2) and 1.00 (rounds 3 and 4, 60 of 60 sessions each). Round 2 also found D16: the

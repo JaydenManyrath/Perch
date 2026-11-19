@@ -26,7 +26,7 @@ The TA asked us to bring documentation, diagrams, code, test cases and collected
 
 Each slide's speaker notes have a short script in plain words. The presenter split follows our proposal (Jayden: FSM, Markov/UBST, the app; Koen: PT, CFT, baseline and coverage).
 
-**Live testing (slide 13).** `npm run demo` starts the app and runs six steps, one per Enter: booking flow (64 tests), edge cases (78), code paths (37), onboarding in a visible browser (13 checks, about 20 s), 10 simulated user visits in a visible browser (about 1 min), and the summary. `s` skips a step, `r` reruns it, `q` quits. If the TA asks for something else, any single step runs on its own: `npm run demo:baseline`, `demo:regression`, `demo:dashboard`, or `npm run demo:full` for the long checklist walkthrough.
+**Live testing (slide 13).** `npm run demo` starts the app and runs six steps, one per Enter: booking flow (64 tests), edge cases (78), code paths (37), onboarding in a visible browser (13 checks, about 50 s), 10 simulated user visits in a visible browser (about 70 s), and the summary. `s` skips a step, `r` reruns it, `q` quits. The browser steps are slowed down on purpose so the TA can follow each screen. To change the speed, set `SLOWMO` (milliseconds between actions) before running: in PowerShell `$env:SLOWMO=800; npm run demo` is slower, `$env:SLOWMO=300` is faster (it lasts until you close that terminal). If the TA asks for something else, any single step runs on its own: `npm run demo:baseline`, `demo:regression`, `demo:dashboard`, or `npm run demo:full` for the long checklist walkthrough.
 
 **If live testing fails:** press `r` once. If it still fails, go to the backup slides; the screenshots on slides 9, 10, 15 and 16 are from a real run on Nov 19.
 
@@ -57,7 +57,7 @@ Jayden types and Koen narrates steps 2 and 3. Read this once on its own before t
 2. **Edge cases (Koen).** "Each line is one range from the edge-case diagram, tested right at its edges. PF-23 is the $45-per-hour case that used to be read as $45 a year." 78 pass.
 3. **Code paths (Koen).** "One test for every branch of the flowchart. CF-35 is the refused booking that used to show a fake success." 37 pass.
 4. **Onboarding in a browser (Jayden).** A browser window opens; let the TA watch it. "A robot fills in onboarding like a user. Continue stays locked until the flagged fields are checked. It also tries an end date before the start date, which the app used to accept." If asked about the orange OBS line: "That's a note, not a failure. The spec doesn't say what should happen on a reload."
-5. **Simulated users (Jayden, about a minute, so keep talking).** "This generates 10 random visits using the odds from the user-journey diagram. The top lists each screen's planned visits next to the actual ones. Each dot is one visit that passed. A visit fails if a screen doesn't load, the page crashes, or a feature shows an error. Our first round had 1 in 6 fail; now it's zero." Ends with "10 runs, 0 failed, R = 1".
+5. **Simulated users (Jayden, about 70 seconds, so keep talking).** "This generates 10 random visits using the odds from the user-journey diagram. The top lists each screen's planned visits next to the actual ones. Each dot is one visit that passed. A visit fails if a screen doesn't load, the page crashes, or a feature shows an error. Our first round had 1 in 6 fail; now it's zero." Ends with "10 runs, 0 failed, R = 1".
 6. **Summary (Koen).** "Everything on one screen: tests per method, the 16 problems, 0 caught by the old tests, and reliability by round."
 
 **Close (Jayden):** "That's our project. Happy to take questions or run anything else." Leave the terminal up; the TA may ask for another command (see the questions section).
@@ -206,8 +206,8 @@ That is 200 course cases (all in `tests/course`), plus 10 browser cases and 240 
 | 1 | Booking flow (FSM) | about 1 s | 64 pass |
 | 2 | Edge cases (PT) | about 1 s | 78 pass |
 | 3 | Code paths (CFT) | about 1 s | 37 pass |
-| 4 | Onboarding in a visible browser (FSM) | about 15 s | 9 PASS lines, plus 1 OBS observation |
-| 5 | 10 simulated user visits in a visible browser (UBST) | about 30-60 s | dots = passed visits; ends "10 runs, 0 failed, R = 1" |
+| 4 | Onboarding in a visible browser (FSM) | about 50 s | 9 PASS lines, plus 1 OBS observation |
+| 5 | 10 simulated user visits in a visible browser (UBST) | about 70 s | dots = passed visits; ends "10 runs, 0 failed, R = 1" |
 | 6 | Summary | instant | the numbers on slides 10-11 |
 
 On request: `npm run demo:baseline` (499 cases: 492 pass, 7 skipped, about 14 s) and `npm run demo:regression` (11 pass).

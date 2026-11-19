@@ -333,8 +333,8 @@ text(s, "npm run demo", { x: 0.5, y: 1.15, w: 9, h: 0.45, fontSize: 20, fontFace
   ["Booking flow", "64 tests, about 1 second"],
   ["Edge cases", "78 tests, about 1 second"],
   ["Code paths", "37 tests, about 1 second"],
-  ["Onboarding in a visible browser", "13 checks, about 20 seconds"],
-  ["10 simulated user visits in a browser", "about 1 minute"],
+  ["Onboarding in a visible browser", "13 checks, about 50 seconds"],
+  ["10 simulated user visits in a browser", "about 70 seconds"],
   ["Summary of all results", "instant"],
 ].forEach(([t, d], i) => {
   const y = 1.8 + i * 0.5;
@@ -349,7 +349,7 @@ s.addNotes([
   "2 EDGE CASES (Koen): \"Each line is one range from the edge-case diagram, tested right at its edges. PF-23 is the $45-per-hour case that used to be read as $45 a year.\" 78 pass.",
   "3 CODE PATHS (Koen): \"One test for every branch of the flowchart. CF-35 is the refused booking that used to show a fake success.\" 37 pass.",
   "4 ONBOARDING (Jayden): let the TA watch the browser. \"A robot fills in onboarding like a user. Continue stays locked until the flagged fields are checked. It also tries an end date before the start date, which the app used to accept.\" Orange OBS line: \"a note, not a failure; the spec doesn't say what happens on a reload.\"",
-  "5 SIMULATED USERS (Jayden, about a minute, keep talking): \"10 random visits using the odds from the user-journey diagram. The top lists each screen's planned visits next to the actual ones. Each dot is a visit that passed. A visit fails if a screen doesn't load, the page crashes, or a feature shows an error. Round 1 had 1 in 6 fail; now it's zero.\"",
+  "5 SIMULATED USERS (Jayden, about 70 seconds, keep talking): \"10 random visits using the odds from the user-journey diagram. The top lists each screen's planned visits next to the actual ones. Each dot is a visit that passed. A visit fails if a screen doesn't load, the page crashes, or a feature shows an error. Round 1 had 1 in 6 fail; now it's zero.\"",
   "6 SUMMARY (Koen): \"Everything on one screen: tests per method, the 16 problems, 0 caught by the old tests, and reliability by round.\"",
   "CLOSE (Jayden): \"That's our project. Happy to take questions or run anything else.\" If a step fails twice: \"Here's the same run from today\" and show slides 9, 10, 15, 16.",
 ].join("\n\n"));

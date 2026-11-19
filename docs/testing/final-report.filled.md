@@ -97,7 +97,7 @@ Against the baseline, which found none of the 16, every technique added value.
 
 **Effectiveness and cost.** By count FSM found the most defects (eight). Weighted by severity, PT, CFT and UBST each found one of the three high-severity defects. Execution cost was low for every technique: the course suites run in a few seconds, the onboarding browser run in about a minute and a 60-session UBST round in about four minutes. Model construction and failure triage dominated the effort.
 
-**Defect classification.** By ODC type the defects are 8 Checking, 3 Function, 2 Algorithm, 2 Assignment and 1 Interface. Missing or wrong validation dominates: most defects were rules that existed in the specification but were not enforced on every path. This was especially true of the fixture path, which is what the app runs by default. By trigger, the FSM defects came from test sequencing and interaction, the PT defects from test variation, the CFT defect from a complex path, and the UBST defects from workload and usage.
+**Defect classification.** By ODC type the defects are 8 Checking, 3 Function, 2 Algorithm, 2 Assignment and 1 Interface. Missing or wrong validation is the largest group: half the defects were rules that existed in the specification but were not enforced on every path, three of them in the fixture path the app runs by default. By trigger, the FSM defects came from test sequencing and interaction, the PT defects from test variation, the CFT defect from a complex path, and the UBST defects from workload and usage.
 
 **Quality trend.** Course-suite failures fell from 25 in round 1 to zero with no regression in the baseline. Usage-based reliability rose from 0.83 to 1.00. The suites now run in a GitHub Actions workflow on every push as regression tests.
 
@@ -105,7 +105,7 @@ Against the baseline, which found none of the 16, every technique added value.
 
 Four lessons stood out:
 - **Building the model is itself a defect-finding activity.** The missing cancel transition was found before any test ran.
-- **Every implementation needs testing against the model.** Most FSM defects were in the fixture path the app uses by default, not the live path we would have tested first.
+- **Every implementation needs testing against the model.** Half of the FSM defects were in the fixture path the app uses by default, not the live path we would have tested first.
 - **White-box and usage-based testing reach what black-box tests cannot.** CFT found a fake success that looked identical on screen, and UBST found a feature that only failed in the configuration users actually run.
 - **Triage is part of the cost of browser-level testing.** Two of our UBST failures were our own driver's mistakes, and documenting them kept the reliability figures honest.
 

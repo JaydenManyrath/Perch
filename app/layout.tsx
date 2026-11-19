@@ -1,12 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import "@/styles/mascot-keyframes.css";
 import { PilotNavLogger } from "@/components/pilot/PilotNavLogger";
 
-const nunito = Nunito({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
+// Nunito is bundled in the repo (SIL Open Font License, see app/fonts) so builds never
+// depend on reaching Google Fonts; some networks and antivirus filters break that fetch.
+const nunito = localFont({
+  src: "./fonts/nunito-latin-wght-normal.woff2",
+  weight: "200 1000",
+  display: "swap",
   variable: "--font-nunito",
 });
 

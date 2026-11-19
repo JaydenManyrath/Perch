@@ -10,7 +10,7 @@ Docs style: plain ASCII only (matches the repo README).
 | --- | --- |
 | Once, the day before | `git pull`, `npm ci`, then `npm run demo:prepare`. It installs the test browser, builds the app in demo mode and dry-runs every step. It ends with a PASS/FAIL list; all PASS means you are ready. |
 | Demo day, 5 minutes before | Open the slide deck (`docs/testing/demo/Perch_Testing_Demo.pptx`) and a terminal in the repo. Share your whole screen on Zoom. |
-| During the call | Present slides 1-12 (about 10 minutes; each slide's notes have a short script). At slide 13, run `npm run demo` for about 3 minutes of live testing: booking flow, edge cases, code paths, onboarding and 10 user visits in a visible browser, then the summary. Enter runs a step, `s` skips, `r` reruns, `q` quits. |
+| During the call | Present slides 1-12 (about 6-7 minutes; each slide's notes have a short script). At slide 13, run `npm run demo` for about 3 minutes of live testing: booking flow, edge cases, code paths, onboarding and 10 user visits in a visible browser, then the summary. Enter runs a step, `s` skips, `r` reruns, `q` quits. |
 | After | Quitting stops the app. Nothing else to clean up. |
 
 Works the same on macOS, Windows and Linux (plain Command Prompt or PowerShell is fine).

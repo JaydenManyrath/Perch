@@ -4,23 +4,24 @@ Jayden Manyrath and Koen Gennis | CS 7314/5314, Fall 2026 | 15-minute TA demo (Z
 
 ## How the 15 minutes go
 
-The TA asked us to bring documentation, diagrams, code, test cases and collected data, and to be ready for live testing. Plan: about 10 minutes of slides, then about 3 minutes of live testing at the end, leaving a couple of minutes for questions. No switching back and forth. The slides are written for a non-specialist; the technical terms are in the speaker notes and in sections 1-9 below, ready for questions.
+The TA asked us to bring documentation, diagrams, code, test cases and collected data, and to be ready for live testing. Plan: about 6-7 minutes of slides, then about 3 minutes of live testing at the end, leaving about 5 minutes for questions and discussion of the results (the TA asked us to be ready to discuss them, so that time is useful, not slack). The times below are the speaker notes read at a normal pace plus a few seconds to point at the slide; don't pad them. No switching back and forth. The slides are written for a non-specialist; the technical terms are in the speaker notes and in sections 1-9 below, ready for questions.
 
 | Slide | What it shows | TA's list | Who | Time |
 | --- | --- | --- | --- | --- |
-| 1 | Title | | Jayden | 0:20 |
-| 2 | Perch, with real screenshots | System | Jayden | 0:50 |
-| 3 | 499 old tests found 0 of 16 problems; our four methods | Approach, baseline | Jayden | 1:00 |
-| 4 | Collected data and how; analysis of what the old tests reached | Collected data | Koen | 1:00 |
-| 5 | Diagram 1: booking state machine | Diagrams (FSM) | Jayden | 1:00 |
-| 6 | Diagrams 2-3: edge-case ranges, code-path flow chart | Diagrams (PT, CFT) | Koen | 1:00 |
-| 7 | Diagram 4: the user journey with its odds | Diagrams, collected data (Markov) | Jayden | 0:50 |
-| 8 | Example test cases and the full suite | Test cases | Koen | 1:00 |
-| 9 | Screenshots of today's test runs | Execution | Koen | 0:40 |
-| 10 | Reliability per round, with a screenshot | Results | Jayden | 0:50 |
-| 11 | 16 problems by method, with examples | Results, analysis | Koen | 0:50 |
-| 12 | What we learned, and the limits | Analysis | Jayden | 0:40 |
+| 1 | Title | | Jayden | 0:15 |
+| 2 | Perch, with real screenshots | System | Jayden | 0:30 |
+| 3 | 499 old tests found 0 of 16 problems; our four methods | Approach, baseline | Jayden | 0:35 |
+| 4 | Collected data and how; analysis of what the old tests reached | Collected data | Koen | 0:35 |
+| 5 | Diagram 1: booking state machine | Diagrams (FSM) | Jayden | 0:35 |
+| 6 | Diagrams 2-3: edge-case ranges, code-path flow chart | Diagrams (PT, CFT) | Koen | 0:40 |
+| 7 | Diagram 4: the user journey with its odds | Diagrams, collected data (Markov) | Jayden | 0:35 |
+| 8 | Example test cases and the full suite | Test cases | Koen | 0:35 |
+| 9 | Screenshots of today's test runs | Execution | Koen | 0:30 |
+| 10 | Reliability per round, with a screenshot | Results | Jayden | 0:40 |
+| 11 | 16 problems by method, with examples | Results, analysis | Koen | 0:35 |
+| 12 | What we learned, and the limits | Analysis | Jayden | 0:25 |
 | 13 | Live testing: run `npm run demo` | Live testing | Jayden drives, both talk | 3:00 |
+| | **Total** | | | **about 9:30**, leaving 5 min for questions |
 | 14-18 | Backup: full summary, onboarding run, numbers by method (with course names), where every document lives | Documentation | Whoever is asked | |
 
 Each slide's speaker notes have a short script in plain words. The presenter split follows our proposal (Jayden: FSM, Markov/UBST, the app; Koen: PT, CFT, baseline and coverage).
@@ -33,9 +34,9 @@ Each slide's speaker notes have a short script in plain words. The presenter spl
 
 Sections 1-7 follow the TA's checklist. For each one: where it is in the deck, the facts to know without looking, and likely questions with short answers. Section 8 explains every defect and its fix; section 9 explains the concepts in plain language. Study in four rounds:
 
-1. **Alone:** read sections 8 and 9 in full, then your own slides and sections.
-2. **Together:** a timed run-through of the slides plus the live testing, under 15 minutes.
-3. **Together:** quiz each other.
+1. **Alone:** read sections 8 and 9 in full, then your own slides and sections, then the live testing script.
+2. **Together:** a timed run-through of the slides plus the live testing; aim for 9-10 minutes.
+3. **Together:** quiz each other from "All likely questions in one place" near the end.
 4. **Morning of:** a 15-minute skim.
 
 ## Before the demo (do these)
@@ -45,6 +46,23 @@ Sections 1-7 follow the TA's checklist. For each one: where it is in the deck, t
 - Fill in `docs/testing/effort-log.csv` with your real hours. The TA may ask about cost, and right now we have no hours to show.
 - Open before the call: the slides (`docs/testing/demo/Perch_Testing_Demo.pptx`) and a terminal in the repo. Run nothing yet.
 - On the call: share your whole screen and present the slides. At slide 13, switch to the terminal and run `npm run demo`.
+
+## Live testing script (slide 13, about 3 minutes)
+
+Jayden types and Koen narrates steps 2 and 3. Read this once on its own before the run-through. The same lines are in slide 13's speaker notes.
+
+**Before step 1, on the slide:** "Now the same tests from the screenshots, running live on the fixed app." Switch to the terminal and run `npm run demo`. It starts the app first, which takes a few seconds.
+
+1. **Booking flow (Jayden).** Press Enter. "Each line is one step from the booking diagram. T lines are allowed steps, I lines are steps that must be refused, C lines are two people booking at the same moment. All 64 pass." Point at C01: "this one used to crash."
+2. **Edge cases (Koen).** "Each line is one range from the edge-case diagram, tested right at its edges. PF-23 is the $45-per-hour case that used to be read as $45 a year." 78 pass.
+3. **Code paths (Koen).** "One test for every branch of the flowchart. CF-35 is the refused booking that used to show a fake success." 37 pass.
+4. **Onboarding in a browser (Jayden).** A browser window opens; let the TA watch it. "A robot fills in onboarding like a user. Continue stays locked until the flagged fields are checked. It also tries an end date before the start date, which the app used to accept." If asked about the orange OBS line: "That's a note, not a failure. The spec doesn't say what should happen on a reload."
+5. **Simulated users (Jayden, about a minute, so keep talking).** "This generates 10 random visits using the odds from the user-journey diagram. The top lists each screen's planned visits next to the actual ones. Each dot is one visit that passed. A visit fails if a screen doesn't load, the page crashes, or a feature shows an error. Our first round had 1 in 6 fail; now it's zero." Ends with "10 runs, 0 failed, R = 1".
+6. **Summary (Koen).** "Everything on one screen: tests per method, the 16 problems, 0 caught by the old tests, and reliability by round."
+
+**Close (Jayden):** "That's our project. Happy to take questions or run anything else." Leave the terminal up; the TA may ask for another command (see the questions section).
+
+**If a step fails:** press `r` once. If it fails again: "That's this laptop; here's the same run from today." Go back to the slides: 9 (test runs), 10 (simulated users), 15 (summary), 16 (onboarding).
 
 ## 1. System under testing
 
@@ -365,6 +383,43 @@ For each: what it means, and the sentence to say if the TA asks.
 - **Fixture mode:** the app running on built-in sample data with no keys.
 - **In-memory database:** a stand-in for Supabase in the unit tests, so runs are fast and repeatable. It enforces the one-booking-per-listing rule.
 - **Playwright:** drives a real Chromium browser for the onboarding and usage-based tests.
+
+## All likely questions in one place
+
+The same answers sit in their own sections too; this is the list for the quiz round. Course names are in brackets: step-by-step flows = FSM, edge-case inputs = PT, every code path = CFT, real user behavior = Markov usage profile / UBST.
+
+**About the app and the approach**
+
+- *Why these parts of the app?* They are the riskiest. Booking depends on the order of events, the verdict rules are numbers and dates, and the fallback and expiry code is full of rarely-run branches. (Section 1)
+- *Is this the real app?* Yes. The tests run the real route handlers and library code, and the browser tests click through a real production build. (Section 1)
+- *Why these four methods?* Each targets a different kind of mistake. Booking needs order (FSM), the rules are numbers and dates (PT), error paths are hidden from black-box tests (CFT), and usage-based testing puts effort where users go and gives a reliability number (Markov/UBST). (Section 4)
+- *What is the baseline?* The repo's existing 499-case suite, measured before we wrote anything: 77.3% branch coverage on the target modules, 0 defects found. (Section 7)
+- *Why sample data and not the real database?* Repeatable runs, no risk to real users, and it's the app's default mode with no keys. The limit is that nothing ran against the real Supabase; we say so on slide 12. (Honest limits)
+
+**About the data and models**
+
+- *Where did the usage probabilities come from?* Team estimates of the designed journey, because Perch has no real users yet. We built `/pilot` so volunteers can record real navigation, and `scripts/testing/pilot-profile.ts` turns those logs into a refined profile. The pilot hasn't been run; say so plainly. (Section 2)
+- *Why build the booking model from the spec instead of the code?* A model built from the code can only confirm what the code already does. One built from the spec can show where the code disagrees with what it should do. (Section 2)
+- *What did the analysis change?* It decided where the tests went: white-box and FSM effort on the low-coverage modules, and most simulated visits on the feed and the deck, where users spend their time. (Section 3)
+- *How sensitive is reliability to your usage estimates?* Changing booking or abandonment odds by ±50% moves it by less than 0.01. Changing how often users open the housing check moves it to 0.94 or 0.84, because that's where the round 1 failures were. (Section 7)
+
+**About the test cases**
+
+- *How do the test cases trace to the models?* Each ID maps to one model element: T05 is booking transition 5, PL-05 a row of the lease partition table, CF-35 one edge of code-path graph 6. That's how we show transition, class and branch coverage. (Section 5)
+- *How do we know these are real tests and not tests written to pass?* On commit `bfad1d9` (the original code) the course suites fail 24 times; on `main` they all pass. The D16 tests fail 4 of 5 on the pre-fix code. Expected values came from the spec and hand calculation, not the code's output. Live proof: `git checkout bfad1d9`, `npx vitest run tests/course`, then `git checkout main` and run it again. (Section 6)
+- *Can you run something else?* `npm run demo:baseline` (the 499 old tests), `npm run demo:regression` (tests that keep later fixes fixed), `npm run demo:dashboard` (every model and test case), `npm run demo:summary`.
+
+**About results and analysis**
+
+- *How do you know a technique worked?* Answer with three points. Applicability: each found the kind of defect its model targets, and no defect was found by two techniques. Effectiveness: 16 defects against the baseline's 0; FSM found the most, and PT, CFT and UBST each found one of the three high-severity ones. Cost: every suite runs in seconds, so building the models and triaging failures was the real cost. (Section 7)
+- *How long did it take?* Answer from `effort-log.csv`. Fill it in before the demo; right now it is blank.
+- *Is quality getting better?* Yes. Failing course cases went from 25 to 0, simulated-user reliability from 0.83 to 1.00, and none of the existing 499 tests regressed. GitHub Actions now runs every suite on every push. (Section 7)
+- *Why don't two of the simulated-user failures count?* UB-015 and UB-032 were mistakes in our own test script, not the app. They're documented in `ubst/triage.json`, and we report reliability with and without them. (Section 7)
+- *What does the orange OBS line in onboarding mean?* An observation, not a failure: the spec doesn't say whether onboarding progress should survive a reload, so we record what happens. (Live testing script)
+- *Which problem was most serious?* D09 ($45/hour read as $45/year, so everything looked unaffordable), D13 (a refused booking showed a fake success) and D15 (the housing check broke in sample-data mode) were rated high. (Section 8)
+- *What about other techniques?* Boundary testing is built into our PT cases. Data flow testing would fit the finance pipeline (offer letter → take-home → budget) and is the natural next one. (Section 7)
+- *What would you do next?* Run the `/pilot` with 10-15 volunteers to replace the estimated usage profile, rerun the simulated users against the real database, and add data flow testing. (Slide 12)
+- *What are the limits?* Read the "Honest limits" section below; say them before the TA asks.
 
 ## Honest limits (say these before the TA asks)
 

@@ -25,6 +25,7 @@
     "seed:sourcing": "tsx scripts/seed-sourcing.ts",
     "ingest:events": "tsx scripts/ingest-events.ts",
     "demo": "node scripts/testing/demo.mjs",
+    "demo:full": "node scripts/testing/demo.mjs full",
     "demo:prepare": "node scripts/testing/demo.mjs prepare",
     "demo:check": "node scripts/testing/demo.mjs check",
     "demo:app": "node scripts/testing/demo.mjs app",

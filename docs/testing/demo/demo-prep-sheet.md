@@ -2,41 +2,53 @@
 
 Jayden Manyrath and Koen Gennis | CS 7314/5314, Fall 2026 | 15-minute TA demo (Zoom) | Last day: Nov 20
 
-## How to use this sheet
+## How the 15 minutes go
 
-The TA's demo page lists seven things to be ready to show. Sections 1-7 take them in that order. For each one: what to show and where, the facts to know without looking, and the questions the TA is likely to ask with a short answer. Section 8 explains every defect and its fix, and section 9 explains the concepts in plain language. Study in four rounds:
+The TA asked us to bring documentation, diagrams, code, test cases and collected data, and to be ready for live testing. Plan: about 10 minutes of slides, then about 3 minutes of live testing at the end, leaving a couple of minutes for questions. No switching back and forth. The slides are written for a non-specialist; the technical terms are in the speaker notes and in sections 1-9 below, ready for questions.
 
-1. **Alone:** read sections 8 and 9 in full, then your own sections.
-2. **Together:** a timed run-through with the slides.
+| Slide | What it shows | TA's list | Who | Time |
+| --- | --- | --- | --- | --- |
+| 1 | Title | | Jayden | 0:20 |
+| 2 | Perch, with real screenshots | System | Jayden | 0:50 |
+| 3 | 499 old tests found 0 of 16 problems; our four methods | Approach, baseline | Jayden | 1:00 |
+| 4 | Collected data and how; analysis of what the old tests reached | Collected data | Koen | 1:00 |
+| 5 | Diagram 1: booking state machine | Diagrams (FSM) | Jayden | 1:00 |
+| 6 | Diagrams 2-3: edge-case ranges, code-path flow chart | Diagrams (PT, CFT) | Koen | 1:00 |
+| 7 | Diagram 4: the user journey with its odds | Diagrams, collected data (Markov) | Jayden | 0:50 |
+| 8 | Example test cases and the full suite | Test cases | Koen | 1:00 |
+| 9 | Screenshots of today's test runs | Execution | Koen | 0:40 |
+| 10 | Reliability per round, with a screenshot | Results | Jayden | 0:50 |
+| 11 | 16 problems by method, with examples | Results, analysis | Koen | 0:50 |
+| 12 | What we learned, and the limits | Analysis | Jayden | 0:40 |
+| 13 | Live testing: run `npm run demo` | Live testing | Jayden drives, both talk | 3:00 |
+| 14-18 | Backup: full summary, onboarding run, numbers by method (with course names), where every document lives | Documentation | Whoever is asked | |
+
+Each slide's speaker notes have a short script in plain words. The presenter split follows our proposal (Jayden: FSM, Markov/UBST, the app; Koen: PT, CFT, baseline and coverage).
+
+**Live testing (slide 13).** `npm run demo` starts the app and runs six steps, one per Enter: booking flow (64 tests), edge cases (78), code paths (37), onboarding in a visible browser (13 checks, about 20 s), 10 simulated user visits in a visible browser (about 1 min), and the summary. `s` skips a step, `r` reruns it, `q` quits. If the TA asks for something else, any single step runs on its own: `npm run demo:baseline`, `demo:regression`, `demo:dashboard`, or `npm run demo:full` for the long checklist walkthrough.
+
+**If live testing fails:** press `r` once. If it still fails, go to the backup slides; the screenshots on slides 9, 10, 15 and 16 are from a real run on Nov 19.
+
+## How to study this sheet
+
+Sections 1-7 follow the TA's checklist. For each one: where it is in the deck, the facts to know without looking, and likely questions with short answers. Section 8 explains every defect and its fix; section 9 explains the concepts in plain language. Study in four rounds:
+
+1. **Alone:** read sections 8 and 9 in full, then your own slides and sections.
+2. **Together:** a timed run-through of the slides plus the live testing, under 15 minutes.
 3. **Together:** quiz each other.
 4. **Morning of:** a 15-minute skim.
-
-The presenter column below says who owns which section.
-
-| # | TA checklist item | Slide | `npm run demo` step | Presenter |
-| --- | --- | --- | --- | --- |
-| 1 | System under testing | 3-4 | 1 | Jayden |
-| 2 | Raw data for model construction, and how collected | 5 | 2 | Koen |
-| 3 | Analysis of that data | 6 | 3 | Koen |
-| 4 | Testing models | 7-10 | 4 | FSM, Markov: Jayden. PT, CFT: Koen |
-| 5 | Test cases (individual and organized suite) | 11 | 5 | Koen |
-| 6 | Test execution, live, and results | 12 | 6a-6g | Whoever owns the technique being run |
-| 7 | Result data and analysis | 13-15 | 7 | Jayden, Koen for the comparison |
-
-The presenter split follows the roles in our proposal (Jayden: FSM, Markov-OP/UBST, the app; Koen: PT, CFT, baseline and coverage). Change it if you prefer, but decide before the call.
 
 ## Before the demo (do these)
 
 - Sign up for a slot on the TA's sheet (demos run Nov 10-20, weekday evenings 6:30-9:00).
 - The day before, on the laptop you will present from: `git pull`, `npm ci`, `npm run demo:prepare`. It must end with every step PASS.
 - Fill in `docs/testing/effort-log.csv` with your real hours. The TA may ask about cost, and right now we have no hours to show.
-- Open before the call: the slides (`docs/testing/demo/Perch_Testing_Demo.pptx`) and a terminal in the repo.
-- On the call: share your whole screen, then run `npm run demo`. Enter runs a step, `s` skips, `b` goes back, `r` reruns, `q` quits.
-- If anything fails live: press `r` once. If it still fails, run `npm run demo:summary` (needs nothing running) and open `docs/testing/demo/dashboard.html`; every result is saved there.
+- Open before the call: the slides (`docs/testing/demo/Perch_Testing_Demo.pptx`) and a terminal in the repo. Run nothing yet.
+- On the call: share your whole screen and present the slides. At slide 13, switch to the terminal and run `npm run demo`.
 
 ## 1. System under testing
 
-**Show:** step 1 opens the app at http://localhost:3100. Click: splash, Flyway feed, Perches deck, open a listing, Request to book. Slide 3 is the function and component table.
+**Show:** slide 2 (screenshots of the app). If the TA wants to see it running: `npm run demo:app`, then http://localhost:3100.
 
 **Know:**
 
@@ -59,7 +71,7 @@ The presenter split follows the roles in our proposal (Jayden: FSM, Markov-OP/UB
 
 ## 2. Raw data for model construction, and how it was collected
 
-**Show:** slide 5, or step 2 (dashboard section 2).
+**Show:** slide 4 (the table on the left). Detail: dashboard section 2 (`npm run demo:dashboard`).
 
 **Know:**
 
@@ -81,7 +93,7 @@ Run data: every round's test results, all usage-based sessions and the defect lo
 
 ## 3. Analysis of that data
 
-**Show:** slide 6, or step 3 (dashboard section 3).
+**Show:** slide 4 (the chart) and slide 7 (visits per session). Detail: dashboard section 3.
 
 **Know:**
 
@@ -94,7 +106,7 @@ Run data: every round's test results, all usage-based sessions and the defect lo
 
 ## 4. Testing models
 
-**Show:** slides 7-10, or step 4 (dashboard section 4 has every model in full).
+**Show:** slides 5-7. Dashboard section 4 has every model in full.
 
 **FSM/BBT (Jayden).**
 
@@ -140,7 +152,7 @@ One test per branch edge.
 
 ## 5. Test cases (individual and the organized suite)
 
-**Show:** slide 11, or step 5. Dashboard section 5 lists every test case with its result on the original code and now; open one suite and point at a few cases.
+**Show:** slide 8. Dashboard section 5 lists every test case with its result on the original code and now.
 
 **Know:**
 
@@ -167,17 +179,20 @@ That is 200 course cases (all in `tests/course`), plus 10 browser cases and 240 
 
 ## 6. Test execution, live, and results
 
-**Show:** steps 6a-6g run live. Slide 12 has the rounds table.
+**Show:** slide 9 (screenshots), then live on slide 13 (`npm run demo`).
 
-| Step | What runs | Time | Expected result |
+`npm run demo` runs these in order (Enter for each):
+
+| # | What runs | Time | Expected result |
 | --- | --- | --- | --- |
-| 6a | Baseline suite | about 14 s | 499 cases: 492 pass, 7 skipped |
-| 6b | FSM booking | about 1 s | 64 pass |
-| 6c | FSM onboarding (visible browser) | about 12 s | passes, plus 1 observation |
-| 6d | PT | about 1 s | 78 pass |
-| 6e | CFT | about 1 s | 37 pass |
-| 6f | UBST, 10 sessions (visible browser) | about 30 s | dots = passed sessions |
-| 6g | Regression | about 1 s | 11 pass |
+| 1 | Booking flow (FSM) | about 1 s | 64 pass |
+| 2 | Edge cases (PT) | about 1 s | 78 pass |
+| 3 | Code paths (CFT) | about 1 s | 37 pass |
+| 4 | Onboarding in a visible browser (FSM) | about 15 s | 9 PASS lines, plus 1 OBS observation |
+| 5 | 10 simulated user visits in a visible browser (UBST) | about 30-60 s | dots = passed visits; ends "10 runs, 0 failed, R = 1" |
+| 6 | Summary | instant | the numbers on slides 10-11 |
+
+On request: `npm run demo:baseline` (499 cases: 492 pass, 7 skipped, about 14 s) and `npm run demo:regression` (11 pass).
 
 **Rounds:**
 
@@ -194,7 +209,7 @@ That is 200 course cases (all in `tests/course`), plus 10 browser cases and 240 
 
 ## 7. Result data and analysis
 
-**Show:** step 7 (the summary, then dashboard section 7), and slides 13-15.
+**Show:** slides 10-12; backup slides 15 and 17 for the full numbers. Dashboard section 7 has the defect log.
 
 **Defects: 16 found, all 16 fixed and retested.**
 
@@ -365,4 +380,4 @@ For each: what it means, and the sentence to say if the TA asks.
 | "Chromium for the tests is missing" | `npm run demo:prepare` (once) |
 | "The app did not start on port 3100" | Close the other app or an old demo terminal, run `npm run demo` again |
 | A browser step fails or is slow | Press `r` to rerun it once |
-| The laptop or network acts up | Show the slides, `npm run demo:summary` and `docs/testing/demo/dashboard.html`; every result is saved |
+| The laptop or network acts up | Skip live testing; the backup slides have screenshots of a real run, and `npm run demo:summary` needs nothing running |

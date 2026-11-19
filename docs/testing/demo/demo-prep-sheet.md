@@ -4,23 +4,24 @@ Jayden Manyrath and Koen Gennis | CS 7314/5314, Fall 2026 | 15-minute TA demo (Z
 
 ## How the 15 minutes go
 
-The TA asked us to bring documentation, diagrams, code, test cases and collected data, and to be ready for live testing. Plan: about 10 minutes of slides, then about 3 minutes of live testing at the end, leaving a couple of minutes for questions. No switching back and forth. The slides are written for a non-specialist; the technical terms are in the speaker notes and in sections 1-9 below, ready for questions.
+The TA asked us to bring documentation, diagrams, code, test cases and collected data, and to be ready for live testing. Plan: about 6-7 minutes of slides, then about 3 minutes of live testing at the end, leaving about 5 minutes for questions and discussion of the results (the TA asked us to be ready to discuss them, so that time is useful, not slack). The times below are the speaker notes read at a normal pace plus a few seconds to point at the slide; don't pad them. No switching back and forth. The slides are written for a non-specialist; the technical terms are in the speaker notes and in sections 1-9 below, ready for questions.
 
 | Slide | What it shows | TA's list | Who | Time |
 | --- | --- | --- | --- | --- |
-| 1 | Title | | Jayden | 0:20 |
-| 2 | Perch, with real screenshots | System | Jayden | 0:50 |
-| 3 | 499 old tests found 0 of 16 problems; our four methods | Approach, baseline | Jayden | 1:00 |
-| 4 | Collected data and how; analysis of what the old tests reached | Collected data | Koen | 1:00 |
-| 5 | Diagram 1: booking state machine | Diagrams (FSM) | Jayden | 1:00 |
-| 6 | Diagrams 2-3: edge-case ranges, code-path flow chart | Diagrams (PT, CFT) | Koen | 1:00 |
-| 7 | Diagram 4: the user journey with its odds | Diagrams, collected data (Markov) | Jayden | 0:50 |
-| 8 | Example test cases and the full suite | Test cases | Koen | 1:00 |
-| 9 | Screenshots of today's test runs | Execution | Koen | 0:40 |
-| 10 | Reliability per round, with a screenshot | Results | Jayden | 0:50 |
-| 11 | 16 problems by method, with examples | Results, analysis | Koen | 0:50 |
-| 12 | What we learned, and the limits | Analysis | Jayden | 0:40 |
+| 1 | Title | | Jayden | 0:15 |
+| 2 | Perch, with real screenshots | System | Jayden | 0:30 |
+| 3 | 499 old tests found 0 of 16 problems; our four methods | Approach, baseline | Jayden | 0:35 |
+| 4 | Collected data and how; analysis of what the old tests reached | Collected data | Koen | 0:35 |
+| 5 | Diagram 1: booking state machine | Diagrams (FSM) | Jayden | 0:35 |
+| 6 | Diagrams 2-3: edge-case ranges, code-path flow chart | Diagrams (PT, CFT) | Koen | 0:40 |
+| 7 | Diagram 4: the user journey with its odds | Diagrams, collected data (Markov) | Jayden | 0:35 |
+| 8 | Example test cases and the full suite | Test cases | Koen | 0:35 |
+| 9 | Screenshots of today's test runs | Execution | Koen | 0:30 |
+| 10 | Reliability per round, with a screenshot | Results | Jayden | 0:40 |
+| 11 | 16 problems by method, with examples | Results, analysis | Koen | 0:35 |
+| 12 | What we learned, and the limits | Analysis | Jayden | 0:25 |
 | 13 | Live testing: run `npm run demo` | Live testing | Jayden drives, both talk | 3:00 |
+| | **Total** | | | **about 9:30**, leaving 5 min for questions |
 | 14-18 | Backup: full summary, onboarding run, numbers by method (with course names), where every document lives | Documentation | Whoever is asked | |
 
 Each slide's speaker notes have a short script in plain words. The presenter split follows our proposal (Jayden: FSM, Markov/UBST, the app; Koen: PT, CFT, baseline and coverage).
@@ -34,7 +35,7 @@ Each slide's speaker notes have a short script in plain words. The presenter spl
 Sections 1-7 follow the TA's checklist. For each one: where it is in the deck, the facts to know without looking, and likely questions with short answers. Section 8 explains every defect and its fix; section 9 explains the concepts in plain language. Study in four rounds:
 
 1. **Alone:** read sections 8 and 9 in full, then your own slides and sections.
-2. **Together:** a timed run-through of the slides plus the live testing, under 15 minutes.
+2. **Together:** a timed run-through of the slides plus the live testing; aim for 9-10 minutes.
 3. **Together:** quiz each other.
 4. **Morning of:** a 15-minute skim.
 

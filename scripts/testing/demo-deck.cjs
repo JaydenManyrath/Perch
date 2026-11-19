@@ -1,7 +1,7 @@
 /**
  * CS 7314: build the demo slide deck from the saved results.
  *
- * Written for a 15-minute slot: about 10 minutes of slides, kept high level so a
+ * Written for a 15-minute slot: about 6-7 minutes of slides, kept high level so a
  * non-specialist can follow, then a few minutes of live testing at the end (npm run demo).
  * The slides carry what the TA asked us to bring: documentation, diagrams, test cases,
  * collected data, and results with screenshots of a real run. Backup slides at the end
@@ -109,7 +109,7 @@ const METHODS = [
 let s = pres.addSlide({ masterName: "TITLE_DARK" });
 s.addText("How We Tested Perch", { placeholder: "title" });
 s.addText("Four testing methods, 16 problems found and fixed\n\nJayden Manyrath and Koen Gennis  |  CS 7314/5314, Fall 2026", { placeholder: "body" });
-s.addNotes("JAYDEN (20 s). We tested Perch, an app we built, with four testing methods from the course and compared them with the tests the app already had. We'll walk through the slides for about ten minutes, then run some of the tests live.");
+s.addNotes("JAYDEN (15 s). We tested Perch, an app we built, with four testing methods from the course and compared them with the tests the app already had. We'll walk through the slides for about ten minutes, then run some of the tests live.");
 
 // 2. System under test
 s = pres.addSlide({ masterName: "CONTENT" });
@@ -125,7 +125,7 @@ text(s, [
   { text: "We tested it with built-in sample data, so tests are repeatable and never touch real users.", options: { color: C.accent6, fontSize: 12 } },
 ], { x: 0.5, y: 1.2, w: 3.3, h: 3.6, fontSize: 13.5, paraSpaceAfter: 4 });
 ["app-home.png", "app-feed.png", "app-deck.png"].forEach((f, i) => img(s, f, 4.0 + i * 1.88, 1.15, 3.6, 0.5, ["Perch welcome screen", "Event feed", "Sublet swipe deck"][i]));
-s.addNotes("JAYDEN (50 s). Perch helps interns moving for a summer job. These are real screenshots: the welcome screen, the event feed, and the deck of sublets you swipe through and book. The risky parts are booking, the money and date rules, and the code that falls back when something goes wrong. Those are what we tested.");
+s.addNotes("JAYDEN (30 s). Perch helps interns moving for a summer job. These are real screenshots: the welcome screen, the event feed, and the deck of sublets you swipe through and book. The risky parts are booking, the money and date rules, and the code that falls back when something goes wrong. Those are what we tested.");
 
 // 3. Starting point and the plan
 s = pres.addSlide({ masterName: "CONTENT" });
@@ -141,7 +141,7 @@ METHODS.forEach(([name, formal, what], i) => {
   text(s, formal, { x: x + 0.15, y: y + 0.42, w: 2.65, h: 0.25, fontSize: 10, color: C.accent3, objectName: `m-formal-${i}` });
   text(s, what, { x: x + 0.15, y: y + 0.72, w: 2.65, h: 0.9, fontSize: 11, objectName: `m-what-${i}` });
 });
-s.addNotes("JAYDEN (60 s). Passing tests don't mean the app is right. The 499 existing tests all passed, but caught none of the 16 problems we found. So we used four methods, each aimed at a different kind of mistake: the order of actions, edge-case numbers and dates, hidden code paths, and how real users move through the app. The existing tests are our baseline for comparison.");
+s.addNotes("JAYDEN (35 s). Passing tests don't mean the app is right. The 499 existing tests all passed, but caught none of the 16 problems we found. So we used four methods, each aimed at a different kind of mistake: the order of actions, edge-case numbers and dates, hidden code paths, and how real users move through the app. The existing tests are our baseline for comparison.");
 
 // 4. Collected data
 s = pres.addSlide({ masterName: "CONTENT" });
@@ -160,7 +160,7 @@ plainBar(s, gapMods.map((m) => m[1]), gapMods.map((m) => Math.round(cov.baseline
   x: 6.0, y: 1.1, w: 3.6, h: 3.3, chartColors: [HEX.accent4], title: "Analysis: how much the old tests reached (%)", valAxisMaxVal: 115, dataLabelFormatCode: "0",
 });
 note(s, "The gaps told us where to aim: bookings, the backup path and the expiry job.", "data", { x: 0.4, y: 4.6 });
-s.addNotes("KOEN (60 s). Every model is built from data we collected: the written rules, hand-calculated numbers, the code itself, and an estimate of how users move through the app. Perch has no real users yet, so the journey is our estimate; we built an opt-in logger to collect real data later. The chart is our analysis of the baseline: the old tests barely reached the bookings and backup code, so that's where we focused.");
+s.addNotes("KOEN (35 s). Every model is built from data we collected: the written rules, hand-calculated numbers, the code itself, and an estimate of how users move through the app. Perch has no real users yet, so the journey is our estimate; we built an opt-in logger to collect real data later. The chart is our analysis of the baseline: the old tests barely reached the bookings and backup code, so that's where we focused.");
 
 // 5. Diagram: booking flow
 s = pres.addSlide({ masterName: "CONTENT" });
@@ -178,7 +178,7 @@ text(s, [
   { text: "Found 8 problems", options: { bullet: true, bold: true, color: C.accent4 } },
 ], { x: 6.5, y: 1.3, w: 3.0, h: 3.1, fontSize: 12, paraSpaceAfter: 3 });
 note(s, "Drawing the diagram found a problem before any test ran: the rules let an intern cancel, but the app had no way to do it.", "fsm", { y: 4.6 });
-s.addNotes("JAYDEN (60 s). Booking a place goes through these stages. The arrows are the steps the rules allow. We tested every arrow, and also tried steps that should be refused, like booking a place someone already has. This found 8 problems; for example a booked place could be put back on the market. Just drawing this found one: cancelling was in the rules but not in the app.");
+s.addNotes("JAYDEN (35 s). Booking a place goes through these stages. The arrows are the steps the rules allow. We tested every arrow, and also tried steps that should be refused, like booking a place someone already has. This found 8 problems; for example a booked place could be put back on the market. Just drawing this found one: cancelling was in the rules but not in the app.");
 
 // 6. Diagrams: edge cases and code paths
 s = pres.addSlide({ masterName: "CONTENT" });
@@ -207,7 +207,7 @@ s.addShape(pres.shapes.LINE, { x: 7.4, y: 2.0, w: 0, h: 0.25, line: { color: HEX
   text(s, t, { x, y: 3.05, w: 1.1, h: 0.6, fontSize: 9.5, bold: true, color: i === 2 ? C.text1 : C.background1, align: "center", valign: "middle", objectName: `cft-leaf-l-${i}` });
 });
 text(s, "One test per branch. A refusal used to take the backup branch and show a fake \"booked\" (fixed).", { x: 5.25, y: 3.8, w: 4.4, h: 0.6, fontSize: 11.5, bold: true, color: C.accent4, objectName: "cft-found" });
-s.addNotes("KOEN (60 s). Left: for numbers and dates we split each input into ranges and test right at each edge, because mistakes cluster at the edges. That found 4 problems; the worst was an hourly wage read as a yearly salary, so every listing looked unaffordable. Right: we drew the code's decisions as a flow chart and wrote one test for every branch. When the server refused a booking, the app took the wrong branch and showed a fake success.");
+s.addNotes("KOEN (40 s). Left: for numbers and dates we split each input into ranges and test right at each edge, because mistakes cluster at the edges. That found 4 problems; the worst was an hourly wage read as a yearly salary, so every listing looked unaffordable. Right: we drew the code's decisions as a flow chart and wrote one test for every branch. When the server refused a booking, the app took the wrong branch and showed a fake success.");
 
 // 7. Diagram: user journey
 s = pres.addSlide({ masterName: "CONTENT" });
@@ -238,7 +238,7 @@ const nice = { FEED: "Event feed", PERCHES: "Sublet deck", LISTING: "Listing", C
 plainBar(s, vs.map((v) => nice[v]), vs.map((v) => Number(model.expectedVisits[v].toFixed(1))), {
   x: 6.3, y: 2.3, w: 3.4, h: 2.4, chartColors: [HEX.accent1], title: "Visits per session (from the model)", dataLabelFormatCode: "0.0", valAxisMaxVal: 1.9,
 });
-s.addNotes("JAYDEN (50 s). To test what users actually do, we modeled the journey. From each screen, these are the odds of going to the next one; they're our estimates, since there are no real users yet. The computer generates random visits with these odds and plays each one in a real browser. Most time goes to the feed and the sublet deck, so most testing goes there too.");
+s.addNotes("JAYDEN (35 s). To test what users actually do, we modeled the journey. From each screen, these are the odds of going to the next one; they're our estimates, since there are no real users yet. The computer generates random visits with these odds and plays each one in a real browser. Most time goes to the feed and the sublet deck, so most testing goes there too.");
 
 // 8. Test cases
 s = pres.addSlide({ masterName: "CONTENT" });
@@ -263,7 +263,7 @@ const counts = [
 ];
 plainBar(s, counts.map((c) => c[0]), counts.map((c) => c[1]), { x: 6.85, y: 1.1, w: 2.85, h: 2.6, chartColors: [HEX.accent1], title: "New tests by method", dataLabelFormatCode: "0", valAxisMaxVal: 300 });
 text(s, "Each test has an ID that points back to its diagram, and a right answer decided before running it.", { x: 6.9, y: 3.8, w: 2.75, h: 0.9, fontSize: 11, color: C.accent6, objectName: "tc-ids" });
-s.addNotes("KOEN (60 s). Here are real test cases. Each one does one thing, says what should happen, and the ID ties it back to a diagram: I is a refused step in the booking flow, PB and PF are edge-case ranges, CF is a code branch, OB is onboarding. The original app failed most of these; today they all pass. The full suite is about 190 new tests plus 240 simulated user visits.");
+s.addNotes("KOEN (35 s). Here are real test cases. Each one does one thing, says what should happen, and the ID ties it back to a diagram: I is a refused step in the booking flow, PB and PF are edge-case ranges, CF is a code branch, OB is onboarding. The original app failed most of these; today they all pass. The full suite is about 190 new tests plus 240 simulated user visits.");
 
 // 9. Execution: test runs
 s = pres.addSlide({ masterName: "CONTENT" });
@@ -279,7 +279,7 @@ text(s, [
   { text: `${r1.numFailedTests} of these tests failed. Each failure led to a fix, then a rerun.` },
 ], { x: 6.3, y: 1.15, w: 3.3, h: 3.0, fontSize: 12 });
 note(s, "We ran 4 rounds: test, fix, retest. Live in a few minutes: the same commands.", "ex", { y: 4.65 });
-s.addNotes("KOEN (40 s). These are screenshots from today's run. Each command runs one method's tests: booking flow, edge cases, code paths, and the original 499. Everything passes now. On the original code, 24 of these failed, which is how we know they catch real problems. On the right is the browser test filling in onboarding like a real user.");
+s.addNotes("KOEN (30 s). These are screenshots from today's run. Each command runs one method's tests: booking flow, edge cases, code paths, and the original 499. Everything passes now. On the original code, 24 of these failed, which is how we know they catch real problems. On the right is the browser test filling in onboarding like a real user.");
 
 // 10. Reliability
 s = pres.addSlide({ masterName: "CONTENT" });
@@ -292,7 +292,7 @@ s.addChart(pres.charts.BAR, [{ name: "Visits without a failure", labels: ubst.pe
 });
 img(s, "run-ubst.png", 5.1, 1.15, 2.6, ratioOf("run-ubst.png"), "Terminal: 10 simulated user visits, 0 failed");
 text(s, "Round 1: the housing check broke on sample data (fixed). Round 2: the deck offered places already taken (fixed). Rounds 3-4: 120 visits, 0 failures.", { x: 5.1, y: 3.9, w: 4.5, h: 0.8, fontSize: 11.5, objectName: "rel-text" });
-s.addNotes("JAYDEN (50 s). Each round we ran 60 simulated visits. In round 1, 1 in 6 failed: the housing check broke whenever the app ran on sample data. We fixed it, and round 2 found one more problem: the deck offered places someone else already held. After that fix, 120 visits in a row passed. The screenshot is today's run of 10 visits. We also checked how much this depends on our usage estimates; it moves the number a little, not the trend.");
+s.addNotes("JAYDEN (40 s). Each round we ran 60 simulated visits. In round 1, 1 in 6 failed: the housing check broke whenever the app ran on sample data. We fixed it, and round 2 found one more problem: the deck offered places someone else already held. After that fix, 120 visits in a row passed. The screenshot is today's run of 10 visits. We also checked how much this depends on our usage estimates; it moves the number a little, not the trend.");
 
 // 11. Defects found
 s = pres.addSlide({ masterName: "CONTENT" });
@@ -311,7 +311,7 @@ plainBar(s, ["Old tests (baseline)", "Step-by-step flows", "Edge-case inputs", "
   text(s, t, { x: 5.4, y: 1.52 + i * 1.12, w: 4.1, h: 0.6, fontSize: 11.5, objectName: `res-t-${i}` });
 });
 note(s, "No problem was found by two methods: each one catches a different kind of mistake.", "res", { y: 4.6 });
-s.addNotes("KOEN (50 s). Altogether 16 problems, all fixed and retested, and the original tests caught zero. The booking-flow method found the most. No problem was found twice, so each method earned its place. Three were serious, like these two. Half were rules the app didn't check everywhere. The code-path tests also raised how much of the risky code is tested, from 77 to 83 percent.");
+s.addNotes("KOEN (35 s). Altogether 16 problems, all fixed and retested, and the original tests caught zero. The booking-flow method found the most. No problem was found twice, so each method earned its place. Three were serious, like these two. Half were rules the app didn't check everywhere. The code-path tests also raised how much of the risky code is tested, from 77 to 83 percent.");
 
 // 12. Takeaways
 s = pres.addSlide({ masterName: "TITLE_DARK" });
@@ -322,7 +322,7 @@ s.addText([
   { text: "Drawing the model finds problems before testing even starts.", options: { bullet: true, breakLine: true } },
   { text: "Limits: sample data, not the live database; the user journey is our estimate until real users exist.", options: { bullet: true, color: HEX.accent2 } },
 ], { placeholder: "body", fontSize: 16, paraSpaceAfter: 6 });
-s.addNotes("JAYDEN (40 s). Three lessons, and one honest limit: we tested on sample data and an estimated user journey, so the reliability number holds for that setup. Next would be real users through the logger we built, and the live database. Now we'll run some of the tests live.");
+s.addNotes("JAYDEN (25 s). Three lessons, and one honest limit: we tested on sample data and an estimated user journey, so the reliability number holds for that setup. Next would be real users through the logger we built, and the live database. Now we'll run some of the tests live.");
 
 // 13. Live testing
 s = pres.addSlide({ masterName: "CONTENT" });

@@ -172,33 +172,67 @@ s.addChart(pres.charts.BAR, [{ name: "Expected visits", labels: screens.map(pret
 });
 text(s, "Low coverage pointed white-box and FSM work at the cron, bookings and data-source fallback. Feed and the deck dominate usage, so most UBST sessions go there.", { x: 0.5, y: 4.5, w: 9, h: 0.6, fontSize: 12, color: C.accent6, objectName: "an-note" });
 
+// Findings per model group: cases now, and how many failed on the original code (round 1).
+function groupFindings(fileParts, labelFor) {
+  const g = new Map();
+  for (const [res, key] of [[now, "cases"], [r1, "r1fail"]]) {
+    for (const f of res.testResults) {
+      if (!fileParts.some((p) => f.name.includes(p))) continue;
+      for (const a of f.assertionResults) {
+        const label = labelFor(a.ancestorTitles[0]);
+        if (!label) continue;
+        const row = g.get(label) ?? { cases: 0, r1fail: 0 };
+        if (key === "cases") row.cases++;
+        else if (a.status !== "passed") row.r1fail++;
+        g.set(label, row);
+      }
+    }
+  }
+  return [...g.entries()];
+}
+const findingsChart = (slide, rows, { x, y, w, h, title, name }) =>
+  slide.addChart(pres.charts.BAR, [
+    { name: "Test cases", labels: rows.map((r) => r[0]), values: rows.map((r) => r[1].cases) },
+    { name: "Failed on original code", labels: rows.map((r) => r[0]), values: rows.map((r) => r[1].r1fail) },
+  ], {
+    x, y, w, h, barDir: "bar", barGapWidthPct: 60, chartColors: [HEX.accent5, HEX.accent4], showTitle: true, title,
+    showLegend: true, legendPos: "b", legendFontSize: 10, legendFontFace: "+mn-lt", legendColor: HEX.accent6,
+    showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0", valAxisHidden: true,
+    valGridLine: { style: "none" }, catGridLine: { style: "none" }, catAxisOrientation: "maxMin", ...chartText, objectName: name,
+  });
+
 // 7. FSM model
 pres.addSection({ title: "Models" });
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Models" });
-s.addText("FSM model: the booking state machine", { placeholder: "title" });
+s.addText("FSM model: the booking state machine, and what it found", { placeholder: "title" });
 tag(s, "4  MODELS", "fsm");
-s.addImage({ path: path.join(D, "demo/booking-fsm.png"), x: 0.4, y: 1.15, w: 5.6, h: 3.11, altText: "Booking FSM: Listed, Requested, Approved, Booked, Declined, Cancelled, Stale" });
-stat(s, 6.3, 1.2, 1.6, `${model.fsm.states}`, "states", "fsm-states");
-stat(s, 8.0, 1.2, 1.6, `${model.fsm.valid}`, "valid transitions", "fsm-valid");
-stat(s, 6.3, 2.4, 1.6, `${model.fsm.invalid}`, "invalid pairs (sneak paths)", "fsm-invalid");
-stat(s, 8.0, 2.4, 1.6, `${model.fsm.paths} + 2`, "paths + race cases", "fsm-paths");
-text(s, "Plus an 8-state onboarding machine run in a real browser.", { x: 6.3, y: 3.6, w: 3.3, h: 0.6, fontSize: 12, color: C.accent6, objectName: "fsm-onb" });
+s.addImage({ path: path.join(D, "demo/booking-fsm.png"), x: 0.4, y: 1.15, w: 4.4, h: 2.44, altText: "Booking FSM: Listed, Requested, Approved, Booked, Declined, Cancelled, Stale" });
+text(s, `${model.fsm.states} states | ${model.fsm.valid} valid | ${model.fsm.invalid} invalid | ${model.fsm.paths} paths | 2 races`, { x: 0.4, y: 3.68, w: 4.4, h: 0.3, fontSize: 11, bold: true, color: C.accent1, objectName: "fsm-counts" });
+text(s, "8 defects (D01-D08): relisting a taken place, race loser got 500, fixture re-approved booked stays, onboarding accepted end < start. 0 tests failing now.", { x: 0.4, y: 4.02, w: 4.4, h: 0.55, fontSize: 10.5, color: C.accent6, objectName: "fsm-found" });
+const FSM_GROUPS = { "live API path - valid": "Live: valid", "live API path - invalid": "Live: invalid", "live API path - sequences": "Live: paths", "live API path - concurrency": "Live: races", "fixture source - valid": "Fixture: valid", "fixture source - invalid": "Fixture: invalid" };
+findingsChart(s, groupFindings(["fsm-booking-live", "fsm-booking-fixture"], (t) => Object.entries(FSM_GROUPS).find(([k]) => t.includes(k))?.[1]), {
+  x: 4.95, y: 1.1, w: 4.75, h: 3.5, title: "Booking FSM: cases per model group", name: "fsm-findings-chart",
+});
 cmd(s, "Demo: npm run demo:fsm   |   npm run demo:fsm:onboarding", "fsm");
 
 // 8. PT model
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Models" });
-s.addText("PT model: input partitions with both sides of every boundary", { placeholder: "title" });
+s.addText("PT model: boundary partitions, and what they found", { placeholder: "title" });
 tag(s, "4  MODELS", "pt");
 table(s, [
   ["Input", "Classes (valid / invalid)", "Boundary cases"],
   ["Rent vs budget", "under / 0-10% over / over 10%", "2,000 | 2,001 | 2,200 | 2,201"],
-  ["Salary band", "negative, zero / each tax bracket", "14,600 | 14,601 | SS wage base"],
-  ["Pay period", "annual / hourly, weekly, monthly / missing", "$45.00 per hour, $8,000 per month"],
-  ["Lease vs stay", "covers / gap <= 7 days / gap > 7 / bad dates", "7 vs 8 days each end"],
-  ["Walk to anchor", "<= 10 / <= 20 / > 20 min / no data", "10 | 11 | 20 | 21 minutes"],
-  ["COL index", "low, average, high, capped / zero, negative, NaN", "133 vs 152 (40% cap)"],
-], { x: 0.5, y: 1.15, w: 9, colW: [1.7, 4.0, 3.3], fontSize: 11.5, rowH: 0.42 });
-text(s, "78 cases; all expected values computed by hand from the documented constants.", { x: 0.5, y: 4.2, w: 9, h: 0.4, fontSize: 12, color: C.accent6, objectName: "pt-note" });
+  ["Salary band", "negative, zero / each bracket", "14,600 | 14,601"],
+  ["Pay period", "annual / hourly, weekly, monthly / missing", "$45.00 per hour"],
+  ["Lease vs stay", "covers / gap <= 7 / gap > 7 / bad dates", "7 vs 8 days"],
+  ["Walk to anchor", "<= 10 / <= 20 / > 20 min / no data", "10 | 11 | 20 | 21 min"],
+  ["COL index", "low ... capped / zero, negative, NaN", "133 vs 152"],
+], { x: 0.4, y: 1.15, w: 5.0, colW: [1.2, 2.3, 1.5], fontSize: 9.5, rowH: 0.34 });
+text(s, "4 defects (D09-D12): hourly pay read as a yearly salary, stated budget ignored, bad and inverted dates accepted. 0 tests failing now.", { x: 0.4, y: 4.05, w: 5.0, h: 0.5, fontSize: 10.5, color: C.accent6, objectName: "pt-found" });
+const PT_GROUPS = { "PT-B1": "Rent vs budget", "PT-B2": "Salary to budget", "PT-L ": "Lease vs stay", "PT-R ": "Walk to anchor", "PT-S ": "Safety flags", "PT-A ": "Roll-up", "PT-F1": "Take-home bands", "PT-F2": "COL ceiling", "PT-F3": "Offer pay period", "PT-N ": "Negotiate inputs" };
+findingsChart(s, groupFindings(["pt-verdict-rules", "pt-finance"], (t) => Object.entries(PT_GROUPS).find(([k]) => t.startsWith(k))?.[1]), {
+  x: 5.55, y: 1.1, w: 4.15, h: 3.5, title: "PT: cases per input dimension", name: "pt-findings-chart",
+});
 cmd(s, "Demo: npm run demo:pt", "pt");
 
 // 9. CFT model

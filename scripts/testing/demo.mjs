@@ -3,9 +3,12 @@
  *
  *   npm run demo:prepare   the day before: install the test browser, build the app in
  *                          demo mode, then dry-run every step (prints PASS/FAIL)
- *   npm run demo           the day of: starts the app and walks through each step.
- *                          Shows what to say, waits for Enter, runs the step with a
- *                          visible browser, then stops everything at the end
+ *   npm run demo           the live-testing part at the end of the talk (slide 13):
+ *                          booking flow, edge cases, code paths, onboarding and 10 user
+ *                          visits in a visible browser, then the summary. Waits for
+ *                          Enter before each step, then stops everything at the end
+ *   npm run demo:full      every step in the order of the TA checklist, including the
+ *                          app and dashboard sections
  *   npm run demo:check     dry-run every step without stopping (no browser windows)
  *   npm run demo:app       just start the app in demo mode (http://localhost:3100)
  *   node scripts/testing/demo.mjs step <name> [--show]   run one step
@@ -71,7 +74,7 @@ const STEPS = [
   {
     id: "app",
     title: "1. System under test: the app",
-    slide: "slides 1-4",
+    slide: "slide 2",
     say: [
       "Perch helps interns find sublets, friends and events in a new city.",
       "It runs here on built-in fixture data, no keys, which is how we test it.",
@@ -85,7 +88,7 @@ const STEPS = [
   {
     id: "rawdata",
     title: "2. Raw data for the models, and how it was collected",
-    slide: "slide 5",
+    slide: "slide 4",
     say: [
       "Each model's raw data and how we got it: the spec for the FSM, hand-computed constants for PT,",
       "the code for CFT, a projected usage profile for Markov (no real users yet; /pilot collects them).",
@@ -95,7 +98,7 @@ const STEPS = [
   {
     id: "analysis",
     title: "3. Analysis of that data",
-    slide: "slide 6",
+    slide: "slide 4",
     say: [
       "Baseline coverage showed the gaps (expiry cron 0%, bookings, the data-source fallback).",
       "The usage profile shows Feed and the deck dominate, so most UBST sessions go there.",
@@ -105,14 +108,14 @@ const STEPS = [
   {
     id: "models",
     title: "4. Testing models (all four techniques)",
-    slide: "slides 7-10",
+    slide: "slides 5-7",
     say: ["Booking FSM and onboarding FSM, PT partition tables, CFT graphs, the Markov transition matrix."],
     action: dashboard("models"),
   },
   {
     id: "testcases",
     title: "5. Test cases and the organized suite",
-    slide: "slide 11",
+    slide: "slide 8",
     say: [
       "Every test case, grouped by technique and model element, with its result on the original code and now.",
       "Open a suite to show individual cases (T/I/P/C for FSM, PB..PN for PT, CF for CFT).",
@@ -122,14 +125,14 @@ const STEPS = [
   {
     id: "baseline",
     title: "6a. Execution: the baseline suite",
-    slide: "slide 12",
+    slide: "slide 13",
     say: ["The repo already had 499 tests. They all pass, but they found none of our 16 defects."],
     action: () => run([bin.vitest, "run", "--exclude", "tests/course/**", "--reporter=dot"]),
   },
   {
     id: "fsm",
     title: "6b. Execution: FSM booking state machine",
-    slide: "slide 12",
+    slide: "slide 13",
     say: [
       "7 states, 13 valid transitions (T..), 18 invalid ones (I..), 5 paths (P..), 2 races (C..).",
       "Run against both the live API code and the no-key fixture code. Found 8 defects.",
@@ -139,7 +142,7 @@ const STEPS = [
   {
     id: "onboarding",
     title: "6c. Execution: FSM onboarding, in a real browser",
-    slide: "slide 12",
+    slide: "slide 13",
     say: ["Watch the browser walk all 8 onboarding screens and test the review-screen guard."],
     browser: true,
     action: (show) => run(["tests/e2e/onboarding-fsm.e2e.mjs", APP_URL], { env: show ? { HEADED: "1" } : {} }),
@@ -147,7 +150,7 @@ const STEPS = [
   {
     id: "pt",
     title: "6d. Execution: PT partitions",
-    slide: "slide 12",
+    slide: "slide 13",
     say: [
       "Every input split into valid and invalid classes, both sides of every boundary.",
       "PF-23: \"$45.00 per hour\" used to be read as a $45 yearly salary (D09).",
@@ -157,14 +160,14 @@ const STEPS = [
   {
     id: "cft",
     title: "6e. Execution: CFT branches",
-    slide: "slide 12",
+    slide: "slide 13",
     say: ["CF-35: a server refusal used to take the outage branch and fake a booking (D13)."],
     action: vitest("tests/course/cft-branches.test.ts", "tests/course/cft-source-fallback.test.ts"),
   },
   {
     id: "ubst",
     title: "6f. Execution: UBST, random user sessions in a browser",
-    slide: "slide 12",
+    slide: "slide 13",
     say: [
       "10 sessions drawn from the Markov usage profile, replayed in Chromium.",
       "A session fails on a wrong screen, a page error, a 5xx or a feature error. Dots = passed sessions.",
@@ -179,18 +182,18 @@ const STEPS = [
   {
     id: "regression",
     title: "6g. Execution: regression tests for the later fixes",
-    slide: "slide 12",
+    slide: "slide 13",
     say: ["Each defect found later (D07, D14, D15, D16) got a regression test so it stays fixed."],
     action: vitest("tests/course/regression-round3.test.ts", "tests/course/regression-d16.test.ts"),
   },
   {
     id: "summary",
     title: "7. Results and analysis",
-    slide: "slides 13-15",
+    slide: "slides 10-11",
     say: ["Per technique: cases, round-1 failures, defects. Then ODC, coverage and UBST reliability.", "The dashboard opens on the defect log and cross-technique analysis."],
-    action: async () => {
+    action: async (show, { live } = {}) => {
       const code = await run(["scripts/testing/demo-summary.mjs"]);
-      await dashboard("results")();
+      if (!live) await dashboard("results")();
       return code;
     },
   },
@@ -294,7 +297,10 @@ async function check() {
   process.exit(ok ? 0 : 1);
 }
 
-async function guided() {
+// The live-testing part of the talk, in the order of slide 13.
+const LIVE = ["fsm", "pt", "cft", "onboarding", "ubst", "summary"];
+
+async function guided(steps = STEPS, live = false) {
   if (!(await browserReady())) {
     console.log(c.red("Chromium for the tests is missing. Run: npm run demo:prepare (once)"));
     process.exit(1);
@@ -315,10 +321,10 @@ async function guided() {
     if (lines.length) return Promise.resolve(take(lines.shift()));
     return new Promise((r) => (waiting = (l) => r(take(l))));
   };
-  console.log(c.bold("Perch testing demo") + c.dim("  (Enter = run step, s = skip, b = back, q = quit)"));
-  for (let i = 0; i < STEPS.length; ) {
-    const s = STEPS[i];
-    console.log(`\n${c.bold(`[${i + 1}/${STEPS.length}] ${s.title}`)}  ${c.dim(s.slide)}`);
+  console.log(c.bold(live ? "Perch live testing" : "Perch testing demo") + c.dim("  (Enter = run step, s = skip, b = back, q = quit)"));
+  for (let i = 0; i < steps.length; ) {
+    const s = steps[i];
+    console.log(`\n${c.bold(`[${i + 1}/${steps.length}] ${s.title}`)}  ${c.dim(s.slide)}`);
     for (const line of s.say) console.log(`  ${c.cyan(">")} ${line}`);
     const a = await ask(c.dim("  Enter to run, s skip, b back, q quit: "));
     if (a === "q") break;
@@ -327,7 +333,7 @@ async function guided() {
       continue;
     }
     if (a !== "s") {
-      const code = await s.action(true);
+      const code = await s.action(true, { live });
       if (code !== 0) console.log(c.red(`  Step exited with code ${code}. Press r to retry, or Enter to go on.`));
       const after = await ask(c.dim("  Enter for the next step, r to run again: "));
       if (after === "r") continue;
@@ -363,7 +369,8 @@ async function step(id, show) {
 const [mode = "guided", ...rest] = process.argv.slice(2);
 const show = rest.includes("--show");
 try {
-  if (mode === "guided") await guided();
+  if (mode === "guided") await guided(LIVE.map((id) => STEPS.find((x) => x.id === id)), true);
+  else if (mode === "full") await guided();
   else if (mode === "check") await check();
   else if (mode === "prepare") await prepare();
   else if (mode === "app") {

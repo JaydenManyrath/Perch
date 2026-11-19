@@ -13,9 +13,10 @@ Perch". Everything here was produced specifically for the course.
 - [demo/Demo_Prep_Sheet.docx](demo/Demo_Prep_Sheet.docx) (source [demo/demo-prep-sheet.md](demo/demo-prep-sheet.md)):
   the prep sheet to review together, organized by the TA's demo checklist.
 - [DEMO.md](DEMO.md): the 15-minute TA demo script. In short: `npm run demo:prepare`
-  once, then `npm run demo` on the day.
-- [demo/Perch_Testing_Demo.pptx](demo/Perch_Testing_Demo.pptx): the slide deck, ordered by
-  the TA's demo checklist (rebuild with `node scripts/testing/demo-deck.cjs`).
+  once; on the day, present the slides, then `npm run demo` for live testing at the end.
+- [demo/Perch_Testing_Demo.pptx](demo/Perch_Testing_Demo.pptx): the slide deck, high level,
+  with diagrams, test cases, collected data and screenshots of a real run (`demo/img/`);
+  rebuild with `node scripts/testing/demo-deck.cjs`.
 - [demo/dashboard.html](demo/dashboard.html): offline demo dashboard with one section per
   checklist item, generated from the saved results (`npx tsx scripts/testing/demo-dashboard.ts`).
 - `npm run demo:summary`: every result on one screen.

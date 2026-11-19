@@ -1,14 +1,19 @@
 /**
- * CS 7314: build the TA demo slide deck from the saved results. The slides follow the
- * TA's demo checklist in order: system, raw data and collection, data analysis, models,
- * test cases, execution, results and analysis.
+ * CS 7314: build the demo slide deck from the saved results.
+ *
+ * Written for a 15-minute slot: about 10 minutes of slides, kept high level so a
+ * non-specialist can follow, then a few minutes of live testing at the end (npm run demo).
+ * The slides carry what the TA asked us to bring: documentation, diagrams, test cases,
+ * collected data, and results with screenshots of a real run. Backup slides at the end
+ * hold the detail for questions.
  *
  *   npx tsx scripts/testing/demo-dashboard.ts   (writes model-data.json the deck reads)
  *   node scripts/testing/demo-deck.cjs          ->  docs/testing/demo/Perch_Testing_Demo.pptx
  *
- * The committed deck is final; rebuilding needs pptxgenjs (npm i --no-save pptxgenjs).
- * PPTX_SKILL_DIR, when set, points at a helper that writes the theme colors into the
- * file; without it the deck falls back to Office's stock palette.
+ * Screenshots live in docs/testing/demo/img (app screens, and terminal captures of the
+ * demo steps run on Nov 19 2026). The committed deck is final; rebuilding needs pptxgenjs
+ * (npm i --no-save pptxgenjs). PPTX_SKILL_DIR, when set, points at a helper that writes the
+ * theme colors into the file; without it the deck falls back to Office's stock palette.
  */
 const fs = require("fs");
 const path = require("path");
@@ -16,6 +21,7 @@ const pptxgen = require("pptxgenjs");
 
 const SKILL = process.env.PPTX_SKILL_DIR;
 const D = "docs/testing/";
+const IMG = (f) => path.join(D, "demo/img", f);
 const read = (p) => JSON.parse(fs.readFileSync(D + p, "utf8"));
 const cov = read("results/round4/coverage-by-technique.json");
 const ubst = read("ubst/analysis.json");
@@ -38,7 +44,7 @@ const HEX = THEME.colors;
 const pres = new pptxgen();
 pres.layout = "LAYOUT_16x9"; // 10 x 5.625
 pres.author = "Jayden Manyrath and Koen Gennis";
-pres.title = "Perch Testing Project Demo";
+pres.title = "How We Tested Perch";
 pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
 const C = pres.SchemeColor;
 
@@ -46,8 +52,8 @@ pres.defineSlideMaster({
   title: "TITLE_DARK",
   background: { color: HEX.dk1 },
   objects: [
-    { placeholder: { options: { name: "title", type: "title", x: 0.6, y: 1.3, w: 8.8, h: 1.6, fontSize: 34, bold: true, color: C.background1, align: "left", valign: "bottom" }, text: "" } },
-    { placeholder: { options: { name: "body", type: "body", x: 0.6, y: 3.1, w: 8.8, h: 1.8, fontSize: 16, color: C.accent5, align: "left", valign: "top" }, text: "" } },
+    { placeholder: { options: { name: "title", type: "title", x: 0.6, y: 1.1, w: 8.8, h: 1.6, fontSize: 34, bold: true, color: C.background1, align: "left", valign: "bottom" }, text: "" } },
+    { placeholder: { options: { name: "body", type: "body", x: 0.6, y: 2.9, w: 8.8, h: 2.2, fontSize: 16, color: C.accent5, align: "left", valign: "top" }, text: "" } },
   ],
 });
 pres.defineSlideMaster({
@@ -60,304 +66,330 @@ pres.defineSlideMaster({
   slideNumber: { x: 9.3, y: 5.2, fontSize: 10, color: C.accent3 },
 });
 
-const card = (slide, x, y, w, h, name) =>
-  slide.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.08, fill: { color: C.background2 }, line: { color: C.background2 }, objectName: name });
+const card = (slide, x, y, w, h, name, color = C.background2) =>
+  slide.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.08, fill: { color }, line: { color }, objectName: name });
 const text = (slide, t, o) => slide.addText(t, { isTextBox: true, fontSize: 14, color: C.text1, margin: 0, valign: "top", ...o });
 const stat = (slide, x, y, w, big, label, name, color = C.accent1) => {
-  text(slide, big, { x, y, w, h: 0.6, fontSize: 30, bold: true, color, fontFace: THEME.headFontFace, objectName: `${name}-value` });
-  text(slide, label, { x, y: y + 0.6, w, h: 0.5, fontSize: 11, color: C.accent6, objectName: `${name}-label` });
+  text(slide, big, { x, y, w, h: 0.7, fontSize: 36, bold: true, color, fontFace: THEME.headFontFace, objectName: `${name}-value` });
+  text(slide, label, { x, y: y + 0.72, w, h: 0.6, fontSize: 12, color: C.accent6, objectName: `${name}-label` });
 };
-// Which checklist item a slide covers, top right, so the TA can follow along.
+// What the TA asked for that this slide covers, top right.
 const tag = (slide, label, name) =>
-  text(slide, label, { x: 7.2, y: 0.08, w: 2.3, h: 0.25, fontSize: 9, bold: true, color: C.accent3, align: "right", objectName: `${name}-tag` });
-const cmd = (slide, t, name, x = 0.5, w = 9) =>
-  text(slide, t, { x, y: 4.6, w, h: 0.35, fontSize: 12, fontFace: "Courier New", color: C.accent1, objectName: `${name}-cmd` });
+  text(slide, label, { x: 6.2, y: 0.08, w: 3.3, h: 0.25, fontSize: 9, bold: true, color: C.accent3, align: "right", objectName: `${name}-tag` });
+const note = (slide, t, name, o = {}) => text(slide, t, { x: 0.5, y: 4.75, w: 9, h: 0.4, fontSize: 12, color: C.accent6, objectName: `${name}-note`, ...o });
 const table = (slide, rows, opts) =>
   slide.addTable(
-    rows.map((r, i) => r.map((c) => ({ text: String(c), options: { bold: i === 0, color: i === 0 ? HEX.lt1 : String(c).includes("(D") ? HEX.accent4 : HEX.dk1, fill: { color: i === 0 ? HEX.dk2 : i % 2 ? HEX.lt2 : HEX.lt1 } } }))),
-    { fontFace: THEME.bodyFontFace, border: { type: "solid", pt: 0.5, color: "D5E3E5" }, ...opts },
+    rows.map((r, i) => r.map((c) => ({ text: String(c), options: { bold: i === 0, color: i === 0 ? HEX.lt1 : /^Failed/.test(String(c)) ? HEX.accent4 : HEX.dk1, fill: { color: i === 0 ? HEX.dk2 : i % 2 ? HEX.lt2 : HEX.lt1 } } }))),
+    { fontFace: THEME.bodyFontFace, border: { type: "solid", pt: 0.5, color: "D5E3E5" }, valign: "middle", ...opts },
   );
-const chartText = { catAxisLabelFontFace: "+mn-lt", valAxisLabelFontFace: "+mn-lt", dataLabelFontFace: "+mn-lt", titleFontFace: "+mn-lt", catAxisLabelColor: HEX.accent6, valAxisLabelColor: HEX.accent6, dataLabelColor: HEX.dk1, catAxisLabelFontSize: 10, valAxisLabelFontSize: 10, dataLabelFontSize: 10, titleFontSize: 12, titleColor: HEX.dk1 };
-const pretty = (s) => s[0] + s.slice(1).toLowerCase();
+const chartText = { catAxisLabelFontFace: "+mn-lt", valAxisLabelFontFace: "+mn-lt", dataLabelFontFace: "+mn-lt", titleFontFace: "+mn-lt", catAxisLabelColor: HEX.accent6, valAxisLabelColor: HEX.accent6, dataLabelColor: HEX.dk1, catAxisLabelFontSize: 11, valAxisLabelFontSize: 10, dataLabelFontSize: 11, titleFontSize: 12, titleColor: HEX.dk1 };
+const plainBar = (slide, labels, values, o) =>
+  slide.addChart(pres.charts.BAR, [{ name: o.series ?? "value", labels, values }], {
+    barDir: "bar", showLegend: false, showValue: true, dataLabelPosition: "outEnd", valAxisHidden: true,
+    valGridLine: { style: "none" }, catGridLine: { style: "none" }, catAxisOrientation: "maxMin", showTitle: true, ...chartText, ...o,
+  });
+// A straight arrow from (x1, y1) to (x2, y2); pptxgenjs wants a positive box plus flips.
+const arrow = (slide, x1, y1, x2, y2, color, name, width = 1.2) =>
+  slide.addShape(pres.shapes.LINE, { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1), flipH: x2 < x1, flipV: y2 < y1, line: { color, width, endArrowType: "triangle" }, objectName: name });
+const img = (slide, file, x, y, h, ratio, alt) => slide.addImage({ path: IMG(file), x, y, h, w: h * ratio, altText: alt });
+const ratioOf = (file) => {
+  const b = fs.readFileSync(IMG(file)); // PNG: width and height at bytes 16-23
+  return b.readUInt32BE(16) / b.readUInt32BE(20);
+};
+
+// The four methods in plain words, with the course name underneath.
+const METHODS = [
+  ["Step-by-step flows", "State machine testing (FSM)", "Does every order of actions work? Approve twice, book a place that is already taken, two people at once."],
+  ["Edge-case inputs", "Partition testing (PT)", "Numbers and dates right at the limits: $2,000 vs $2,001 rent, \"$45 per hour\", dates entered backwards."],
+  ["Every code path", "Control flow testing (CFT)", "Force every branch in the code, including error and backup paths that normal use rarely reaches."],
+  ["Real user behavior", "Usage-based testing (Markov model)", "Simulated users click through the app the way we expect real interns to, in a real browser."],
+];
 
 // 1. Title
-pres.addSection({ title: "Introduction" });
-let s = pres.addSlide({ masterName: "TITLE_DARK", sectionTitle: "Introduction" });
-s.addText("Testing Perch: FSM, Partition, Control Flow and Usage-Based Testing", { placeholder: "title" });
-s.addText("Jayden Manyrath and Koen Gennis  |  CS 7314/5314, Fall 2026  |  Prof. Jeff Tian\nProject demo", { placeholder: "body" });
-s.addNotes("Perch is our Next.js + Supabase app that helps interns find sublets, friends and events. We applied four formal techniques and compared them against the existing test suite.");
+let s = pres.addSlide({ masterName: "TITLE_DARK" });
+s.addText("How We Tested Perch", { placeholder: "title" });
+s.addText("Four testing methods, 16 problems found and fixed\n\nJayden Manyrath and Koen Gennis  |  CS 7314/5314, Fall 2026", { placeholder: "body" });
+s.addNotes("JAYDEN (20 s). We tested Perch, an app we built, with four testing methods from the course and compared them with the tests the app already had. We'll walk through the slides for about ten minutes, then run some of the tests live.");
 
-// 2. Agenda = the TA checklist
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Introduction" });
-s.addText("What we will show, in the order of the demo checklist", { placeholder: "title" });
-const agenda = [
-  ["System under test", "3"], ["Raw data and how it was collected", "5"], ["Analysis of that data", "6"],
-  ["Testing models (4 techniques)", "7-10"], ["Test cases and the organized suite", "11"],
-  ["Test execution, live", "12"], ["Results and analysis", "13-14"],
-];
-agenda.forEach(([t, sl], i) => {
-  const col = i < 4 ? 0 : 1, row = i < 4 ? i : i - 4;
-  const x = 0.5 + col * 4.6, y = 1.25 + row * 0.82;
-  card(s, x, y, 4.3, 0.68, `agenda-card-${i}`);
-  s.addShape(pres.shapes.OVAL, { x: x + 0.15, y: y + 0.12, w: 0.44, h: 0.44, fill: { color: C.accent1 }, line: { color: C.accent1 }, objectName: `agenda-dot-${i}` });
-  text(s, String(i + 1), { x: x + 0.15, y: y + 0.12, w: 0.44, h: 0.44, fontSize: 14, bold: true, color: C.background1, align: "center", valign: "middle", objectName: `agenda-num-${i}` });
-  text(s, t, { x: x + 0.75, y, w: 2.7, h: 0.68, fontSize: 14, valign: "middle", objectName: `agenda-text-${i}` });
-  text(s, `slide ${sl}`, { x: x + 3.4, y, w: 0.8, h: 0.68, fontSize: 10, color: C.accent3, valign: "middle", align: "right", objectName: `agenda-slide-${i}` });
+// 2. System under test
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Perch: a housing and social app for summer interns", { placeholder: "title" });
+tag(s, "SYSTEM UNDER TEST", "sys");
+text(s, [
+  { text: "What interns do in it", options: { bold: true, color: C.accent1, breakLine: true } },
+  { text: "Upload an offer letter; the app works out pay and a rent budget", options: { bullet: true, breakLine: true } },
+  { text: "Swipe through sublets and request to book one", options: { bullet: true, breakLine: true } },
+  { text: "Check if a place fits the budget, lease dates and commute", options: { bullet: true, breakLine: true } },
+  { text: "Find events and other interns in the city", options: { bullet: true, breakLine: true } },
+  { text: " ", options: { breakLine: true } },
+  { text: "We tested it with built-in sample data, so tests are repeatable and never touch real users.", options: { color: C.accent6, fontSize: 12 } },
+], { x: 0.5, y: 1.2, w: 3.3, h: 3.6, fontSize: 13.5, paraSpaceAfter: 4 });
+["app-home.png", "app-feed.png", "app-deck.png"].forEach((f, i) => img(s, f, 4.0 + i * 1.88, 1.15, 3.6, 0.5, ["Perch welcome screen", "Event feed", "Sublet swipe deck"][i]));
+s.addNotes("JAYDEN (50 s). Perch helps interns moving for a summer job. These are real screenshots: the welcome screen, the event feed, and the deck of sublets you swipe through and book. The risky parts are booking, the money and date rules, and the code that falls back when something goes wrong. Those are what we tested.");
+
+// 3. Starting point and the plan
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("The starting point: 499 tests, all passing, none caught a problem", { placeholder: "title" });
+tag(s, "APPROACH", "base");
+stat(s, 0.5, 1.2, 2.6, "499", "tests the app already had; all passed", "base-tests");
+stat(s, 0.5, 2.5, 2.6, "0 of 16", "problems we later found that those tests caught", "base-caught", C.accent4);
+stat(s, 0.5, 3.8, 2.6, `${Math.round(cov.baseline.total.branches)}%`, "of decision points in the riskiest code that they reached", "base-cov", C.accent3);
+METHODS.forEach(([name, formal, what], i) => {
+  const x = 3.4 + (i % 2) * 3.1, y = 1.15 + Math.floor(i / 2) * 1.8;
+  card(s, x, y, 2.95, 1.65, `m-card-${i}`);
+  text(s, name, { x: x + 0.15, y: y + 0.1, w: 2.65, h: 0.32, fontSize: 15, bold: true, color: C.accent1, objectName: `m-name-${i}` });
+  text(s, formal, { x: x + 0.15, y: y + 0.42, w: 2.65, h: 0.25, fontSize: 10, color: C.accent3, objectName: `m-formal-${i}` });
+  text(s, what, { x: x + 0.15, y: y + 0.72, w: 2.65, h: 0.9, fontSize: 11, objectName: `m-what-${i}` });
 });
-text(s, "Full detail for every item: docs/testing/demo/dashboard.html (opens offline)", { x: 4.9, y: 3.85, w: 4.6, h: 0.5, fontSize: 11, color: C.accent6, objectName: "agenda-dash" });
+s.addNotes("JAYDEN (60 s). Passing tests don't mean the app is right. The 499 existing tests all passed, but caught none of the 16 problems we found. So we used four methods, each aimed at a different kind of mistake: the order of actions, edge-case numbers and dates, hidden code paths, and how real users move through the app. The existing tests are our baseline for comparison.");
 
-// 3. System under test
-pres.addSection({ title: "System" });
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "System" });
-s.addText("System under test: Perch, a housing and social app for interns", { placeholder: "title" });
-tag(s, "1  SYSTEM", "sys");
+// 4. Collected data
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Collected data: where our test ideas came from", { placeholder: "title" });
+tag(s, "COLLECTED DATA AND ANALYSIS", "data");
 table(s, [
-  ["Function", "Where", "Technique"],
-  ["Onboarding from an offer letter", "/onboarding, offer parser", "FSM (browser), PT"],
-  ["Swipe deck, listing, request / approve / confirm / cancel", "/stories, booking API, data source", "FSM, CFT, UBST"],
-  ["Housing verdicts and finance readout", "/negotiate, lib/negotiate, finance model", "PT, UBST"],
-  ["Listing freshness (expire, ping)", "daily cron, freshness pass", "CFT"],
-  ["Feed, map, messages, profile", "/feed, /map, /dms, /profile", "UBST"],
-], { x: 0.5, y: 1.2, w: 9, colW: [3.6, 3.4, 2.0], fontSize: 12, rowH: 0.42 });
-text(s, "Next.js + Supabase. Tested in demo mode: built-in fixture data, no keys, no login.", { x: 0.5, y: 3.95, w: 9, h: 0.4, fontSize: 13, color: C.accent6, objectName: "sys-note" });
-cmd(s, "Demo: npm run demo  (step 1 opens the app)", "sys");
-
-// 4. Strategy
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "System" });
-s.addText("Each technique is matched to one kind of risk in Perch", { placeholder: "title" });
-tag(s, "1  SYSTEM", "strat");
-[
-  ["FSM / BBT", "Order of events", "Booking lifecycle and onboarding: approve twice, relist a taken place, two interns at once"],
-  ["PT / BBT", "Input domains", "Finance and verdict rules over salary, rent, dates, commute, safety flags"],
-  ["CFT / WBT", "Hidden branches", "Fallback, expiry and error paths that black-box tests rarely reach"],
-  ["Markov-OP / UBST", "Real usage", "Random user sessions drawn from a usage profile, replayed in a browser"],
-].forEach(([name, risk, what], i) => {
-  const x = 0.5 + i * 2.3;
-  card(s, x, 1.35, 2.1, 2.6, `tech-card-${i}`);
-  text(s, name, { x: x + 0.2, y: 1.55, w: 1.7, h: 0.5, fontSize: 16, bold: true, color: C.accent1, objectName: `tech-name-${i}` });
-  text(s, risk, { x: x + 0.2, y: 2.1, w: 1.7, h: 0.4, fontSize: 13, bold: true, color: C.accent4, objectName: `tech-risk-${i}` });
-  text(s, what, { x: x + 0.2, y: 2.6, w: 1.7, h: 1.3, fontSize: 12, objectName: `tech-what-${i}` });
+  ["Method", "What we collected", "How"],
+  ["Step-by-step flows", "The app's written booking rules, the 8 onboarding screens", "Read the spec; walked the app"],
+  ["Edge-case inputs", "Tax brackets, rent limits (10% over budget), lease and commute limits", "Right answers worked out by hand"],
+  ["Every code path", "The code of the 14 riskiest files", "Traced every decision into 6 diagrams"],
+  ["Real user behavior", "How often users move from each screen to the next", "Team estimates of the user journey"],
+  ["Baseline", "The 499 existing tests", "Ran them and measured what they reach"],
+], { x: 0.4, y: 1.15, w: 5.4, colW: [1.45, 2.35, 1.6], fontSize: 10.5, rowH: 0.5 });
+const gapMods = [["app/api/cron/expire-listings/route.ts", "Listing expiry"], ["lib/negotiate/safety.ts", "Safety check"], ["lib/data/source.ts", "Data fallback"], ["lib/bookings.ts", "Bookings"], ["lib/negotiate/lease.ts", "Lease check"], ["lib/finance/model.ts", "Finance"]];
+plainBar(s, gapMods.map((m) => m[1]), gapMods.map((m) => Math.round(cov.baseline.perFile[m[0]]?.branches ?? 0)), {
+  x: 6.0, y: 1.1, w: 3.6, h: 3.3, chartColors: [HEX.accent4], title: "Analysis: how much the old tests reached (%)", valAxisMaxVal: 115, dataLabelFormatCode: "0",
 });
-text(s, "Baseline for comparison: the repository's existing 499-case test suite, measured before we wrote anything.", { x: 0.5, y: 4.25, w: 9, h: 0.5, fontSize: 13, color: C.accent6, objectName: "tech-baseline-note" });
+note(s, "The gaps told us where to aim: bookings, the backup path and the expiry job.", "data", { x: 0.4, y: 4.6 });
+s.addNotes("KOEN (60 s). Every model is built from data we collected: the written rules, hand-calculated numbers, the code itself, and an estimate of how users move through the app. Perch has no real users yet, so the journey is our estimate; we built an opt-in logger to collect real data later. The chart is our analysis of the baseline: the old tests barely reached the bookings and backup code, so that's where we focused.");
 
-// 5. Raw data
-pres.addSection({ title: "Data" });
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Data" });
-s.addText("Raw data behind each model, and how it was collected", { placeholder: "title" });
-tag(s, "2  RAW DATA", "raw");
-table(s, [
-  ["Model", "Raw data", "How collected"],
-  ["FSM booking", "Contract 13.4 state machine, README freshness rules, one-hold DB index", "Read from the spec, not the code (independent oracle)"],
-  ["FSM onboarding", "The 8 onboarding screens and the review-screen guard", "Walked through in the running app"],
-  ["PT partitions", "2025 tax constants, scout thresholds (10% budget, 7-day lease, 10/20 min)", "Expected values computed by hand"],
-  ["CFT graphs", "Source code of the 14 target modules", "Decision points traced into 6 graphs"],
-  ["Markov profile", "Designed user journey + team estimates (no production users)", "Projected; opt-in /pilot logger collects real navigation"],
-  ["Baseline", "Existing 499-case suite on the original code", "Coverage measured with v8 before any new test"],
-], { x: 0.5, y: 1.15, w: 9, colW: [1.6, 4.1, 3.3], fontSize: 11, rowH: 0.44 });
-text(s, "Run data: every round's results, UBST sessions and the defect log are saved under docs/testing/.", { x: 0.5, y: 4.4, w: 9, h: 0.4, fontSize: 12, color: C.accent6, objectName: "raw-note" });
+// 5. Diagram: booking flow
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Diagram 1: the booking flow, as a state machine", { placeholder: "title" });
+tag(s, "DIAGRAMS / MODELS", "fsm");
+img(s, "../booking-fsm.png", 0.3, 1.1, 3.3, ratioOf("../booking-fsm.png"), "Booking flow: Listed, Requested, Approved, Booked, Declined, Cancelled, Stale");
+card(s, 6.35, 1.15, 3.25, 2.7, "fsm-card");
+text(s, [
+  { text: "How we used it", options: { bold: true, color: C.accent1, breakLine: true } },
+  { text: `Tested all ${model.fsm.valid} allowed steps (arrows)`, options: { bullet: true, breakLine: true } },
+  { text: `Tried ${model.fsm.invalid} steps that must be refused, e.g.:`, options: { bullet: true, breakLine: true } },
+  { text: "approve a booking twice", options: { bullet: { indent: 15 }, indentLevel: 1, breakLine: true } },
+  { text: "relist a place already booked", options: { bullet: { indent: 15 }, indentLevel: 1, breakLine: true } },
+  { text: "two interns request at the same instant", options: { bullet: { indent: 15 }, indentLevel: 1, breakLine: true } },
+  { text: "Found 8 problems", options: { bullet: true, bold: true, color: C.accent4 } },
+], { x: 6.5, y: 1.3, w: 3.0, h: 3.1, fontSize: 12, paraSpaceAfter: 3 });
+note(s, "Drawing the diagram found a problem before any test ran: the rules let an intern cancel, but the app had no way to do it.", "fsm", { y: 4.6 });
+s.addNotes("JAYDEN (60 s). Booking a place goes through these stages. The arrows are the steps the rules allow. We tested every arrow, and also tried steps that should be refused, like booking a place someone already has. This found 8 problems; for example a booked place could be put back on the market. Just drawing this found one: cancelling was in the rules but not in the app.");
 
-// 6. Data analysis
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Data" });
-s.addText("Analysis: what the baseline missed, and where users spend time", { placeholder: "title" });
-tag(s, "3  DATA ANALYSIS", "an");
-const gapMods = [["app/api/cron/expire-listings/route.ts", "Expiry cron"], ["lib/negotiate/safety.ts", "Safety scout"], ["lib/data/source.ts", "Data source"], ["lib/bookings.ts", "Bookings"], ["lib/negotiate/lease.ts", "Lease scout"], ["lib/finance/model.ts", "Finance model"]];
-s.addChart(pres.charts.BAR, [{ name: "Baseline branch %", labels: gapMods.map((m) => m[1]), values: gapMods.map((m) => cov.baseline.perFile[m[0]]?.branches ?? 0) }], {
-  x: 0.4, y: 1.15, w: 4.5, h: 3.3, barDir: "bar", chartColors: [HEX.accent3], showTitle: true, title: "Baseline branch coverage (%): the gaps",
-  showLegend: false, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0", valAxisMaxVal: 110, valAxisHidden: true, valGridLine: { style: "none" }, catGridLine: { style: "none" }, ...chartText, objectName: "an-gap-chart",
+// 6. Diagrams: edge cases and code paths
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Diagrams 2 and 3: edge cases and code paths", { placeholder: "title" });
+tag(s, "DIAGRAMS / MODELS", "pc");
+text(s, "Edge-case inputs: rent against a $2,000 budget", { x: 0.5, y: 1.15, w: 4.4, h: 0.3, fontSize: 13, bold: true, color: C.accent1, objectName: "pt-head" });
+[["Fits", "up to $2,000", HEX.accent1, 1.6], ["A bit over", "$2,001-$2,200", HEX.accent2, 1.2], ["Too much", "$2,201+", HEX.accent4, 1.5]].forEach(([l, r, col, w], i, arr) => {
+  const x = 0.5 + arr.slice(0, i).reduce((a, q) => a + q[3], 0);
+  s.addShape(pres.shapes.RECTANGLE, { x, y: 1.6, w, h: 0.55, fill: { color: col }, line: { color: HEX.lt1, width: 1.5 }, objectName: `pt-band-${i}` });
+  text(s, l, { x, y: 1.6, w, h: 0.55, fontSize: 12, bold: true, color: C.background1, align: "center", valign: "middle", objectName: `pt-band-l-${i}` });
+  text(s, r, { x, y: 2.2, w, h: 0.3, fontSize: 10.5, color: C.accent6, align: "center", objectName: `pt-band-r-${i}` });
 });
-const screens = model.screens.filter((x) => x !== "START" && x !== "EXIT");
-s.addChart(pres.charts.BAR, [{ name: "Expected visits", labels: screens.map(pretty), values: screens.map((x) => Number(model.expectedVisits[x].toFixed(2))) }], {
-  x: 5.1, y: 1.15, w: 4.5, h: 3.3, barDir: "bar", chartColors: [HEX.accent1], showTitle: true, title: "Usage profile: expected visits per session",
-  showLegend: false, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00", valAxisHidden: true, valGridLine: { style: "none" }, catGridLine: { style: "none" }, ...chartText, objectName: "an-visits-chart",
+text(s, "We test both sides of every line: $2,000 and $2,001, $2,200 and $2,201. The same for salary, lease gaps (7 vs 8 days) and walking time (10, 11, 20, 21 min).", { x: 0.5, y: 2.65, w: 4.3, h: 1.0, fontSize: 11.5, objectName: "pt-text" });
+text(s, "Found 4 problems, e.g. \"$45 per hour\" was read as $45 a year.", { x: 0.5, y: 3.75, w: 4.3, h: 0.5, fontSize: 11.5, bold: true, color: C.accent4, objectName: "pt-found" });
+s.addShape(pres.shapes.LINE, { x: 5.05, y: 1.2, w: 0, h: 3.2, line: { color: "D5E3E5", width: 1 }, objectName: "pc-divider" });
+text(s, "Every code path: what happens when you book", { x: 5.25, y: 1.15, w: 4.4, h: 0.3, fontSize: 13, bold: true, color: C.accent1, objectName: "cft-head" });
+const flow = [["Send request", 1.55, HEX.accent1], ["Server says yes?", 2.25, HEX.accent1]];
+flow.forEach(([t, y, col], i) => {
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 6.45, y, w: 1.9, h: 0.45, rectRadius: 0.08, fill: { color: col }, line: { color: col }, objectName: `cft-node-${i}` });
+  text(s, t, { x: 6.45, y, w: 1.9, h: 0.45, fontSize: 11, bold: true, color: C.background1, align: "center", valign: "middle", objectName: `cft-node-l-${i}` });
 });
-text(s, "Low coverage pointed white-box and FSM work at the cron, bookings and data-source fallback. Feed and the deck dominate usage, so most UBST sessions go there.", { x: 0.5, y: 4.5, w: 9, h: 0.6, fontSize: 12, color: C.accent6, objectName: "an-note" });
+s.addShape(pres.shapes.LINE, { x: 7.4, y: 2.0, w: 0, h: 0.25, line: { color: HEX.accent6, width: 1.5, endArrowType: "triangle" }, objectName: "cft-e0" });
+[["Yes: booked", 5.25, HEX.accent3], ["No answer: use backup", 6.95, HEX.accent3], ["Refused: show why", 8.5, HEX.accent2]].forEach(([t, x, col], i) => {
+  arrow(s, 7.4, 2.7, x + 0.55, 3.05, HEX.accent6, `cft-e${i + 1}`);
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 3.05, w: 1.1, h: 0.6, rectRadius: 0.08, fill: { color: col }, line: { color: col }, objectName: `cft-leaf-${i}` });
+  text(s, t, { x, y: 3.05, w: 1.1, h: 0.6, fontSize: 9.5, bold: true, color: i === 2 ? C.text1 : C.background1, align: "center", valign: "middle", objectName: `cft-leaf-l-${i}` });
+});
+text(s, "One test per branch. A refusal used to take the backup branch and show a fake \"booked\" (fixed).", { x: 5.25, y: 3.8, w: 4.4, h: 0.6, fontSize: 11.5, bold: true, color: C.accent4, objectName: "cft-found" });
+s.addNotes("KOEN (60 s). Left: for numbers and dates we split each input into ranges and test right at each edge, because mistakes cluster at the edges. That found 4 problems; the worst was an hourly wage read as a yearly salary, so every listing looked unaffordable. Right: we drew the code's decisions as a flow chart and wrote one test for every branch. When the server refused a booking, the app took the wrong branch and showed a fake success.");
 
-// Findings per model group: cases now, and how many failed on the original code (round 1).
-function groupFindings(fileParts, labelFor) {
-  const g = new Map();
-  for (const [res, key] of [[now, "cases"], [r1, "r1fail"]]) {
-    for (const f of res.testResults) {
-      if (!fileParts.some((p) => f.name.includes(p))) continue;
-      for (const a of f.assertionResults) {
-        const label = labelFor(a.ancestorTitles[0]);
-        if (!label) continue;
-        const row = g.get(label) ?? { cases: 0, r1fail: 0 };
-        if (key === "cases") row.cases++;
-        else if (a.status !== "passed") row.r1fail++;
-        g.set(label, row);
-      }
-    }
+// 7. Diagram: user journey
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Diagram 4: the user journey we simulate", { placeholder: "title" });
+tag(s, "DIAGRAMS / COLLECTED DATA", "mk");
+const P = model.profile;
+const pct = (a, b) => `${Math.round(P[a][b] * 100)}%`;
+const path1 = [["START", "Open app"], ["ONBOARDING", "Onboarding"], ["FEED", "Event feed"], ["PERCHES", "Sublet deck"], ["LISTING", "A listing"], ["BOOKING", "Book it"]];
+path1.forEach(([k, label], i) => {
+  const x = 0.4 + i * 1.55;
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.5, w: 1.2, h: 0.6, rectRadius: 0.1, fill: { color: i === 5 ? HEX.accent2 : HEX.accent1 }, line: { color: i === 5 ? HEX.accent2 : HEX.accent1 }, objectName: `mk-node-${i}` });
+  text(s, label, { x, y: 1.5, w: 1.2, h: 0.6, fontSize: 11.5, bold: true, color: i === 5 ? C.text1 : C.background1, align: "center", valign: "middle", objectName: `mk-label-${i}` });
+  if (i < path1.length - 1) {
+    s.addShape(pres.shapes.LINE, { x: x + 1.2, y: 1.8, w: 0.35, h: 0, line: { color: HEX.accent6, width: 1.5, endArrowType: "triangle" }, objectName: `mk-edge-${i}` });
+    text(s, pct(k, path1[i + 1][0]), { x: x + 1.12, y: 1.25, w: 0.5, h: 0.25, fontSize: 10.5, bold: true, color: C.accent6, align: "center", objectName: `mk-p-${i}` });
   }
-  return [...g.entries()];
-}
-const findingsChart = (slide, rows, { x, y, w, h, title, name }) =>
-  slide.addChart(pres.charts.BAR, [
-    { name: "Test cases", labels: rows.map((r) => r[0]), values: rows.map((r) => r[1].cases) },
-    { name: "Failed on original code", labels: rows.map((r) => r[0]), values: rows.map((r) => r[1].r1fail) },
-  ], {
-    x, y, w, h, barDir: "bar", barGapWidthPct: 60, chartColors: [HEX.accent5, HEX.accent4], showTitle: true, title,
-    showLegend: true, legendPos: "b", legendFontSize: 10, legendFontFace: "+mn-lt", legendColor: HEX.accent6,
-    showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0", valAxisHidden: true,
-    valGridLine: { style: "none" }, catGridLine: { style: "none" }, catAxisOrientation: "maxMin", ...chartText, objectName: name,
-  });
-
-// 7. FSM model
-pres.addSection({ title: "Models" });
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Models" });
-s.addText("FSM model: the booking state machine, and what it found", { placeholder: "title" });
-tag(s, "4  MODELS", "fsm");
-s.addImage({ path: path.join(D, "demo/booking-fsm.png"), x: 0.4, y: 1.15, w: 4.4, h: 2.44, altText: "Booking FSM: Listed, Requested, Approved, Booked, Declined, Cancelled, Stale" });
-text(s, `${model.fsm.states} states | ${model.fsm.valid} valid | ${model.fsm.invalid} invalid | ${model.fsm.paths} paths | 2 races`, { x: 0.4, y: 3.68, w: 4.4, h: 0.3, fontSize: 11, bold: true, color: C.accent1, objectName: "fsm-counts" });
-text(s, "8 defects (D01-D08): relisting a taken place, race loser got 500, fixture re-approved booked stays, onboarding accepted end < start. 0 tests failing now.", { x: 0.4, y: 4.02, w: 4.4, h: 0.55, fontSize: 10.5, color: C.accent6, objectName: "fsm-found" });
-const FSM_GROUPS = { "live API path - valid": "Live: valid", "live API path - invalid": "Live: invalid", "live API path - sequences": "Live: paths", "live API path - concurrency": "Live: races", "fixture source - valid": "Fixture: valid", "fixture source - invalid": "Fixture: invalid" };
-findingsChart(s, groupFindings(["fsm-booking-live", "fsm-booking-fixture"], (t) => Object.entries(FSM_GROUPS).find(([k]) => t.includes(k))?.[1]), {
-  x: 4.95, y: 1.1, w: 4.75, h: 3.5, title: "Booking FSM: cases per model group", name: "fsm-findings-chart",
 });
-cmd(s, "Demo: npm run demo:fsm   |   npm run demo:fsm:onboarding", "fsm");
+[["MAP", "Map"], ["CHIRPS", "Messages"], ["NEST", "Profile"]].forEach(([k, label], i) => {
+  const x = 2.4 + i * 1.35;
+  arrow(s, 3.7, 2.1, x + 0.55, 2.6, HEX.accent5, `mk-side-e-${i}`);
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 2.6, w: 1.1, h: 0.45, rectRadius: 0.1, fill: { color: HEX.lt2 }, line: { color: HEX.accent5 }, objectName: `mk-side-${i}` });
+  text(s, `${label} ${pct("FEED", k)}`, { x, y: 2.6, w: 1.1, h: 0.45, fontSize: 10.5, align: "center", valign: "middle", objectName: `mk-side-l-${i}` });
+});
+text(s, "From every screen there is also a chance to leave the app (15-30%).", { x: 0.4, y: 3.25, w: 5.6, h: 0.3, fontSize: 11, color: C.accent6, objectName: "mk-exit" });
+text(s, "We randomly generate visits that follow these odds and replay each one in a real browser: 240 visits over 4 rounds. A visit fails if a screen doesn't load, the page crashes, or a feature shows an error.", { x: 0.4, y: 3.65, w: 5.6, h: 0.9, fontSize: 12, objectName: "mk-how" });
+const vs = ["FEED", "PERCHES", "LISTING", "CHIRPS", "MAP", "BOOKING"];
+const nice = { FEED: "Event feed", PERCHES: "Sublet deck", LISTING: "Listing", CHIRPS: "Messages", MAP: "Map", BOOKING: "Booking" };
+plainBar(s, vs.map((v) => nice[v]), vs.map((v) => Number(model.expectedVisits[v].toFixed(1))), {
+  x: 6.3, y: 2.3, w: 3.4, h: 2.4, chartColors: [HEX.accent1], title: "Visits per session (from the model)", dataLabelFormatCode: "0.0", valAxisMaxVal: 1.9,
+});
+s.addNotes("JAYDEN (50 s). To test what users actually do, we modeled the journey. From each screen, these are the odds of going to the next one; they're our estimates, since there are no real users yet. The computer generates random visits with these odds and plays each one in a real browser. Most time goes to the feed and the sublet deck, so most testing goes there too.");
 
-// 8. PT model
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Models" });
-s.addText("PT model: boundary partitions, and what they found", { placeholder: "title" });
-tag(s, "4  MODELS", "pt");
+// 8. Test cases
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Test cases: examples, and the full suite", { placeholder: "title" });
+tag(s, "TEST CASES", "tc");
 table(s, [
-  ["Input", "Classes (valid / invalid)", "Boundary cases"],
-  ["Rent vs budget", "under / 0-10% over / over 10%", "2,000 | 2,001 | 2,200 | 2,201"],
-  ["Salary band", "negative, zero / each bracket", "14,600 | 14,601"],
-  ["Pay period", "annual / hourly, weekly, monthly / missing", "$45.00 per hour"],
-  ["Lease vs stay", "covers / gap <= 7 / gap > 7 / bad dates", "7 vs 8 days"],
-  ["Walk to anchor", "<= 10 / <= 20 / > 20 min / no data", "10 | 11 | 20 | 21 min"],
-  ["COL index", "low ... capped / zero, negative, NaN", "133 vs 152"],
-], { x: 0.4, y: 1.15, w: 5.0, colW: [1.2, 2.3, 1.5], fontSize: 9.5, rowH: 0.34 });
-text(s, "4 defects (D09-D12): hourly pay read as a yearly salary, stated budget ignored, bad and inverted dates accepted. 0 tests failing now.", { x: 0.4, y: 4.05, w: 5.0, h: 0.5, fontSize: 10.5, color: C.accent6, objectName: "pt-found" });
-const PT_GROUPS = { "PT-B1": "Rent vs budget", "PT-B2": "Salary to budget", "PT-L ": "Lease vs stay", "PT-R ": "Walk to anchor", "PT-S ": "Safety flags", "PT-A ": "Roll-up", "PT-F1": "Take-home bands", "PT-F2": "COL ceiling", "PT-F3": "Offer pay period", "PT-N ": "Negotiate inputs" };
-findingsChart(s, groupFindings(["pt-verdict-rules", "pt-finance"], (t) => Object.entries(PT_GROUPS).find(([k]) => t.startsWith(k))?.[1]), {
-  x: 5.55, y: 1.1, w: 4.15, h: 3.5, title: "PT: cases per input dimension", name: "pt-findings-chart",
-});
-cmd(s, "Demo: npm run demo:pt", "pt");
-
-// 9. CFT model
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Models" });
-s.addText("CFT model: control flow graphs, one test per branch", { placeholder: "title" });
-tag(s, "4  MODELS", "cft");
-const nodes = [["Live mode?", 0.5], ["Fetch", 1.95], ["Response OK?", 3.4]];
-nodes.forEach(([t, x], i) => {
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.4, w: 1.25, h: 0.6, rectRadius: 0.08, fill: { color: C.accent1 }, line: { color: C.accent1 }, objectName: `cfg-node-${i}` });
-  text(s, t, { x, y: 1.4, w: 1.25, h: 0.6, fontSize: 11, bold: true, color: C.background1, align: "center", valign: "middle", objectName: `cfg-label-${i}` });
-  if (i < nodes.length - 1) s.addShape(pres.shapes.LINE, { x: x + 1.25, y: 1.7, w: 0.2, h: 0, line: { color: HEX.accent6, width: 1.5, endArrowType: "triangle" }, objectName: `cfg-edge-${i}` });
-});
-s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 2.5, w: 4.15, h: 0.75, rectRadius: 0.08, fill: { color: C.accent2 }, line: { color: C.accent2 }, objectName: "cfg-defect" });
-text(s, "4xx refusal took the outage branch: fixture faked a booking (D13)", { x: 0.65, y: 2.5, w: 3.9, h: 0.75, fontSize: 12, bold: true, valign: "middle", objectName: "cfg-defect-label" });
-text(s, "6 graphs: freshness planner and pass, expiry cron, transition function, performTransition, fixture/live fallback. 37 cases.", { x: 0.5, y: 3.45, w: 4.2, h: 0.9, fontSize: 12, color: C.accent6, objectName: "cft-note" });
-const covMods = [["lib/sourcing/freshness.ts", "Freshness"], ["lib/negotiate/safety.ts", "Safety scout"], ["lib/negotiate/lease.ts", "Lease scout"], ["lib/bookings.ts", "Bookings"], ["lib/data/source.ts", "Data source"], ["app/api/cron/expire-listings/route.ts", "Expiry cron"]];
-s.addChart(pres.charts.BAR, [
-  { name: "Baseline", labels: covMods.map((m) => m[1]), values: covMods.map((m) => cov.baseline.perFile[m[0]]?.branches ?? 0) },
-  { name: "With course suites", labels: covMods.map((m) => m[1]), values: covMods.map((m) => cov.all.perFile[m[0]].branches) },
-], {
-  x: 5.0, y: 1.2, w: 4.6, h: 3.3, barDir: "bar", chartColors: [HEX.accent5, HEX.accent1], showTitle: true, title: "Branch coverage (%)",
-  showLegend: true, legendPos: "b", legendFontSize: 10, legendFontFace: "+mn-lt", legendColor: HEX.accent6, valAxisMaxVal: 100, valAxisMinVal: 0,
-  valGridLine: { color: "D5E3E5", size: 0.5 }, catGridLine: { style: "none" }, ...chartText, objectName: "cft-coverage-chart",
-});
-cmd(s, "Demo: npm run demo:cft", "cft", 0.5, 4.4);
-
-// 10. Markov model
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Models" });
-s.addText("Markov-OP model: a usage chain over the main screens", { placeholder: "title" });
-tag(s, "4  MODELS", "mk");
-const rowsShown = ["START", "FEED", "PERCHES", "LISTING", "BOOKING"];
-const colsShown = ["ONBOARDING", "FEED", "PERCHES", "LISTING", "BOOKING", "NEGOTIATE", "CHIRPS", "EXIT"];
-const SHORT = { START: "Start", ONBOARDING: "Onb.", FEED: "Feed", PERCHES: "Deck", LISTING: "List", BOOKING: "Book", NEGOTIATE: "Neg.", CHIRPS: "DMs", EXIT: "Exit" };
-table(s, [["From \\ To", ...colsShown.map((c) => SHORT[c])], ...rowsShown.map((f) => [f === "PERCHES" ? "Deck" : pretty(f), ...colsShown.map((t) => (model.profile[f][t] ? model.profile[f][t].toFixed(2) : ""))])], {
-  x: 0.4, y: 1.15, w: 5.6, colW: [0.88, ...colsShown.map(() => 0.59)], fontSize: 10, rowH: 0.36,
-});
-text(s, "Excerpt of the 11 x 11 transition matrix (Deck = Perches, DMs = Chirps); every row sums to 1.", { x: 0.4, y: 3.4, w: 5.6, h: 0.3, fontSize: 11, color: C.accent6, objectName: "mk-matrix-note" });
-["Projected profile, validated: rows are distributions, Exit reachable, 20,000 simulated sessions match the analytic visits", "Generator draws reproducible sessions (fixed seeds)", "Executor replays each session in Chromium with a failure oracle"].forEach((t, i) => {
-  s.addShape(pres.shapes.OVAL, { x: 6.25, y: 1.2 + i * 0.95, w: 0.42, h: 0.42, fill: { color: C.accent2 }, line: { color: C.accent2 }, objectName: `mk-dot-${i}` });
-  text(s, String(i + 1), { x: 6.25, y: 1.2 + i * 0.95, w: 0.42, h: 0.42, fontSize: 13, bold: true, align: "center", valign: "middle", objectName: `mk-num-${i}` });
-  text(s, t, { x: 6.8, y: 1.15, w: 2.8, h: 0.85, fontSize: 11.5, objectName: `mk-step-${i}`, ...{ y: 1.15 + i * 0.95 } });
-});
-cmd(s, "Demo: npm run demo:ubst", "mk");
-
-// 11. Test cases
-pres.addSection({ title: "Tests" });
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Tests" });
-s.addText("Test cases: one suite per technique, ids traced to the models", { placeholder: "title" });
-tag(s, "5  TEST CASES", "tc");
-const suiteCount = (name) => now.testResults.find((f) => f.name.endsWith(name)).assertionResults.length;
-// Suites written after round 1 did not exist on the original code: shown as "-".
-const r1Fail = (name) => r1.testResults.find((f) => f.name.endsWith(name))?.assertionResults.filter((a) => a.status === "failed").length;
-const suites = [
-  ["FSM", "fsm-booking-live, fsm-booking-fixture", ["fsm-booking-live.test.ts", "fsm-booking-fixture.test.ts"], "T valid, I invalid, P path, C race"],
-  ["FSM (browser)", "onboarding-fsm.e2e", null, "OB-T01..T14", "10", "1"],
-  ["PT", "pt-verdict-rules, pt-finance", ["pt-verdict-rules.test.ts", "pt-finance.test.ts"], "PB PL PR PS PA PF PN = partition rows"],
-  ["CFT", "cft-branches, cft-source-fallback", ["cft-branches.test.ts", "cft-source-fallback.test.ts"], "CF-nn = one CFG edge each"],
-  ["Markov-OP", "markov-profile, pilot-profile", ["markov-profile.test.ts", "pilot-profile.test.ts"], "MK, PL = model checks"],
-  ["UBST", "ubst-executor + generated suites", null, "UB-nnn = one session", "240 sessions", "10 sessions"],
-  ["Regression", "regression-round3, regression-d16", ["regression-round3.test.ts", "regression-d16.test.ts"], "R3, R16 = later fixes"],
+  ["Test", "What it does", "Should happen", "Original app", "Now"],
+  ["I13", "Relist a place that is already booked", "Refused", "Failed", "Pass"],
+  ["C01", "Two interns request the same place at once", "One wins; other told it's taken", "Failed (server error)", "Pass"],
+  ["PB-03", "Rent $2,001 on a $2,000 budget", "Flagged as a bit over", "Pass", "Pass"],
+  ["PF-23", "Offer letter says \"$45.00 per hour\"", "About $93,600 a year", "Failed ($45/yr)", "Pass"],
+  ["PN-04", "Move-out date before move-in", "Rejected", "Failed", "Pass"],
+  ["CF-35", "Server refuses a booking", "Show the refusal", "Failed (fake success)", "Pass"],
+  ["OB-T12", "Onboarding: end date before start date", "Can't continue", "Failed", "Pass"],
+], { x: 0.4, y: 1.1, w: 6.3, colW: [0.7, 2.2, 1.45, 1.25, 0.7], fontSize: 10, rowH: 0.42 });
+const suiteCount = (...names) => names.reduce((a, n) => a + now.testResults.find((f) => f.name.endsWith(n)).assertionResults.length, 0);
+const counts = [
+  ["Step-by-step flows", suiteCount("fsm-booking-live.test.ts", "fsm-booking-fixture.test.ts") + 10],
+  ["Edge-case inputs", suiteCount("pt-verdict-rules.test.ts", "pt-finance.test.ts")],
+  ["Every code path", suiteCount("cft-branches.test.ts", "cft-source-fallback.test.ts")],
+  ["Simulated user visits", ubst.perRound.reduce((a, r) => a + r.runs, 0)],
 ];
-table(s, [["Technique", "Suite", "Cases", "Failed on original code", "Id scheme"], ...suites.map(([t, n, files, ids, cases, fails]) => [t, n, cases ?? String(files.reduce((a, f) => a + suiteCount(f), 0)), fails ?? (files.every((f) => r1Fail(f) === undefined) ? "- (added later)" : String(files.reduce((a, f) => a + (r1Fail(f) ?? 0), 0))), ids])], {
-  x: 0.5, y: 1.15, w: 9, colW: [1.3, 2.9, 1.2, 1.5, 2.1], fontSize: 11, rowH: 0.4,
+plainBar(s, counts.map((c) => c[0]), counts.map((c) => c[1]), { x: 6.85, y: 1.1, w: 2.85, h: 2.6, chartColors: [HEX.accent1], title: "New tests by method", dataLabelFormatCode: "0", valAxisMaxVal: 300 });
+text(s, "Each test has an ID that points back to its diagram, and a right answer decided before running it.", { x: 6.9, y: 3.8, w: 2.75, h: 0.9, fontSize: 11, color: C.accent6, objectName: "tc-ids" });
+s.addNotes("KOEN (60 s). Here are real test cases. Each one does one thing, says what should happen, and the ID ties it back to a diagram: I is a refused step in the booking flow, PB and PF are edge-case ranges, CF is a code branch, OB is onboarding. The original app failed most of these; today they all pass. The full suite is about 190 new tests plus 240 simulated user visits.");
+
+// 9. Execution: test runs
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Running the tests: every check passes on the fixed app", { placeholder: "title" });
+tag(s, "TEST EXECUTION (SCREENSHOTS, NOV 19)", "ex");
+img(s, "run-tests.png", 0.4, 1.1, 3.4, ratioOf("run-tests.png"), "Terminal: booking-flow, edge-case, code-path and baseline tests all passing");
+img(s, "app-onboarding-review.png", 4.65, 1.1, 3.0, 0.5, "Onboarding review screen during the browser test");
+text(s, [
+  { text: "Browser test", options: { bold: true, color: C.accent1, breakLine: true } },
+  { text: "A robot fills in onboarding like a user: 13 of 13 checks passed.", options: { breakLine: true } },
+  { text: " ", options: { breakLine: true } },
+  { text: "On the original code", options: { bold: true, color: C.accent4, breakLine: true } },
+  { text: `${r1.numFailedTests} of these tests failed. Each failure led to a fix, then a rerun.` },
+], { x: 6.3, y: 1.15, w: 3.3, h: 3.0, fontSize: 12 });
+note(s, "We ran 4 rounds: test, fix, retest. Live in a few minutes: the same commands.", "ex", { y: 4.65 });
+s.addNotes("KOEN (40 s). These are screenshots from today's run. Each command runs one method's tests: booking flow, edge cases, code paths, and the original 499. Everything passes now. On the original code, 24 of these failed, which is how we know they catch real problems. On the right is the browser test filling in onboarding like a real user.");
+
+// 10. Reliability
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Simulated users: reliability rose from 83% to 100%", { placeholder: "title" });
+tag(s, "RESULTS", "rel");
+s.addChart(pres.charts.BAR, [{ name: "Visits without a failure", labels: ubst.perRound.map((r) => `Round ${r.round}`), values: ubst.perRound.map((r) => Math.round(r.adjustedReliability * 100)) }], {
+  x: 0.4, y: 1.1, w: 4.4, h: 3.3, barDir: "col", chartColors: [HEX.accent1], showTitle: true, title: "Visits with no failure (%), 60 per round",
+  showLegend: false, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0\"%\"", valAxisMinVal: 50, valAxisMaxVal: 108, valAxisHidden: true,
+  valGridLine: { style: "none" }, catGridLine: { style: "none" }, ...chartText,
 });
-text(s, "Every case with its original-code and current result: dashboard section 5.", { x: 0.5, y: 4.55, w: 9, h: 0.35, fontSize: 12, color: C.accent6, objectName: "tc-note" });
+img(s, "run-ubst.png", 5.1, 1.15, 2.6, ratioOf("run-ubst.png"), "Terminal: 10 simulated user visits, 0 failed");
+text(s, "Round 1: the housing check broke on sample data (fixed). Round 2: the deck offered places already taken (fixed). Rounds 3-4: 120 visits, 0 failures.", { x: 5.1, y: 3.9, w: 4.5, h: 0.8, fontSize: 11.5, objectName: "rel-text" });
+s.addNotes("JAYDEN (50 s). Each round we ran 60 simulated visits. In round 1, 1 in 6 failed: the housing check broke whenever the app ran on sample data. We fixed it, and round 2 found one more problem: the deck offered places someone else already held. After that fix, 120 visits in a row passed. The screenshot is today's run of 10 visits. We also checked how much this depends on our usage estimates; it moves the number a little, not the trend.");
 
-// 12. Execution
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Tests" });
-s.addText("Test execution: run live, and four rounds of results", { placeholder: "title" });
-tag(s, "6  EXECUTION", "ex");
-table(s, [
-  ["Round", "Code", "Course suites failing", "UBST sessions failing"],
-  ["1", "original", `${r1.numFailedTests} of ${r1.numPassedTests + r1.numFailedTests} (+1 browser)`, `${ubst.perRound[0].defectFailures} of 60`],
-  ["2", "12 defects fixed", "0", `${ubst.perRound[1].defectFailures} of 60`],
-  ["3", "D07, D14, D15 fixed", "0", `${ubst.perRound[2].defectFailures} of 60`],
-  ["4", "D16 fixed", `0 of ${now.numPassedTests + now.numFailedTests}`, `${ubst.perRound[3].defectFailures} of 60`],
-], { x: 0.5, y: 1.15, w: 5.3, colW: [0.7, 1.7, 1.6, 1.3], fontSize: 12, rowH: 0.45 });
-card(s, 6.1, 1.15, 3.4, 2.9, "ex-live-card");
-text(s, "Live, one command", { x: 6.3, y: 1.3, w: 3.0, h: 0.4, fontSize: 15, bold: true, color: C.accent1, objectName: "ex-live-title" });
-text(s, "npm run demo", { x: 6.3, y: 1.8, w: 3.0, h: 0.4, fontSize: 15, fontFace: "Courier New", objectName: "ex-live-cmd" });
-text(s, "Walks every step: the tests by name, onboarding and 10 user sessions in a visible browser, then the summary.", { x: 6.3, y: 2.3, w: 3.0, h: 1.4, fontSize: 12, objectName: "ex-live-text" });
-text(s, "Proof the tests are real: on commit bfad1d9 (original code) the course suites fail 24 times; on main they all pass.", { x: 0.5, y: 3.65, w: 5.3, h: 0.8, fontSize: 12, color: C.accent6, objectName: "ex-proof" });
-
-// 13. Reliability
-pres.addSection({ title: "Results" });
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Results" });
-s.addText("Reliability grew from 0.83 to 1.00 after fixing what UBST found", { placeholder: "title" });
-tag(s, "7  RESULTS", "rel");
-s.addChart(pres.charts.BAR, [{ name: "Nelson reliability", labels: ubst.perRound.map((r) => `R${r.round}`), values: ubst.perRound.map((r) => r.adjustedReliability) }], {
-  x: 0.4, y: 1.15, w: 4.6, h: 3.4, barDir: "col", chartColors: [HEX.accent1], showTitle: true, title: "Reliability per round (60 sessions each)",
-  showLegend: false, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00", valAxisMinVal: 0.5, valAxisMaxVal: 1.05, valAxisHidden: true,
-  valGridLine: { style: "none" }, catGridLine: { style: "none" }, ...chartText, objectName: "ubst-reliability-chart",
+// 11. Defects found
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("16 problems found and fixed; the old tests found none", { placeholder: "title" });
+tag(s, "RESULTS AND ANALYSIS", "res");
+plainBar(s, ["Old tests (baseline)", "Step-by-step flows", "Edge-case inputs", "Every code path", "Real user behavior", "Our own walkthrough"], [0, 8, 4, 1, 2, 1], {
+  x: 0.4, y: 1.1, w: 4.6, h: 3.4, chartColors: [HEX.accent4], title: "Problems found, by method", dataLabelFormatCode: "0", valAxisMaxVal: 9.5,
 });
 [
-  ["Round 1", "10 of 60 failed on the negotiate scouts (D15, no keys)"],
-  ["Round 2", "D15 fixed; 1 failure: deck offered booking on a held listing (D16)"],
-  ["Rounds 3-4", "D16 fixed; 0 of 120 failed (95% interval 0.94 to 1.00 per round)"],
-].forEach(([r, t], i) => {
-  card(s, 5.3, 1.2 + i * 0.85, 4.3, 0.75, `rel-card-${i}`);
-  text(s, r, { x: 5.45, y: 1.2 + i * 0.85, w: 1.0, h: 0.75, fontSize: 12.5, bold: true, color: C.accent1, valign: "middle", objectName: `rel-round-${i}` });
-  text(s, t, { x: 6.5, y: 1.2 + i * 0.85, w: 3.0, h: 0.75, fontSize: 11.5, valign: "middle", objectName: `rel-text-${i}` });
+  ["Worst money bug", "\"$45 per hour\" was read as $45 a year, so every place looked unaffordable."],
+  ["Worst booking bug", "When the server refused a booking, the app showed a fake \"booked\"."],
+  ["Missing checks", "Half the problems were rules the app didn't enforce everywhere, e.g. dates entered backwards."],
+].forEach(([h, t], i) => {
+  card(s, 5.25, 1.15 + i * 1.12, 4.35, 1.0, `res-card-${i}`);
+  text(s, h, { x: 5.4, y: 1.22 + i * 1.12, w: 4.1, h: 0.3, fontSize: 12.5, bold: true, color: C.accent1, objectName: `res-h-${i}` });
+  text(s, t, { x: 5.4, y: 1.52 + i * 1.12, w: 4.1, h: 0.6, fontSize: 11.5, objectName: `res-t-${i}` });
 });
-const sens = ubst.sensitivityByRound[0].variants;
-const sv = (name) => sens.find((v) => v.variant.startsWith(name)).predictedReliability.toFixed(2);
-text(s, `Sensitivity: booking or abandonment +/-50% moves R by < 0.01; negotiate use x0.5 / x1.5 moves it to ${sv("negotiate x0.5")} / ${sv("negotiate x1.5")}. Two driver false positives excluded (raw numbers kept).`, { x: 5.3, y: 3.85, w: 4.3, h: 0.9, fontSize: 11, color: C.accent6, objectName: "rel-sens" });
+note(s, "No problem was found by two methods: each one catches a different kind of mistake.", "res", { y: 4.6 });
+s.addNotes("KOEN (50 s). Altogether 16 problems, all fixed and retested, and the original tests caught zero. The booking-flow method found the most. No problem was found twice, so each method earned its place. Three were serious, like these two. Half were rules the app didn't check everywhere. The code-path tests also raised how much of the risky code is tested, from 77 to 83 percent.");
 
-// 14. Comparison
-s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Results" });
-s.addText("16 defects, and no defect was found by two techniques", { placeholder: "title" });
-tag(s, "7  RESULTS", "cmp");
+// 12. Takeaways
+s = pres.addSlide({ masterName: "TITLE_DARK" });
+s.addText("What we learned", { placeholder: "title" });
+s.addText([
+  { text: "Passing tests are not proof: 499 passed, and missed all 16 problems.", options: { bullet: true, breakLine: true } },
+  { text: "Different methods find different problems; using several paid off.", options: { bullet: true, breakLine: true } },
+  { text: "Drawing the model finds problems before testing even starts.", options: { bullet: true, breakLine: true } },
+  { text: "Limits: sample data, not the live database; the user journey is our estimate until real users exist.", options: { bullet: true, color: HEX.accent2 } },
+], { placeholder: "body", fontSize: 16, paraSpaceAfter: 6 });
+s.addNotes("JAYDEN (40 s). Three lessons, and one honest limit: we tested on sample data and an estimated user journey, so the reliability number holds for that setup. Next would be real users through the logger we built, and the live database. Now we'll run some of the tests live.");
+
+// 13. Live testing
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Live testing (about 3 minutes)", { placeholder: "title" });
+tag(s, "LIVE TESTING", "live");
+text(s, "npm run demo", { x: 0.5, y: 1.15, w: 9, h: 0.45, fontSize: 20, fontFace: "Courier New", bold: true, color: C.accent1, objectName: "live-cmd" });
+[
+  ["Booking flow", "64 tests, about 1 second"],
+  ["Edge cases", "78 tests, about 1 second"],
+  ["Code paths", "37 tests, about 1 second"],
+  ["Onboarding in a visible browser", "13 checks, about 20 seconds"],
+  ["10 simulated user visits in a browser", "about 1 minute"],
+  ["Summary of all results", "instant"],
+].forEach(([t, d], i) => {
+  const y = 1.8 + i * 0.5;
+  s.addShape(pres.shapes.OVAL, { x: 0.5, y, w: 0.4, h: 0.4, fill: { color: C.accent1 }, line: { color: C.accent1 }, objectName: `live-dot-${i}` });
+  text(s, String(i + 1), { x: 0.5, y, w: 0.4, h: 0.4, fontSize: 13, bold: true, color: C.background1, align: "center", valign: "middle", objectName: `live-num-${i}` });
+  text(s, t, { x: 1.1, y, w: 4.6, h: 0.4, fontSize: 14, valign: "middle", objectName: `live-t-${i}` });
+  text(s, d, { x: 5.7, y, w: 3.8, h: 0.4, fontSize: 12, color: C.accent6, valign: "middle", objectName: `live-d-${i}` });
+});
+s.addNotes("Switch to the terminal and run npm run demo. Enter runs each step, s skips. If the TA wants something else, any single step runs on its own (see the prep sheet). If anything fails live, the screenshots on slides 9, 10 and the backup slides show the same run.");
+
+// Backup slides
+s = pres.addSlide({ masterName: "TITLE_DARK" });
+s.addText("Backup slides", { placeholder: "title" });
+s.addText("Full results summary, the onboarding browser test, numbers by method, and where every document lives", { placeholder: "body" });
+
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Backup: full results summary (screenshot, Nov 19)", { placeholder: "title" });
+tag(s, "RESULTS DATA", "b-sum");
+img(s, "run-summary.png", 1.3, 1.05, 4.1, ratioOf("run-summary.png"), "Terminal: results summary by technique, defects, coverage and reliability per round");
+
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Backup: onboarding browser test (screenshot, Nov 19)", { placeholder: "title" });
+tag(s, "TEST EXECUTION", "b-ob");
+const obR = ratioOf("run-onboarding.png");
+img(s, "run-onboarding.png", 0.5, 1.2, 9 / obR, obR, "Terminal: onboarding state machine checks OB-T01 to OB-T14");
+text(s, "O1-O8 are the 8 onboarding screens. OB-T12 is the check that caught end dates before start dates (fixed). OB-T14 is a note, not a failure: the spec doesn't say whether progress survives a reload.", { x: 0.5, y: 1.3 + 9 / obR, w: 9, h: 0.8, fontSize: 12, color: C.accent6, objectName: "b-ob-note" });
+
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Backup: the numbers by method", { placeholder: "title" });
+tag(s, "RESULTS DATA", "b-num");
 table(s, [
-  ["Technique", "Cases", "Defects", "High sev.", "Kind of defect found"],
-  ["Baseline", "499", "0", "0", "-"],
-  ["FSM / BBT", "74", "8", "0", "Event order, two actors, missing transition"],
-  ["PT / BBT", "78", "4", "1", "Unusual and invalid input classes"],
-  ["CFT / WBT", "37", "1", "1", "Hidden fallback branch"],
-  ["Markov-OP / UBST", `${ubst.perRound.reduce((a, r) => a + r.runs, 0)} sessions`, "2", "1", "Failures on common user paths"],
-  ["Walkthrough", "-", "1", "0", "Hard-coded stay dates"],
-], { x: 0.5, y: 1.2, w: 9, colW: [1.9, 1.3, 0.9, 1.0, 3.9], fontSize: 12, rowH: 0.38 });
-text(s, `ODC types: Checking 8, Function 3, Algorithm 2, Assignment 2, Interface 1.  All 16 fixed and retested.  Branch coverage ${cov.baseline.total.branches.toFixed(1)}% -> ${cov.all.total.branches.toFixed(1)}% (same run).`, { x: 0.5, y: 4.15, w: 9, h: 0.7, fontSize: 12, color: C.accent6, objectName: "cmp-note" });
+  ["Method", "Course name", "Tests", "Failed on original", "Problems", "Serious"],
+  ["Old tests", "Baseline", "499", "0", "0", "0"],
+  ["Step-by-step flows", "FSM / black-box", "74", "11", "8", "0"],
+  ["Edge-case inputs", "Partition / black-box", "78", "10", "4", "1"],
+  ["Every code path", "Control flow / white-box", "37", "4", "1", "1"],
+  ["Real user behavior", "Markov usage / UBST", "240 visits", "10 visits", "2", "1"],
+  ["Walkthrough", "-", "-", "-", "1", "0"],
+], { x: 0.5, y: 1.15, w: 9, colW: [1.8, 2.0, 1.1, 1.6, 1.2, 1.3], fontSize: 12, rowH: 0.4 });
+text(s, `Problem types (ODC): missing check 8, missing feature 3, wrong calculation 2, wrong value 2, mismatch between parts 1. Coverage of the riskiest code: ${cov.baseline.total.branches.toFixed(1)}% to ${cov.all.total.branches.toFixed(1)}%.`, { x: 0.5, y: 4.1, w: 9, h: 0.6, fontSize: 12, color: C.accent6, objectName: "b-num-note" });
 
-// 15. Close
-s = pres.addSlide({ masterName: "TITLE_DARK", sectionTitle: "Results" });
-s.addText("What we learned, and next steps", { placeholder: "title" });
-s.addText("Building the model found a defect before any test ran; the default fixture path held half the FSM defects; CFT and UBST reached what black-box tests could not.\nNext: run the /pilot with 10-15 volunteers, re-run UBST on live Supabase, add data flow testing on the finance pipeline.", { placeholder: "body" });
+s = pres.addSlide({ masterName: "CONTENT" });
+s.addText("Backup: documentation and where it lives", { placeholder: "title" });
+tag(s, "DOCUMENTATION", "b-doc");
+table(s, [
+  ["What", "Where (in the repo)"],
+  ["Final report", "docs/testing/Perch_Testing_Final_Report.docx"],
+  ["Models: booking and onboarding state machines", "docs/testing/fsm/"],
+  ["Models: edge-case tables, code-path diagrams", "docs/testing/pt/, docs/testing/cft/"],
+  ["Model: user journey and how it was built", "docs/testing/markov/"],
+  ["Test code", "tests/course/, tests/e2e/"],
+  ["Results of every round, simulated visits", "docs/testing/results/, docs/testing/ubst/"],
+  ["Problem log (all 16, with fixes)", "docs/testing/defect-log.csv"],
+  ["Everything in one offline page", "docs/testing/demo/dashboard.html"],
+], { x: 0.5, y: 1.15, w: 9, colW: [4.3, 4.7], fontSize: 12, rowH: 0.38 });
 
 (async () => {
   const out = path.join(D, "demo/Perch_Testing_Demo.pptx");

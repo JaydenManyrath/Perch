@@ -9,17 +9,17 @@ Docs style: plain ASCII only (matches the repo README).
 | When | Do this |
 | --- | --- |
 | Once, the day before | `git pull`, `npm ci`, then `npm run demo:prepare`. It installs the test browser, builds the app in demo mode and dry-runs every step. It ends with a PASS/FAIL list; all PASS means you are ready. |
-| Demo day, 5 minutes before | Open the slide deck (`docs/testing/demo/Perch_Testing_Demo.pptx`), then run `npm run demo` in a terminal. Share your whole screen on Zoom. |
-| During the call | `npm run demo` walks you through 13 steps in the order of the TA checklist. Each step shows its slide and what to say. Press Enter to run it, `s` to skip, `b` to go back, `q` to quit. Browser steps open a visible Chromium window so the TA can watch. |
+| Demo day, 5 minutes before | Open the slide deck (`docs/testing/demo/Perch_Testing_Demo.pptx`) and a terminal in the repo. Share your whole screen on Zoom. |
+| During the call | Present slides 1-12 (about 10 minutes; each slide's notes have a short script). At slide 13, run `npm run demo` for about 3 minutes of live testing: booking flow, edge cases, code paths, onboarding and 10 user visits in a visible browser, then the summary. Enter runs a step, `s` skips, `r` reruns, `q` quits. |
 | After | Quitting stops the app. Nothing else to clean up. |
 
 Works the same on macOS, Windows and Linux (plain Command Prompt or PowerShell is fine).
 Your own `.env.local` keys are ignored during the demo: it always runs on built-in
 fixture data, so no login and no live database.
 
-## The 13 steps (what `npm run demo` does)
+## The full walkthrough (`npm run demo:full`)
 
-The steps follow the TA's demo checklist in order. Steps 1-5 open the app or a section of
+Not needed for the planned demo; use it if the TA wants to go through everything. The steps follow the TA's demo checklist in order. Steps 1-5 open the app or a section of
 the demo dashboard (`docs/testing/demo/dashboard.html`, works offline); steps 6a-7 run the
 tests live.
 

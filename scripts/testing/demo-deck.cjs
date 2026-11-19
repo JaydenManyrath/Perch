@@ -281,20 +281,7 @@ text(s, [
 note(s, "We ran 4 rounds: test, fix, retest. Live in a few minutes: the same commands.", "ex", { y: 4.65 });
 s.addNotes("KOEN (30 s). These are screenshots from today's run. Each command runs one method's tests: booking flow, edge cases, code paths, and the original 499. Everything passes now. On the original code, 24 of these failed, which is how we know they catch real problems. On the right is the browser test filling in onboarding like a real user.");
 
-// 10. Reliability
-s = pres.addSlide({ masterName: "CONTENT" });
-s.addText("Simulated users: reliability rose from 83% to 100%", { placeholder: "title" });
-tag(s, "RESULTS", "rel");
-s.addChart(pres.charts.BAR, [{ name: "Visits without a failure", labels: ubst.perRound.map((r) => `Round ${r.round}`), values: ubst.perRound.map((r) => Math.round(r.adjustedReliability * 100)) }], {
-  x: 0.4, y: 1.1, w: 4.4, h: 3.3, barDir: "col", chartColors: [HEX.accent1], showTitle: true, title: "Visits with no failure (%), 60 per round",
-  showLegend: false, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0\"%\"", valAxisMinVal: 50, valAxisMaxVal: 108, valAxisHidden: true,
-  valGridLine: { style: "none" }, catGridLine: { style: "none" }, ...chartText,
-});
-img(s, "run-ubst.png", 5.1, 1.15, 2.6, ratioOf("run-ubst.png"), "Terminal: 10 simulated user visits, 0 failed");
-text(s, "Round 1: the housing check broke on sample data (fixed). Round 2: the deck offered places already taken (fixed). Rounds 3-4: 120 visits, 0 failures.", { x: 5.1, y: 3.9, w: 4.5, h: 0.8, fontSize: 11.5, objectName: "rel-text" });
-s.addNotes("JAYDEN (40 s). Each round we ran 60 simulated visits. In round 1, 1 in 6 failed: the housing check broke whenever the app ran on sample data. We fixed it, and round 2 found one more problem: the deck offered places someone else already held. After that fix, 120 visits in a row passed. The screenshot is today's run of 10 visits. We also checked how much this depends on our usage estimates; it moves the number a little, not the trend.");
-
-// 11. Defects found
+// 10. Defects found
 s = pres.addSlide({ masterName: "CONTENT" });
 s.addText("16 problems found and fixed; the old tests found none", { placeholder: "title" });
 tag(s, "RESULTS AND ANALYSIS", "res");
@@ -313,7 +300,7 @@ plainBar(s, ["Old tests (baseline)", "Step-by-step flows", "Edge-case inputs", "
 note(s, "No problem was found by two methods: each one catches a different kind of mistake.", "res", { y: 4.6 });
 s.addNotes("KOEN (35 s). Altogether 16 problems, all fixed and retested, and the original tests caught zero. The booking-flow method found the most. No problem was found twice, so each method earned its place. Three were serious, like these two. Half were rules the app didn't check everywhere. The code-path tests also raised how much of the risky code is tested, from 77 to 83 percent.");
 
-// 12. Takeaways
+// 11. Takeaways
 s = pres.addSlide({ masterName: "TITLE_DARK" });
 s.addText("What we learned", { placeholder: "title" });
 s.addText([
@@ -324,7 +311,7 @@ s.addText([
 ], { placeholder: "body", fontSize: 16, paraSpaceAfter: 6 });
 s.addNotes("JAYDEN (25 s). Three lessons, and one honest limit: we tested on sample data and an estimated user journey, so the reliability number holds for that setup. Next would be real users through the logger we built, and the live database. Now we'll run some of the tests live.");
 
-// 13. Live testing
+// 12. Live testing
 s = pres.addSlide({ masterName: "CONTENT" });
 s.addText("Live testing (about 3 minutes)", { placeholder: "title" });
 tag(s, "LIVE TESTING", "live");
@@ -351,7 +338,7 @@ s.addNotes([
   "4 ONBOARDING (Jayden): let the TA watch the browser. \"A robot fills in onboarding like a user. Continue stays locked until the flagged fields are checked. It also tries an end date before the start date, which the app used to accept.\" Orange OBS line: \"a note, not a failure; the spec doesn't say what happens on a reload.\"",
   "5 SIMULATED USERS (Jayden, about 70 seconds, keep talking): \"10 random visits using the odds from the user-journey diagram. The top lists each screen's planned visits next to the actual ones. Each dot is a visit that passed. A visit fails if a screen doesn't load, the page crashes, or a feature shows an error. Round 1 had 1 in 6 fail; now it's zero.\"",
   "6 SUMMARY (Koen): \"Everything on one screen: tests per method, the 16 problems, 0 caught by the old tests, and reliability by round.\"",
-  "CLOSE (Jayden): \"That's our project. Happy to take questions or run anything else.\" If a step fails twice: \"Here's the same run from today\" and show slides 9, 10, 15, 16.",
+  "CLOSE (Jayden): \"That's our project. Happy to take questions or run anything else.\" If a step fails twice: \"Here's the same run from today\" and show slides 9, 14 and 15.",
 ].join("\n\n"));
 
 // Backup slides

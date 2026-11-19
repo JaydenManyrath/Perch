@@ -3,7 +3,7 @@
  *
  *   npm run demo:prepare   the day before: install the test browser, build the app in
  *                          demo mode, then dry-run every step (prints PASS/FAIL)
- *   npm run demo           the live-testing part at the end of the talk (slide 13):
+ *   npm run demo           the live-testing part at the end of the talk (slide 12):
  *                          booking flow, edge cases, code paths, onboarding and 10 user
  *                          visits in a visible browser, then the summary. Waits for
  *                          Enter before each step, then stops everything at the end
@@ -125,14 +125,14 @@ const STEPS = [
   {
     id: "baseline",
     title: "6a. Execution: the baseline suite",
-    slide: "slide 13",
+    slide: "slide 12",
     say: ["The repo already had 499 tests. They all pass, but they found none of our 16 defects."],
     action: () => run([bin.vitest, "run", "--exclude", "tests/course/**", "--reporter=dot"]),
   },
   {
     id: "fsm",
     title: "6b. Execution: FSM booking state machine",
-    slide: "slide 13",
+    slide: "slide 12",
     say: [
       "7 states, 13 valid transitions (T..), 18 invalid ones (I..), 5 paths (P..), 2 races (C..).",
       "Run against both the live API code and the no-key fixture code. Found 8 defects.",
@@ -142,7 +142,7 @@ const STEPS = [
   {
     id: "onboarding",
     title: "6c. Execution: FSM onboarding, in a real browser",
-    slide: "slide 13",
+    slide: "slide 12",
     say: ["Watch the browser walk all 8 onboarding screens and test the review-screen guard."],
     browser: true,
     action: (show) => run(["tests/e2e/onboarding-fsm.e2e.mjs", APP_URL], { env: show ? { HEADED: "1" } : {} }),
@@ -150,7 +150,7 @@ const STEPS = [
   {
     id: "pt",
     title: "6d. Execution: PT partitions",
-    slide: "slide 13",
+    slide: "slide 12",
     say: [
       "Every input split into valid and invalid classes, both sides of every boundary.",
       "PF-23: \"$45.00 per hour\" used to be read as a $45 yearly salary (D09).",
@@ -160,14 +160,14 @@ const STEPS = [
   {
     id: "cft",
     title: "6e. Execution: CFT branches",
-    slide: "slide 13",
+    slide: "slide 12",
     say: ["CF-35: a server refusal used to take the outage branch and fake a booking (D13)."],
     action: vitest("tests/course/cft-branches.test.ts", "tests/course/cft-source-fallback.test.ts"),
   },
   {
     id: "ubst",
     title: "6f. Execution: UBST, random user sessions in a browser",
-    slide: "slide 13",
+    slide: "slide 12",
     say: [
       "10 sessions drawn from the Markov usage profile, replayed in Chromium.",
       "A session fails on a wrong screen, a page error, a 5xx or a feature error. Dots = passed sessions.",
@@ -182,14 +182,14 @@ const STEPS = [
   {
     id: "regression",
     title: "6g. Execution: regression tests for the later fixes",
-    slide: "slide 13",
+    slide: "slide 12",
     say: ["Each defect found later (D07, D14, D15, D16) got a regression test so it stays fixed."],
     action: vitest("tests/course/regression-round3.test.ts", "tests/course/regression-d16.test.ts"),
   },
   {
     id: "summary",
     title: "7. Results and analysis",
-    slide: "slides 10-11",
+    slide: "slide 10",
     say: ["Per technique: cases, round-1 failures, defects. Then ODC, coverage and UBST reliability.", "The dashboard opens on the defect log and cross-technique analysis."],
     action: async (show, { live } = {}) => {
       const code = await run(["scripts/testing/demo-summary.mjs"]);
@@ -297,7 +297,7 @@ async function check() {
   process.exit(ok ? 0 : 1);
 }
 
-// The live-testing part of the talk, in the order of slide 13.
+// The live-testing part of the talk, in the order of slide 12.
 const LIVE = ["fsm", "pt", "cft", "onboarding", "ubst", "summary"];
 
 async function guided(steps = STEPS, live = false) {

@@ -4,7 +4,7 @@ Jayden Manyrath and Koen Gennis | CS 7314/5314, Fall 2026 | 15-minute TA demo (Z
 
 ## How the 15 minutes go
 
-The TA asked us to bring documentation, diagrams, code, test cases and collected data, and to be ready for live testing. Plan: about 6-7 minutes of slides, then about 3 minutes of live testing at the end, leaving about 5 minutes for questions and discussion of the results (the TA asked us to be ready to discuss them, so that time is useful, not slack). The times below are the speaker notes read at a normal pace plus a few seconds to point at the slide; don't pad them. No switching back and forth. The slides are written for a non-specialist; the technical terms are in the speaker notes and in sections 1-9 below, ready for questions.
+The TA asked us to bring documentation, diagrams, code, test cases and collected data, and to be ready for live testing. Plan: about 6 minutes of slides, then about 3 minutes of live testing at the end, leaving about 5 minutes for questions and discussion of the results (the TA asked us to be ready to discuss them, so that time is useful, not slack). The times below are the speaker notes read at a normal pace plus a few seconds to point at the slide; don't pad them. No switching back and forth. The slides are written for a non-specialist; the technical terms are in the speaker notes and in sections 1-9 below, ready for questions.
 
 | Slide | What it shows | TA's list | Who | Time |
 | --- | --- | --- | --- | --- |
@@ -17,18 +17,17 @@ The TA asked us to bring documentation, diagrams, code, test cases and collected
 | 7 | Diagram 4: the user journey with its odds | Diagrams, collected data (Markov) | Jayden | 0:35 |
 | 8 | Example test cases and the full suite | Test cases | Koen | 0:35 |
 | 9 | Screenshots of today's test runs | Execution | Koen | 0:30 |
-| 10 | Reliability per round, with a screenshot | Results | Jayden | 0:40 |
-| 11 | 16 problems by method, with examples | Results, analysis | Koen | 0:35 |
-| 12 | What we learned, and the limits | Analysis | Jayden | 0:25 |
-| 13 | Live testing: run `npm run demo` | Live testing | Jayden drives, both talk | 3:00 |
-| | **Total** | | | **about 9:30**, leaving 5 min for questions |
-| 14-18 | Backup: full summary, onboarding run, numbers by method (with course names), where every document lives | Documentation | Whoever is asked | |
+| 10 | 16 problems by method, with examples | Results, analysis | Koen | 0:35 |
+| 11 | What we learned, and the limits | Analysis | Jayden | 0:25 |
+| 12 | Live testing: run `npm run demo` | Live testing | Jayden drives, both talk | 3:00 |
+| | **Total** | | | **about 9 minutes**, leaving 6 min for questions |
+| 13-17 | Backup: full summary, onboarding run, numbers by method (with course names), where every document lives | Documentation | Whoever is asked | |
 
 Each slide's speaker notes have a short script in plain words. The presenter split follows our proposal (Jayden: FSM, Markov/UBST, the app; Koen: PT, CFT, baseline and coverage).
 
-**Live testing (slide 13).** `npm run demo` starts the app and runs six steps, one per Enter: booking flow (64 tests), edge cases (78), code paths (37), onboarding in a visible browser (13 checks, about 50 s), 10 simulated user visits in a visible browser (about 70 s), and the summary. `s` skips a step, `r` reruns it, `q` quits. The browser steps are slowed down on purpose so the TA can follow each screen. To change the speed, set `SLOWMO` (milliseconds between actions) before running: in PowerShell `$env:SLOWMO=800; npm run demo` is slower, `$env:SLOWMO=300` is faster (it lasts until you close that terminal). If the TA asks for something else, any single step runs on its own: `npm run demo:baseline`, `demo:regression`, `demo:dashboard`, or `npm run demo:full` for the long checklist walkthrough.
+**Live testing (slide 12).** `npm run demo` starts the app and runs six steps, one per Enter: booking flow (64 tests), edge cases (78), code paths (37), onboarding in a visible browser (13 checks, about 50 s), 10 simulated user visits in a visible browser (about 70 s), and the summary. `s` skips a step, `r` reruns it, `q` quits. The browser steps are slowed down on purpose so the TA can follow each screen. To change the speed, set `SLOWMO` (milliseconds between actions) before running: in PowerShell `$env:SLOWMO=800; npm run demo` is slower, `$env:SLOWMO=300` is faster (it lasts until you close that terminal). If the TA asks for something else, any single step runs on its own: `npm run demo:baseline`, `demo:regression`, `demo:dashboard`, or `npm run demo:full` for the long checklist walkthrough.
 
-**If live testing fails:** press `r` once. If it still fails, go to the backup slides; the screenshots on slides 9, 10, 15 and 16 are from a real run on Nov 19.
+**If live testing fails:** press `r` once. If it still fails, go to the backup slides; the screenshots on slides 9, 14 and 15 are from a real run on Nov 19.
 
 ## How to study this sheet
 
@@ -45,11 +44,11 @@ Sections 1-7 follow the TA's checklist. For each one: where it is in the deck, t
 - The day before, on the laptop you will present from: `git pull`, `npm ci`, `npm run demo:prepare`. It must end with every step PASS.
 - Fill in `docs/testing/effort-log.csv` with your real hours. The TA may ask about cost, and right now we have no hours to show.
 - Open before the call: the slides (`docs/testing/demo/Perch_Testing_Demo.pptx`) and a terminal in the repo. Run nothing yet.
-- On the call: share your whole screen and present the slides. At slide 13, switch to the terminal and run `npm run demo`.
+- On the call: share your whole screen and present the slides. At slide 12, switch to the terminal and run `npm run demo`.
 
-## Live testing script (slide 13, about 3 minutes)
+## Live testing script (slide 12, about 3 minutes)
 
-Jayden types and Koen narrates steps 2 and 3. Read this once on its own before the run-through. The same lines are in slide 13's speaker notes.
+Jayden types and Koen narrates steps 2 and 3. Read this once on its own before the run-through. The same lines are in slide 12's speaker notes.
 
 **Before step 1, on the slide:** "Now the same tests from the screenshots, running live on the fixed app." Switch to the terminal and run `npm run demo`. It starts the app first, which takes a few seconds.
 
@@ -62,7 +61,7 @@ Jayden types and Koen narrates steps 2 and 3. Read this once on its own before t
 
 **Close (Jayden):** "That's our project. Happy to take questions or run anything else." Leave the terminal up; the TA may ask for another command (see the questions section).
 
-**If a step fails:** press `r` once. If it fails again: "That's this laptop; here's the same run from today." Go back to the slides: 9 (test runs), 10 (simulated users), 15 (summary), 16 (onboarding).
+**If a step fails:** press `r` once. If it fails again: "That's this laptop; here's the same run from today." Go back to the slides: 9 (test runs), 14 (summary), 15 (onboarding).
 
 ## 1. System under testing
 
@@ -197,7 +196,7 @@ That is 200 course cases (all in `tests/course`), plus 10 browser cases and 240 
 
 ## 6. Test execution, live, and results
 
-**Show:** slide 9 (screenshots), then live on slide 13 (`npm run demo`).
+**Show:** slide 9 (screenshots), then live on slide 12 (`npm run demo`).
 
 `npm run demo` runs these in order (Enter for each):
 
@@ -208,7 +207,7 @@ That is 200 course cases (all in `tests/course`), plus 10 browser cases and 240 
 | 3 | Code paths (CFT) | about 1 s | 37 pass |
 | 4 | Onboarding in a visible browser (FSM) | about 50 s | 9 PASS lines, plus 1 OBS observation |
 | 5 | 10 simulated user visits in a visible browser (UBST) | about 70 s | dots = passed visits; ends "10 runs, 0 failed, R = 1" |
-| 6 | Summary | instant | the numbers on slides 10-11 |
+| 6 | Summary | instant | the numbers on slide 10, plus reliability per round |
 
 On request: `npm run demo:baseline` (499 cases: 492 pass, 7 skipped, about 14 s) and `npm run demo:regression` (11 pass).
 
@@ -227,7 +226,7 @@ On request: `npm run demo:baseline` (499 cases: 492 pass, 7 skipped, about 14 s)
 
 ## 7. Result data and analysis
 
-**Show:** slides 10-12; backup slides 15 and 17 for the full numbers. Dashboard section 7 has the defect log.
+**Show:** slides 10-11, and the live summary for reliability per round; backup slides 14 and 16 for the full numbers. Dashboard section 7 has the defect log.
 
 **Defects: 16 found, all 16 fixed and retested.**
 
@@ -394,7 +393,7 @@ The same answers sit in their own sections too; this is the list for the quiz ro
 - *Is this the real app?* Yes. The tests run the real route handlers and library code, and the browser tests click through a real production build. (Section 1)
 - *Why these four methods?* Each targets a different kind of mistake. Booking needs order (FSM), the rules are numbers and dates (PT), error paths are hidden from black-box tests (CFT), and usage-based testing puts effort where users go and gives a reliability number (Markov/UBST). (Section 4)
 - *What is the baseline?* The repo's existing 499-case suite, measured before we wrote anything: 77.3% branch coverage on the target modules, 0 defects found. (Section 7)
-- *Why sample data and not the real database?* Repeatable runs, no risk to real users, and it's the app's default mode with no keys. The limit is that nothing ran against the real Supabase; we say so on slide 12. (Honest limits)
+- *Why sample data and not the real database?* Repeatable runs, no risk to real users, and it's the app's default mode with no keys. The limit is that nothing ran against the real Supabase; we say so on slide 11. (Honest limits)
 
 **About the data and models**
 
@@ -418,7 +417,7 @@ The same answers sit in their own sections too; this is the list for the quiz ro
 - *What does the orange OBS line in onboarding mean?* An observation, not a failure: the spec doesn't say whether onboarding progress should survive a reload, so we record what happens. (Live testing script)
 - *Which problem was most serious?* D09 ($45/hour read as $45/year, so everything looked unaffordable), D13 (a refused booking showed a fake success) and D15 (the housing check broke in sample-data mode) were rated high. (Section 8)
 - *What about other techniques?* Boundary testing is built into our PT cases. Data flow testing would fit the finance pipeline (offer letter → take-home → budget) and is the natural next one. (Section 7)
-- *What would you do next?* Run the `/pilot` with 10-15 volunteers to replace the estimated usage profile, rerun the simulated users against the real database, and add data flow testing. (Slide 12)
+- *What would you do next?* Run the `/pilot` with 10-15 volunteers to replace the estimated usage profile, rerun the simulated users against the real database, and add data flow testing. (Slide 11)
 - *What are the limits?* Read the "Honest limits" section below; say them before the TA asks.
 
 ## Honest limits (say these before the TA asks)

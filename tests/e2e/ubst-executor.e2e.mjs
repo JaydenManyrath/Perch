@@ -144,8 +144,10 @@ async function landed(p, screen) {
   }
 }
 
-// HEADED=1 shows the browser (slowed down) so a demo audience can watch each step.
-const browser = await chromium.launch(process.env.HEADED ? { headless: false, slowMo: 250 } : {});
+// HEADED=1 shows the browser, slowed down so a demo audience can follow each step.
+// SLOWMO sets the pause between actions in ms (default 350); headless runs are not slowed.
+const slowMo = Number(process.env.SLOWMO) || 350;
+const browser = await chromium.launch(process.env.HEADED ? { headless: false, slowMo } : {});
 const runs = [];
 let envNoise = 0;
 const started = Date.now();

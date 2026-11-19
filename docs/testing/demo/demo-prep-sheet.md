@@ -42,7 +42,7 @@ Sections 1-7 follow the TA's checklist. For each one: where it is in the deck, t
 
 - Sign up for a slot on the TA's sheet (demos run Nov 10-20, weekday evenings 6:30-9:00).
 - The day before, on the laptop you will present from: `git pull`, `npm ci`, `npm run demo:prepare`. It must end with every step PASS.
-- Fill in `docs/testing/effort-log.csv` with your real hours. The TA may ask about cost, and right now we have no hours to show.
+- Fill in `docs/testing/effort-log.csv` with your real hours (for the final report).
 - Open before the call: the slides (`docs/testing/demo/Perch_Testing_Demo.pptx`) and a terminal in the repo. Run nothing yet.
 - On the call: share your whole screen and present the slides. At slide 12, switch to the terminal and run `npm run demo`.
 
@@ -256,15 +256,11 @@ On request: `npm run demo:baseline` (499 cases: 492 pass, 7 skipped, about 14 s)
 - **Sensitivity (round 1 data):** changing the booking or onboarding-abandonment probability by ±50% moves predicted reliability by less than 0.01. Changing how often users open negotiate moves it to 0.94 (x0.5) or 0.84 (x1.5). The estimate is sensitive exactly where the failures were, which is why the reliability figures depend on the profile.
 - **Two UBST failures were not app bugs.** UB-015 and UB-032 were mistakes in our own test script; we investigated, documented them in `ubst/triage.json`, and report reliability with and without them.
 
-**The questions the course asks (have these answers ready):**
+**Likely questions (about slides 10-11):**
 
-- *How do you know a technique worked?* Answer with applicability, effectiveness and cost (next three points).
-- **Applicability:** each found the kind of defect its model targets, and no defect was found by two techniques.
-- **Effectiveness:** 16 defects against the baseline's 0. FSM found the most; PT, CFT and UBST each found one of the three high-severity ones.
-- **Cost:** every suite runs in seconds, so model building and triage were the real cost (see the effort log).
-- *What is the baseline?* The repo's existing 499-case suite, measured before we wrote anything: 77.3% branch coverage on the target modules and 0 defects found.
-- *What about other techniques?* Boundary testing is already built into our PT cases. Data flow testing would fit the finance pipeline (offer letter → take-home → budget) and is the natural next one.
-- *Is quality getting better?* Yes: failing course cases went from 25 to 0, UBST reliability from 0.83 to 1.00, and none of the existing 499 tests regressed. The GitHub Actions workflow now runs all suites on every push.
+- *How do you know a technique worked?* Each found the kind of problem its model targets, and no problem was found by two methods (slide 10). 16 problems against the old tests' 0; the booking-flow method found the most, and edge cases, code paths and simulated users each found one of the three serious ones.
+- *What is the baseline?* The 499 tests the app already had, run before we wrote anything: they all passed, reached about 77% of the decision points in the riskiest code, and caught 0 of the 16 problems (slide 3).
+- *Is quality getting better?* Yes. The course tests went from 24 failures on the original code to 0 (slide 9), all 16 problems are fixed and retested, and none of the 499 old tests broke. The live summary also shows simulated-user visits going from 83% to 100% without failure.
 
 ## 8. Every defect: what went wrong, how it was found, how it was fixed
 
@@ -385,40 +381,44 @@ For each: what it means, and the sentence to say if the TA asks.
 
 ## All likely questions in one place
 
-The same answers sit in their own sections too; this is the list for the quiz round. Course names are in brackets: step-by-step flows = FSM, edge-case inputs = PT, every code path = CFT, real user behavior = Markov usage profile / UBST.
+The TA only knows what we show her, so these are the questions the slides and the live testing can raise, with the slide each one comes from. The same answers also sit in sections 1-7. Course names are in brackets: step-by-step flows = FSM, edge-case inputs = PT, every code path = CFT, real user behavior = Markov usage model / UBST.
 
-**About the app and the approach**
+**Slides 2-3: the app and the starting point**
 
-- *Why these parts of the app?* They are the riskiest. Booking depends on the order of events, the verdict rules are numbers and dates, and the fallback and expiry code is full of rarely-run branches. (Section 1)
-- *Is this the real app?* Yes. The tests run the real route handlers and library code, and the browser tests click through a real production build. (Section 1)
-- *Why these four methods?* Each targets a different kind of mistake. Booking needs order (FSM), the rules are numbers and dates (PT), error paths are hidden from black-box tests (CFT), and usage-based testing puts effort where users go and gives a reliability number (Markov/UBST). (Section 4)
-- *What is the baseline?* The repo's existing 499-case suite, measured before we wrote anything: 77.3% branch coverage on the target modules, 0 defects found. (Section 7)
-- *Why sample data and not the real database?* Repeatable runs, no risk to real users, and it's the app's default mode with no keys. The limit is that nothing ran against the real Supabase; we say so on slide 11. (Honest limits)
+- *Is this the real app?* Yes. The screenshots are the real app, the tests run its real code, and the browser tests click through a real build of it.
+- *Why test those parts of the app?* They're the riskiest: booking depends on the order of actions, the budget rules are numbers and dates, and the backup and error code is rarely exercised.
+- *Why sample data and not the real database?* Runs are repeatable and never touch real users, and it's how the app runs by default without keys. The limit is that nothing ran against the real database; we say so on slide 11.
+- *What does "77% of decision points" mean?* Of all the if/else branches in the riskiest code, the old tests went down about 77%. Our code-path tests raised that to about 83%.
+- *Why these four methods?* Each targets a different kind of mistake: the order of actions, edge-case numbers and dates, hidden code paths, and what real users do. Slide 10 shows no problem was found by two of them.
 
-**About the data and models**
+**Slides 4-7: data and diagrams**
 
-- *Where did the usage probabilities come from?* Team estimates of the designed journey, because Perch has no real users yet. We built `/pilot` so volunteers can record real navigation, and `scripts/testing/pilot-profile.ts` turns those logs into a refined profile. The pilot hasn't been run; say so plainly. (Section 2)
-- *Why build the booking model from the spec instead of the code?* A model built from the code can only confirm what the code already does. One built from the spec can show where the code disagrees with what it should do. (Section 2)
-- *What did the analysis change?* It decided where the tests went: white-box and FSM effort on the low-coverage modules, and most simulated visits on the feed and the deck, where users spend their time. (Section 3)
-- *How sensitive is reliability to your usage estimates?* Changing booking or abandonment odds by ±50% moves it by less than 0.01. Changing how often users open the housing check moves it to 0.94 or 0.84, because that's where the round 1 failures were. (Section 7)
+- *Where did the user-journey odds come from?* Our own estimates of how interns move through the app, because Perch has no real users yet. We built an opt-in logger to collect real data later; it hasn't been run.
+- *Why build the booking diagram from the written rules instead of the code?* A model built from the code can only confirm what the code already does. One built from the rules can show where the code is wrong.
+- *What did the coverage chart change?* It told us where to aim: bookings, the backup path and the expiry job were barely tested, so the booking-flow and code-path tests went there.
+- *How did drawing the diagram find a problem?* The rules say an intern can cancel a booking, but when we drew every arrow, the app had no way to do it.
+- *Why test both sides of every limit?* Mistakes cluster at edges: $2,000 vs $2,001, 7 vs 8 days. One case on each side catches a limit that is off by one.
+- *What counts as a failed simulated visit?* A screen doesn't load, the page crashes, the server errors, or a feature shows an error message.
 
-**About the test cases**
+**Slides 8-9: test cases and running them**
 
-- *How do the test cases trace to the models?* Each ID maps to one model element: T05 is booking transition 5, PL-05 a row of the lease partition table, CF-35 one edge of code-path graph 6. That's how we show transition, class and branch coverage. (Section 5)
-- *How do we know these are real tests and not tests written to pass?* On commit `bfad1d9` (the original code) the course suites fail 24 times; on `main` they all pass. The D16 tests fail 4 of 5 on the pre-fix code. Expected values came from the spec and hand calculation, not the code's output. Live proof: `git checkout bfad1d9`, `npx vitest run tests/course`, then `git checkout main` and run it again. (Section 6)
-- *Can you run something else?* `npm run demo:baseline` (the 499 old tests), `npm run demo:regression` (tests that keep later fixes fixed), `npm run demo:dashboard` (every model and test case), `npm run demo:summary`.
+- *How do the test IDs trace to the diagrams?* Each ID is one piece of a diagram: T and I are allowed and refused booking steps, C is two people at once, PB and PF are edge-case ranges, CF is one branch of the flowchart, OB is an onboarding screen.
+- *How do we know these are real tests, not tests written to pass?* On the original code 24 of them failed (slide 9); on the fixed code they all pass. The right answers came from the rules and hand calculation, not from the code's output. To prove it live: `git checkout bfad1d9`, `npx vitest run tests/course`, then `git checkout main` and run it again.
+- *What were the 4 rounds?* Test, fix, retest. Round 1 on the original code found 15 of the 16 problems. Round 2, after the first fixes, found the last one (the deck offering places already taken). Rounds 3 and 4 found nothing new and confirmed every fix.
 
-**About results and analysis**
+**Slides 10-11: results**
 
-- *How do you know a technique worked?* Answer with three points. Applicability: each found the kind of defect its model targets, and no defect was found by two techniques. Effectiveness: 16 defects against the baseline's 0; FSM found the most, and PT, CFT and UBST each found one of the three high-severity ones. Cost: every suite runs in seconds, so building the models and triaging failures was the real cost. (Section 7)
-- *How long did it take?* Answer from `effort-log.csv`. Fill it in before the demo; right now it is blank.
-- *Is quality getting better?* Yes. Failing course cases went from 25 to 0, simulated-user reliability from 0.83 to 1.00, and none of the existing 499 tests regressed. GitHub Actions now runs every suite on every push. (Section 7)
-- *Why don't two of the simulated-user failures count?* UB-015 and UB-032 were mistakes in our own test script, not the app. They're documented in `ubst/triage.json`, and we report reliability with and without them. (Section 7)
-- *What does the orange OBS line in onboarding mean?* An observation, not a failure: the spec doesn't say whether onboarding progress should survive a reload, so we record what happens. (Live testing script)
-- *Which problem was most serious?* D09 ($45/hour read as $45/year, so everything looked unaffordable), D13 (a refused booking showed a fake success) and D15 (the housing check broke in sample-data mode) were rated high. (Section 8)
-- *What about other techniques?* Boundary testing is built into our PT cases. Data flow testing would fit the finance pipeline (offer letter → take-home → budget) and is the natural next one. (Section 7)
-- *What would you do next?* Run the `/pilot` with 10-15 volunteers to replace the estimated usage profile, rerun the simulated users against the real database, and add data flow testing. (Slide 11)
-- *What are the limits?* Read the "Honest limits" section below; say them before the TA asks.
+- *Which problems were most serious?* "$45 per hour" read as $45 a year, so every place looked unaffordable; a refused booking showed a fake "booked"; and the housing check broke in sample-data mode.
+- *How do you know a method worked?* It found the kind of problem it targets, and nothing another method found. 16 problems against the old tests' 0.
+- *Is quality getting better?* Yes: 24 failing tests to 0, all 16 problems fixed and retested, and none of the 499 old tests broke.
+- *What would you do next?* Collect real user data with the logger to replace our estimated journey, and run the tests against the real database.
+- *What are the limits?* Read "Honest limits" below; say them before she asks.
+
+**Slide 12: live testing**
+
+- *What does the orange OBS line mean?* A note, not a failure: the rules don't say whether onboarding should remember progress after a reload, so we record what happens.
+- *What are the dots in the simulated-users step?* One dot per visit that passed. "R = 1" means all 10 passed.
+- *Can you run something else?* `npm run demo:baseline` (the 499 old tests), `npm run demo:regression` (tests that keep later fixes fixed), or `npm run demo:summary`.
 
 ## Honest limits (say these before the TA asks)
 
